@@ -19,10 +19,10 @@ class CreateCodesTable extends Migration
             $table->unsignedBigInteger('group_id');
             $table->unsignedBigInteger('subgroup_id')->nullable();
             $table->string('code', 17)->nullable(false)->unique();
-            $table->string('name_kk',256)->nullable(false);
-            $table->string('name_ru',256)->nullable(false);
-            $table->string('description_kk',256);
-            $table->string('description_ru',256);
+            $table->string('name_kk',300)->nullable(false);
+            $table->string('name_ru',300)->nullable(false);
+            $table->string('description_kk',1024);
+            $table->string('description_ru',1024);
             $table->boolean('isZKS');
             $table->timestamps();
             $table->foreign('group_id')->references('id')->on('groups')

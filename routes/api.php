@@ -30,9 +30,6 @@ Route::group(['middleware' => ['json.response']], function () {
     Route::post('/register', 'Api\AuthController@register')->name('register.api');
 
     // private routes
-    Route::get('/api/change-locale', 'Api\TRUController@changeLocale');
-    Route::get('/api/get-locale', 'Api\TRUController@getLocale');
-
     Route::namespace('Api')->middleware('auth:api')->group(function () {
         Route::get('/users', 'UsersController@index');
         Route::get('/users/{user}', 'UsersController@show');

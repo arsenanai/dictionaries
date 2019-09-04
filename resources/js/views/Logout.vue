@@ -1,7 +1,7 @@
 <template>
     <div>
         <p>
-            <span v-if=loading>{{ $t('logout.message') }}</span>
+            <span v-if=loading>{{$t('logout.message')}}</span>
         </p>
     </div>
 </template>

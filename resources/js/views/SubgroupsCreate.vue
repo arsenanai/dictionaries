@@ -98,11 +98,11 @@
         }*/
       if(this.subgroup.name_ru==="" 
           || this.subgroup.name_ru===null){
-          this.validation.name_ru = this.$i18n.t("Name in kazakh can not be empty")
+          this.validation.name_ru = this.$i18n.t('Name in kazakh can not be empty')
           result = false;
         }
         if(this.subgroup.group == null){
-          this.validation.group = this.$i18n.t("Group have to be choosen")
+          this.validation.group = this.$i18n.t('Group have to be choosen')
         }
       return result
     },

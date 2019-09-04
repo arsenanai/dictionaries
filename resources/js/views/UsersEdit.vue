@@ -77,11 +77,11 @@ export default {
 	  	var result = true;
 	  	if(this.user.name==="" 
 	  		|| this.user.name===null){
-	  		this.validation.name = this.$i18n.t("Name can not be empty")
+	  		this.validation.name = this.$i18n.t('Name can not be empty')
 	  		result = false;
 	  	}
 		if(this.validateEmail(this.user.email)===false){
-			this.validation.email = this.$i18n.t("Specify valid email")
+			this.validation.email = this.$i18n.t('Specify valid email')
 			result = false
 	  }
 	  return result

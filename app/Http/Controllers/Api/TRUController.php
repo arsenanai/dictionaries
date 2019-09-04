@@ -151,10 +151,10 @@ class TRUController extends Controller
 	public function createCode(Code $code, Request $request){
 		$data = $request->validate([
 	        'code' => 'required|string|between:17,17|unique:codes',
-	        'name_kk' => 'required|string|max:256',
-	        'name_ru' => 'required|string|max:256',
-	        'description_kk' => 'string|max:256',
-	        'description_ru' => 'string|max:256',
+	        'name_kk' => 'required|string|max:300',
+	        'name_ru' => 'required|string|max:300',
+	        'description_kk' => 'string|max:1024',
+	        'description_ru' => 'string|max:1024',
 	        'isZKS' => 'boolean',
 	        'group.id' => 'required|exists:groups,id',
 	    ]);
@@ -197,10 +197,10 @@ class TRUController extends Controller
 	public function updateCode(Code $code, Request $request){
 		$data = $request->validate([
 	        'code' => 'required|string|between:17,17',
-	        'name_kk' => 'required|string|max:256',
-	        'name_ru' => 'required|string|max:256',
-	        'description_kk' => 'string|max:256',
-	        'description_ru' => 'string|max:256',
+	        'name_kk' => 'required|string|max:300',
+	        'name_ru' => 'required|string|max:300',
+	        'description_kk' => 'string|max:1024',
+	        'description_ru' => 'string|max:1024',
 	        'isZKS' => 'boolean',
 	        'group.id' => 'required|exists:groups,id',
 	        'subgroup.id' => 'exists:subgroups,id'
@@ -470,11 +470,6 @@ class TRUController extends Controller
 			'affected_rows' => $affectedRows
  		];
 	    return response($response, 200);
-	}
-
-	public function changeLocale(Request $request){
-		$lang = $request->input('lang');
-		
 	}
 
 	public function sync(Request $request){

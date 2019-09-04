@@ -84,12 +84,12 @@ export default {
 	  	var result = true;
 	  	if(this.group.name_kk==="" 
 	  		|| this.group.name_kk===null){
-	  		this.validation.name_kk = this.$i18n.t("Name in kazakh can not be empty")
+	  		this.validation.name_kk = this.$i18n.t('Name in kazakh can not be empty')
 	  		result = false;
 	  	}
 		if(this.group.name_ru==="" 
 	  		|| this.group.name_ru===null){
-	  		this.validation.name_ru = this.$i18n.t("Name in russian can not be empty")
+	  		this.validation.name_ru = this.$i18n.t('Name in russian can not be empty')
 	  		result = false;
 	  	}
 	  return result

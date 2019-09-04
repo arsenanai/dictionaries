@@ -2,7 +2,7 @@
     <div class="container">
         <div class="row">
             <div class="col-md-4 offset-md-4">
-                <h2>{{ $t('login.page_title') }}</h2>
+                <h2>{{$t('login.page_title')}}</h2>
                 <hr>
                 <form>
                   <div class="form-group">
@@ -13,7 +13,7 @@
                     <label for="exampleInputPassword1">Password</label>
                     <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password" v-model="pass">
                   </div>
-                  <button type="submit" class="btn btn-primary"
+                  <button type="submit" class="btn btn-outline-primary"
                     @click.prevent="submit" :disabled="!(login.length>0 && pass.length>0)">
                         {{$t('Login')}}
                     </button>

@@ -24,10 +24,10 @@
           </ul>
           <ul class="navbar-nav">
               <li class="nav-item">
-                  <a @click.prevent="changeLocale('kk')" class="nav-link">Қаз</a>
+                  <a :class="{'active': $i18n.locale==='kk'}" @click.prevent="changeLocale('kk')" class="nav-link">Қаз</a>
               </li>
               <li class="nav-item">
-                  <a @click.prevent="changeLocale('ru')" class="nav-link">Рус</a>
+                  <a :class="{'active': $i18n.locale==='ru'}" @click.prevent="changeLocale('ru')" class="nav-link">Рус</a>
               </li>
               <li class="nav-item">
                 <router-link v-if="authenticated()==true" class="nav-link" active-class="active" :to="{ name: 'auth.logout' }">
@@ -59,29 +59,41 @@
             },
             changeLocale(lang){
               this.$i18n.locale = lang
+              axios.defaults.headers.common['Accept-Language'] = lang
+              document.querySelector('html').setAttribute('lang', lang)
               localStorage.setItem(this.appLanguage, lang)
-                params = {}
-                params.lang = lang
-                axios.get('/api/change-locale',{params})
-              .then(response => {
-                  console.log('locale changed in server: '+response.data)
-              }).catch(error => {
-                  console.log(error)
-              });
             }
         },
         created(){
           if(localStorage.getItem(this.appLanguage)){
             this.$i18n.locale = localStorage.getItem(this.appLanguage)
-          }else{
-            axios.get('/api/get-locale')
-              .then(response => {
-                  console.log(response.data)
-                  //localStorage.setItem(this.appLanguage, response.data)
-              }).catch(error => {
-                  console.log(error)
-              });
+            axios.defaults.headers.common['Accept-Language'] = this.$i18n.locale
+              document.querySelector('html').setAttribute('lang', this.$i18n.locale)
           }
         },
     }
 </script>
+
+<style type="text/css">
+    .page-number{
+        width: 63px;
+        text-align: center;
+        border: 1px solid #dee2e6;
+        margin-left: -1px;
+        color: #6c757d;
+    }
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+      -webkit-appearance: none; 
+      margin: 0; 
+    }
+    .selected, .selected:hover{
+        color: #007bff;
+    }
+    .table-sm th, .table-sm td {
+        font-size:0.8rem;
+    }
+    .name-cell{
+        max-width:200px;
+    }
+</style>

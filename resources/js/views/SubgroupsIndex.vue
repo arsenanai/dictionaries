@@ -115,7 +115,7 @@
             </table>
         </div>
         <span class="alert alert-warning" v-if="selectedAll || selectedItems.length>0">
-            {{$t("Total selected")}}: {{totalSelected()}}
+            {{$t('Total selected')}}: {{totalSelected()}}
         </span>
         <div class="modal fade" id="migrationModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
           <div class="modal-dialog" role="document">
@@ -420,27 +420,3 @@ export default {
     }
 }
 </script>
-
-<style type="text/css">
-    .page-number{
-        width: 42px;
-        text-align: center;
-        border: 1px solid #dee2e6;
-        margin-left: -1px;
-        color: #6c757d;
-    }
-    input[type=number]::-webkit-inner-spin-button, 
-    input[type=number]::-webkit-outer-spin-button { 
-      -webkit-appearance: none; 
-      margin: 0; 
-    }
-    .selected, .selected:hover td, .selected:hover th{
-        color: #007bff;
-    }
-    .table-sm th, .table-sm td {
-        font-size:0.9rem;
-    }
-    .name-cell{
-        max-width:200px;
-    }
-</style>
