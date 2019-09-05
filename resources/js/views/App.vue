@@ -10,16 +10,16 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
           <ul class="navbar-nav mr-auto">
             <li class="nav-item">
-              <router-link v-if="authenticated()==true" class="nav-link" active-class="active" :to="{ name: 'users.index' }">Users</router-link>
+              <router-link v-if="authenticated()==true" class="nav-link" active-class="active" :to="{ name: 'users.index' }">{{$t('Users')}}</router-link>
             </li>
             <li class="nav-item">
-                <router-link v-if="authenticated()==true" class="nav-link" active-class="active" :to="{ name: 'groups.index' }">Groups</router-link>
+                <router-link v-if="authenticated()==true" class="nav-link" active-class="active" :to="{ name: 'groups.index' }">{{$t('Groups')}}</router-link>
             </li>
             <li class="nav-item">
-                <router-link v-if="authenticated()==true" class="nav-link" active-class="active" :to="{ name: 'subgroups.index' }">Subgroups</router-link>
+                <router-link v-if="authenticated()==true" class="nav-link" active-class="active" :to="{ name: 'subgroups.index' }">{{$t('Subgroups')}}</router-link>
             </li>
             <li class="nav-item">
-                <router-link v-if="authenticated()==true" class="nav-link" active-class="active" :to="{ name: 'codes.index' }">Codes</router-link>
+                <router-link v-if="authenticated()==true" class="nav-link" active-class="active" :to="{ name: 'codes.index' }">{{$t('Codes')}}</router-link>
             </li>
           </ul>
           <ul class="navbar-nav">

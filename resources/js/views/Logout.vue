@@ -1,6 +1,6 @@
 <template>
-    <div>
-        <p>
+    <div class="container">
+        <p class="text-center">
             <span v-if=loading>{{$t('logout.message')}}</span>
         </p>
     </div>

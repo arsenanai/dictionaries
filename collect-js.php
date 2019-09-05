@@ -1,46 +1,49 @@
 <?php
 
-echo 'collecting messages from .js sources'.PHP_EOL;
+echo 'collecting messages from .vue sources'.PHP_EOL;
 
 $dir = new DirectoryIterator(dirname(__FILE__)."/resources/js/views");
 $messages = array();
 
-function findPositions($html,$needle){
-	$lastPos = 0;
-	$positions = array();
-
-	while (($lastPos = strpos($html, $needle, $lastPos))!== false) {
-	    $positions[] = $lastPos;
-	    $lastPos = $lastPos + strlen($needle);
-	}
-
-	return $positions;
-}
-
-function getMessagesFromLine($line,$prefix,$postfix){
-	if (strpos($line, $begin) !== false) {
-		$positions = findPositions($line, $prefix);
-		foreach ($positions as $value) {
-		    echo $value ."<br />";
+function myArrayPush(&$array, $item){
+	$found = false;
+	for($i=0;$i<sizeof($array);$i++)
+		if($array[$i]===$item){
+			$found = true;
+			break;
 		}
-	}
+	if($found===false)
+		array_push($array, $item);
 }
 
 foreach ($dir as $fileinfo) {
     if (!$fileinfo->isDot()) {
         $fileinfo->getFilename();
         $fh = fopen(dirname(__FILE__)."/resources/js/views/" . $fileinfo->getFilename(),'r');
-		//reading input file
 		while ($line = fgets($fh)) {
 		  //{{$t('Group')}}
 		  //this.$i18n.t('Code')
-		  if (strpos($line, '{{$t') !== false) {
+			//'#\[(.*?)\]#'
+			$pattern = '#\{\{\$t\(\'(.*?)\'\)\}\}#';
+			$matches = preg_match_all($pattern, $line, $match);
+			for($i=0;$i<$matches;$i++)
+				myArrayPush($messages, $match[1][$i]);
 
-		  }
-		  if (strpos($line, '$i18n.t(') !== false) {
-
-		  }
+			$pattern = '#\$i18n\.t\(\'(.*?)\'\)#';
+			$matches = preg_match_all($pattern, $line, $match);
+			for($i=0;$i<$matches;$i++)
+				myArrayPush($messages, $match[1][$i]);
 		}
 		fclose($fh);
     }
 }
+sort($messages);
+//echo sizeof($messages).PHP_EOL;
+$fp = fopen(__DIR__ . '/messages_js.txt', 'w');
+for($i=0;$i<sizeof($messages);$i++){
+	if(!empty($messages[$i])){
+		$line = $messages[$i];
+		fwrite($fp, "'".$line."':'',".PHP_EOL);
+	}
+}
+fclose($fp);
