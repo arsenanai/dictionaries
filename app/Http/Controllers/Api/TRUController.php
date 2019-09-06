@@ -12,6 +12,9 @@ use App\Http\Resources\GroupResource;
 use App\Http\Resources\SubgroupResource;
 use App\Http\Resources\CodeResource;
 use Illuminate\Support\Facades\DB;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Writer\Xls;
 
 class TRUController extends Controller
 {
@@ -470,6 +473,89 @@ class TRUController extends Controller
 			'affected_rows' => $affectedRows
  		];
 	    return response($response, 200);
+	}
+
+	public function excel(Request $request){
+		try{
+			$sortBy = $request->input('sort');
+	    	$order = $request->input('order');
+	    	$group_name = $request->input('group_name');
+	    	$subgroup_name = $request->input('subgroup_name');
+	    	$code = $request->input('code');
+	    	$name = $request->input('name');
+	    	$description = $request->input('description');
+	    	$isZKS = $request->input('isZKS');
+	    	$lang = $request->input('lang');
+	    	$lang = ($lang=='ru')?'ru':'kk';
+	    	App::setLocale($lang);
+	    	$query = DB::table('codes')
+	    		->select('codes.id as id','codes.name_'.$lang.' as name_'.$lang,'codes.description_'.$lang.' as description_'.$lang,'codes.code as code',
+	    			'groups.name_'.$lang.' as group_name_'.$lang, 'subgroups.name_'.$lang.' as subgroup_name_'.$lang
+	    	);
+	    		//->with('group')
+	    		//->with('subgroup');
+	    	$query = $query->join('groups', 'groups.id','=','codes.group_id');
+	    	$query = $query->join('subgroups', 'subgroups.id','=','codes.subgroup_id');
+	    	if($group_name!=null)
+	    		$query = $query->where('groups.name_'.$lang, 'ilike', '%'.$group_name.'%');
+	    	if($subgroup_name!=null)
+	    		$query = $query->where('subgroups.name_'.$lang, 'ilike', '%'.$subgroup_name.'%');
+	    	if($code!==null )
+	    		$query = $query->where('code','ilike', $code.'%');
+	    	if($name!==null)
+	    		$query = $query->were('name_'.$lang,'ilike', '%'.$name.'%');
+	    	if($description!==null)
+	    		$query = $query->where('description_'.$lang,'ilike', '%'.$description.'%');
+	    	if($isZKS != null)
+	    		$query = $query->where('isZKS',($isZKS==='false') ? false : true);
+	    	if(in_array($sortBy,array('id','code','name_kk','name_ru','description_kk','description_ru')))
+	    		$query = $query->orderBy('codes.'.$sortBy,($order==='desc')?'desc':'asc');
+
+	    	
+	    	$items = $query->get();
+	    	/*$query->chunk(10000, function ($is) use($items){
+			  array_merge($items, $is->toArray());
+			});*/
+			//echo json_encode($items); exit;
+
+			header('Content-Type: text/csv');
+			header('Content-Disposition: attachment; filename="codes.csv"');
+
+			$fp = fopen('php://output', 'wb');
+			fputcsv($fp, array('Id',__('Group'),__('Subgroup'),__('Code'),__('Name'),__('Description')));
+			foreach ( $items as $i ) {
+			    fputcsv($fp, array($i->id,$i->group_name_ru,$i->subgroup_name_ru,$i->code,$i->name_ru,$i->description_ru));
+			}
+			fclose($fp);
+	    	/*$spreadsheet = new Spreadsheet();
+			$sheet = $spreadsheet->getActiveSheet();
+			$sheet->setCellValue('A1', 'Id');
+			$sheet->setCellValue('B1', __('Group'));
+			$sheet->setCellValue('C1', __('Subgroup'));
+			$sheet->setCellValue('D1', __('Code'));
+			$sheet->setCellValue('E1', __('Name'));
+			$sheet->setCellValue('F1', __('Description'));
+			
+			$rows = 2;
+			foreach($items as $i){
+				//echo $i->name_ru; exit; 
+				$sheet->setCellValue('A' . $rows, $i->id);
+				$sheet->setCellValue('B' . $rows, $i->group_name_ru);
+				$sheet->setCellValue('C' . $rows, $i->subgroup_name_ru);
+				$sheet->setCellValue('D' . $rows, $i->code);
+				$sheet->setCellValue('E' . $rows, $i->name_ru);
+				$sheet->setCellValue('F' . $rows, $i->description_ru);
+				$rows++;
+			}
+			echo 'without error till here'; exit;
+			//$fileName = "codes.xlsx";
+			$writer = new Xlsx($spreadsheet);
+			header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    		header('Content-Disposition: attachment; filename="codes.xlsx"');
+			$writer->save("php://output");*/
+		}catch(\Exception $e){
+			echo $e->getMessage(); exit;
+		}
 	}
 
 	public function sync(Request $request){

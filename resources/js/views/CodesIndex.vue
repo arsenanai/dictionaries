@@ -53,6 +53,9 @@
                         data-toggle="modal" data-target="#migrationModal">
                         {{$t('Migrate')}}
                     </a>
+                    <a class="btn btn-outline-secondary mb-2 mr-sm-2" :href="getExportLink()" target="_blank">
+                        CSV
+                    </a>
                 </form>
             </div>
         </div>
@@ -249,6 +252,7 @@ export default {
     },
     mounted(){
         this.fetchData()
+        axios.defaults.headers.common['Accept-Language'] = this.$i18n.locale
     },
     watch:{
         '$route': 'fetchData'
@@ -278,7 +282,7 @@ export default {
             var params = {} 
             if(page>1)
                 params.page = page
-            if(this.queries.group_name || this.queries.subgroup_name || this.queries.name || this.queries.description)
+            //if(this.queries.group_name || this.queries.subgroup_name || this.queries.name || this.queries.description)
                 params.lang = this.$i18n.locale
             const keys = Object.keys(this.queries)
             for(const key of keys){
@@ -492,6 +496,31 @@ export default {
                 return this.meta.total
             else
                 return this.selectedCodes.length
+        },
+        getExportLink(){
+            var params = this.fillParams()
+            if(params['sort']==null && params['order']==null){
+                params['sort']='id'
+                params['order']='asc'
+            }
+            //params.responseType = 'blob'
+            var url = new URL(window.location.origin+"/api/codes/export");
+            const keys = Object.keys(params)
+            for(const key of keys)
+                url.searchParams.set(key, params[key]);
+            
+            url.searchParams.set('token',localStorage.getItem("enstru_token"))
+            return url
+            /*api.excel(params)
+                .then((response) => {
+                    download(
+                        response.data,
+                        'codes.xlsx',
+                        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                      )
+                }).catch((error) => {
+                    console.log(error)
+                })*/
         },
     }
 }

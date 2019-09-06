@@ -27,7 +27,8 @@ Route::group(['middleware' => ['json.response']], function () {
 
     // public routes
     Route::post('/login', 'Api\AuthController@login')->name('login.api');
-    Route::post('/register', 'Api\AuthController@register')->name('register.api');
+    //Route::post('/register', 'Api\AuthController@register')->name('register.api');
+    Route::get('/codes/export', 'Api\TRUController@excel');
 
     // private routes
     Route::namespace('Api')->middleware('auth:api')->group(function () {
@@ -60,7 +61,7 @@ Route::group(['middleware' => ['json.response']], function () {
         Route::delete('/codes/{code}', 'TRUController@destroyCode');
         Route::get('/codes/by-name', 'TRUController@searchCodes');
         Route::post('/codes/migrate', 'TRUController@migrateCodes');
-        
+
         Route::get('/logout', 'AuthController@logout')->name('logout');
     });
 });
