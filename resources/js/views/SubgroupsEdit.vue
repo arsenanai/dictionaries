@@ -20,10 +20,6 @@
                 <input class="form-control" id="subgroup_name" v-model="subgroup.name_ru" />
                 <span v-if="validation.name_ru!==''">{{validation.name_ru}}</span>
             </div>
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" v-model="subgroup.isZKS" /> {{$t('isZKS')}}
-              </div>
-              <br>
             <div class="form-group">
               <label for="group_name">{{$t('Group')}}</label>
               <input class="form-control" id="group_name" list="groups" @keyup="typeahead($event.target.value, 'groups')" v-model="type_group_name">
@@ -64,7 +60,6 @@ export default {
         group: null,
         name_kk: "",
         name_ru: "",
-        isZKS: false,
       }
     };
   },
@@ -75,7 +70,6 @@ export default {
 	        api.update(this.subgroup.id, {
 	            name_kk: this.subgroup.name_kk,
 	            name_ru: this.subgroup.name_ru,
-              isZKS: this.subgroup.isZKS,
 	            group: this.subgroup.group
 	        }).then((response) => {
 	            this.message = this.$i18n.t('Subgroup updated');

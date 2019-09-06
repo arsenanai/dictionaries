@@ -16,7 +16,6 @@ class SubGroupsTableSeeder extends Seeder
         $other = new Subgroup();
         $other->name_kk = 'Қалғандары';
         $other->name_ru = 'Прочие';
-        $other->isZKS = false;
         $other->group_id = Group::select('id')->where('name_kk','Қалғандары')->value('id');
         $other->save();
 
@@ -318,7 +317,6 @@ class SubGroupsTableSeeder extends Seeder
                     $s = new Subgroup();
                     $s->group_id = $g->id;
                     $s->name_ru = $subgroup;
-                    $s->isZKS = false;
                     try{
                         $s->save();
                         $count++;

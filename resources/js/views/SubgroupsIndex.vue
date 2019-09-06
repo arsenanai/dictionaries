@@ -85,7 +85,7 @@
                         <th scope="row" @click="select(subgroup)">{{ (currentPage()-1)*perPage()+index+1 }}</th>
                         <td class="d-none d-md-table-cell name-cell">{{ display('name',subgroup.group) }}</td>
                         <td>{{ display('name',subgroup) }}</td>
-                        <td class="d-none d-sm-table-cell"><i v-if="subgroup.isZKS" class="fas fa-check"></i></td>
+                        <td class="d-none d-sm-table-cell"><i v-if="subgroup.group.isZKS" class="fas fa-check"></i></td>
                         <td>
                             <div class="float-right">
                                 <router-link class="btn btn-outline-primary btn-sm" :to="getLink('edit',subgroup)">

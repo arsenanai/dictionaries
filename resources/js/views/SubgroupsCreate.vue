@@ -19,12 +19,6 @@
               <input class="form-control" id="subgroup_name_ru" v-model="subgroup.name_ru" />
               <span v-if="validation.name_ru!==''">{{validation.name_ru}}</span>
           </div>
-          <div class="form-check">
-            <input type="checkbox" class="form-check-input" id="exampleCheck1" 
-            v-model="subgroup.isZKS">
-          <label class="form-check-label" for="exampleCheck1">{{$t('isZKS')}}</label>
-          </div>
-          <br>
           <div class="form-group">
               <label for="group_name">{{$t('Group')}}</label>
               <input class="form-control" id="group_name" list="groups" @keyup="typeahead($event.target.value, 'groups')">
@@ -64,7 +58,6 @@
           group: null,
           name_kk: null,
           name_ru: null,
-          isZKS: false,
         },
         groups:null,
       };

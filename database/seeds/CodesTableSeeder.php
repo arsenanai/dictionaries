@@ -25,13 +25,12 @@ where state = 'FINAL'
         */
         $prod_codes = DB::connection('snd')
         ->table('ens_map_15')
-        ->select('ens','name','name_kaz','attr1', 'attr1_kaz')
+        ->select('ens','name','name_kaz','attr1', 'attr1_kaz','type')
         ->where('state','FINAL')
         ->get();
         echo 'data read...';
-        $otherGroupId = Group::select('id')->where('name_kk','Қалғандары')->value('id');
         $otherSubgroupId = Subgroup::select('id')->where('name_kk','Қалғандары')->value('id');
-        DB::transaction(function () use($prod_codes, $otherGroupId, $otherSubgroupId){
+        DB::transaction(function () use($prod_codes, $otherSubgroupId){
             foreach($prod_codes as $c){
                 $i = new Code();
                 $i->code = $c->ens;
@@ -39,9 +38,8 @@ where state = 'FINAL'
                 $i->name_ru = $c->name;
                 $i->description_kk = $c->attr1_kaz;
                 $i->description_ru = $c->attr1;
-                $i->group_id = $otherGroupId;
+                $i->type = $c->type;
                 $i->subgroup_id = $otherSubgroupId;
-                $i->isZKS = false;
                 $i->save();
             }
         });

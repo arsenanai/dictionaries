@@ -12,46 +12,33 @@
       <form @submit.prevent="onSubmit($event)" v-else>
         <div class="form-group">
             <label for="code_name">{{$t('Code')}}</label>
-            <input class="form-control" id="code_name" v-model="code.code" />
+            <input readonly class="form-control" id="code_name" v-model="code.code" />
             <span v-if="validation.code!==''">{{validation.code}}</span>
         </div>
         <div class="form-group">
             <label for="code_name_kk">{{$t('Name kk')}}</label>
-            <input class="form-control" id="code_name_kk" v-model="code.name_kk" />
+            <input readonly class="form-control" id="code_name_kk" v-model="code.name_kk" />
             <span v-if="validation.name_kk!==''">{{validation.name_kk}}</span>
         </div>
         <div class="form-group">
             <label for="code_name_ru">{{$t('Name ru')}}</label>
-            <input class="form-control" id="code_name_ru" v-model="code.name_ru" />
+            <input readonly class="form-control" id="code_name_ru" v-model="code.name_ru" />
             <span v-if="validation.name_ru!==''">{{validation.name_ru}}</span>
         </div>
         <div class="form-group">
             <label for="code_description_kk">{{$t('Description kk')}}</label>
-            <input class="form-control" id="code_description_kk" v-model="code.description_kk" />
+            <input readonly class="form-control" id="code_description_kk" v-model="code.description_kk" />
             <span v-if="validation.description_kk!==''">{{validation.description_kk}}</span>
         </div>
         <div class="form-group">
             <label for="code_description_ru">{{$t('Description ru')}}</label>
-            <input class="form-control" id="code_description_ru" v-model="code.description_ru" />
+            <input readonly class="form-control" id="code_description_ru" v-model="code.description_ru" />
             <span v-if="validation.description_ru!==''">{{validation.description_ru}}</span>
         </div>
-        <div class="form-check">
-          <input type="checkbox" class="form-check-input" id="exampleCheck1" v-model="code.isZKS">
-          <label class="form-check-label" for="exampleCheck1">{{$t('isZKS')}}</label>
-        </div>
-        <div class="form-group">
-            <label for="subgroup_name">{{$t('Group')}}</label>
-            <input  class="form-control" id="group_name" list="groups" @keyup="typeahead($event.target.value, 'groups')"
-             v-model="type_group">
-            <datalist id="groups">
-              <option v-for="group in groups" :value="display('name',group)"></option>
-            </datalist>
-            <span v-if="validation.group!==''">{{validation.group}}</span>
-        </div>
+        
         <div class="form-group">
             <label for="subgroup_name">{{$t('Subgroup')}}</label>
-            <input  class="form-control" id="subgroup_name" list="subgroups" @keyup="typeahead($event.target.value, 'subgroups')"
-            :readonly="this.code.group===null" v-model="type_subgroup">
+            <input  class="form-control" id="subgroup_name" list="subgroups" @keyup="typeahead($event.target.value, 'subgroups')" v-model="type_subgroup">
             <datalist id="subgroups">
               <option v-for="subgroup in subgroups" :value="display('name',subgroup)"></option>
             </datalist>
@@ -83,8 +70,7 @@ export default {
       	name_kk: "",
       	name_ru: "",
       	description_kk: "",
-      	description_ru: "",
-      	isZKS: ""
+      	description_ru: ""
       },
       code: {
         id: null,
@@ -95,7 +81,6 @@ export default {
       	name_ru: "",
       	description_kk: "",
       	description_ru: "",
-      	isZKS: ""
       },
       type_group: null,
       type_subgroup: null,
@@ -122,7 +107,6 @@ export default {
 	  	this.validation.description_kk=""
 	  	this.validation.description_ru=""
 	  	this.validation.code=""
-	  	this.validation.isZKS=""
 	  	this.validation.group=""
 	  	this.validation.subgroup=""
 	  	var result = true;
@@ -240,7 +224,7 @@ export default {
       })
       .catch((e) => {
         if(e.response.status==401)
-                  this.redirectToLogin()
+          this.redirectToLogin()
         this.$router.push({ name: '404' });
       });
   }

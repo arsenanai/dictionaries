@@ -40,12 +40,20 @@
                      <datalist id="code.desc">
                       <option v-for="item in types" :value="display('description',item)"></option>
                     </datalist>
-                     <label class="sr-only" for="inlineFormInputName1">{{$t('ZKS')}}</label>
-                    <select v-model="queries.isZKS" class="form-control mb-2 mr-sm-2" @change="filterChanged=true">
+                     <label class="sr-only" for="zks">{{$t('ZKS')}}</label>
+                    <select v-model="queries.isZKS" id=zks class="form-control mb-2 mr-sm-2" @change="filterChanged=true">
                         <option value selected disabled>{{$t('isZKS')}}</option>
                         <option value >{{$t('All')}}</option>
                         <option value="true">{{$t('Yes')}}</option>
                         <option value="false">{{$t('No')}}</option>
+                    </select>
+                    <label class="sr-only" for="type">{{$t('Type')}}</label>
+                    <select v-model="queries.type" id=type class="form-control mb-2 mr-sm-2" @change="filterChanged=true">
+                        <option value selected disabled>{{$t('Type')}}</option>
+                        <option value >{{$t('All')}}</option>
+                        <option value="WORK">{{$t('WORK')}}</option>
+                        <option value="SERVICE">{{$t('SERVICE')}}</option>
+                        <option value="GOODS">{{$t('GOODS')}}</option>
                     </select>
                     <button type="submit" class="btn btn-outline-primary mb-2 mr-sm-2" @click.prevent="filter()"
                         :disabled="filterChanged===false">{{$t('Filter')}}</button>
@@ -120,12 +128,14 @@
                 <tbody v-if="codes!==null && codes.length>0">
                     <tr v-for="(code,index) in codes" :class="{selected: code.selected}">
                         <th scope="row" @click="select(code)">{{ (currentPage()-1)*perPage()+index+1 }}</th>
-                        <td class="d-none d-md-table-cell name-cell">{{display('name',code.group)}}</td>
+                        <td class="d-none d-md-table-cell name-cell">{{display('name',code.subgroup.group)}}</td>
                         <td class="d-none d-md-table-cell name-cell">{{display('name',code.subgroup)}}</td>
                         <td>{{ code.code }}</td>
                         <td>{{ display('name',code) }}</td>
                         <td class="d-none d-sm-table-cell">{{display('description',code)}}</td>
-                        <td class="d-none d-sm-table-cell"><i v-if="code.isZKS" class="fas fa-check"></i></td>
+                        <td class="d-none d-sm-table-cell">
+                            <!--<i v-if="code.subgroup.group.isZKS" class="fas fa-check"></i>-->
+                        </td>
                         <td>
                             <div class="float-right">
                                 <router-link class="btn btn-outline-primary btn-sm" :to="getLink('edit',code)">
@@ -171,10 +181,18 @@
                     <div class="col">
                         <form class="form-inline">
                             <label class="sr-only" for="migrateGroup">{{$t('Group')}}</label>
+                            <select class="form-control mb-2 mr-sm-2" id="migrateGroup">
+                                <option selected disabled value=-1>
+                                    {{$t('Group')}}
+                                </option>
+                                <option v-for="group in groups">
+                                    
+                                </option>
+                            </select>
                             <input class="form-control mb-2 mr-sm-2" id="migrateGroup" :placeholder="$t('Group')" 
                              list="migrate_groups" @keyup="typeahead($event.target.value, 'migrate_group',queries.group_name)" v-model="migrate_group_name">
                             <datalist id="migrate_groups">
-                              <option v-for="group in migrate_groups" :value="display('name',group)"></option>
+                              <option v-for="group in groups" :value="display('name',group)"></option>
                             </datalist>
                             <label class="sr-only" for="migrateSubgroup">{{$t('Subgroup')}}</label>
                             <input list="migrate_subgroups" class="form-control mb-2 mr-sm-2" id="migrateSubgroup" :placeholder="$t('Subgroup')"
@@ -189,7 +207,7 @@
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">{{$t('Cancel')}}</button>
-                <button type="button" class="btn btn-primary" :disabled="migrate_group_name==null && migrate_subgroup_name==null" @click.prevent="migrate()">{{$t('Migrate')}}</button>
+                <button type="button" class="btn btn-primary" :disabled="migrate_subgroup_id==-1" @click.prevent="migrate()">{{$t('Migrate')}}</button>
               </div>
             </div>
           </div>
@@ -217,7 +235,8 @@ export default {
         return {
             saving: false,
             codes: null,
-            types:null,
+            names:null,
+            descriptions:null,
             pageCache: 1,
             perPageCache: 15,
             meta: null,
@@ -230,13 +249,14 @@ export default {
                 name: null,
                 description: null,
                 isZKS: '',
+                type: '',
             },
             groups: null,
             subgroups: null,
-            migrate_group_name: null,
-            migrate_subgroup_name: null,
-            migrate_groups: null,
-            migrate_subgroups: null,
+            migrate_group_id: -1,
+            migrate_subgroup_id: -1,
+            groups: null,
+            subgroups: null,
             filterChanged: false,
             filterApplied: false,
             selectedCodes: [],
@@ -271,7 +291,7 @@ export default {
         },
         setParams(){
             for(var key in this.$route.query) 
-                if(['sort','order','group_name','subgroup_name','isZKS','code','name','description'].includes(key))
+                if(['sort','order','group_name','subgroup_name','isZKS','code','name','description','type'].includes(key))
                     this.queries[key]=this.$route.query[key];
             if(this.queries.subgroup_name!==null || this.queries.group_name!==null 
                 || this.queries.isZKS !== '' || this.queries.code !== '' || this.queries.name !== '' || this.queries.description !== ''){
@@ -286,7 +306,7 @@ export default {
                 params.lang = this.$i18n.locale
             const keys = Object.keys(this.queries)
             for(const key of keys){
-                if(this.queries[key]!=null && this.queries[key]!='' &&['sort','order','group_name','subgroup_name','isZKS','code','name','description'].includes(key))
+                if(this.queries[key]!=null && this.queries[key]!='' &&['sort','order','group_name','subgroup_name','isZKS','code','name','description', 'type'].includes(key))
                     params[key] = this.queries[key]
             }
             return params;
@@ -465,9 +485,9 @@ export default {
                     'codes': this.selectedCodes,
                     'is_selected_all_codes': this.selectedAll,
                     'applied_filters':this.queries.group_name+'_'+this.queries.subgroup_name+'_'+this.queries.isZKS+'_'+this.queries.code
-                    +'_'+this.queries.name+'_'+this.queries.description,
-                    'migrate_group_name': this.migrate_group_name,
-                    'migrate_subgroup_name': this.migrate_subgroup_name, 
+                    +'_'+this.queries.name+'_'+this.queries.description+'_'+this.queries.type,
+                    //'migrate_group_name': this.migrate_group_name,
+                    'migrate_subgroup_id': this.migrate_subgroup_id, 
                     'lang': this.$i18n.locale,
                 }
                 api.migrate(params)

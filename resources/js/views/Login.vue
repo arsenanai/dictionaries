@@ -4,14 +4,17 @@
             <div class="col-md-4 offset-md-4">
                 <h2>{{$t('login.page_title')}}</h2>
                 <hr>
+                <div class="alert alert-warning" v-if="message">
+                        {{message}}
+                    </div>
                 <form>
                   <div class="form-group">
-                    <label for="exampleInputEmail1">{{$t('Login')}}</label>
+                    <label for="exampleInputEmail1">{{$t('Email')}}</label>
                     <input type="email" class="form-control" id="exampleInputEmail1" v-model="login" :placeholder="$i18n.t('Email')">
                   </div>
                   <div class="form-group">
-                    <label for="exampleInputPassword1">Password</label>
-                    <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password" v-model="pass">
+                    <label for="exampleInputPassword1">{{$t('Password')}}</label>
+                    <input type="password" class="form-control" id="exampleInputPassword1" :placeholder="$i18n.t('Password')" v-model="pass">
                   </div>
                   <button type="submit" class="btn btn-outline-primary"
                     @click.prevent="submit" :disabled="!(login.length>0 && pass.length>0)">
@@ -53,9 +56,9 @@
                             this.$router.push({name:"codes.index"});
                         }, 1000);
                     }).catch(error => {
-                        console.log(error.response.status)
+                        console.log(error.response)
                         if(error.response.status==422){
-                            this.message = ''
+                            this.message = this.$i18n.t('Bad credentials')
                         }
                     }).then(_ => this.loading = false);
                 }

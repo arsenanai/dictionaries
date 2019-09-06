@@ -11,8 +11,4 @@ class Group extends Model
     public function subGroups(){
         return $this->hasMany('App\Subgroup', 'group_id');
     }
-
-    public function codes(){
-        return $this->hasMany('App\Code', 'group_id');
-    }
 }

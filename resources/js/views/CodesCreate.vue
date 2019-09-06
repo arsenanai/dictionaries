@@ -35,11 +35,6 @@
             <input  class="form-control" id="code_description_ru" v-model="code.description_ru" />
             <span v-if="validation.description_ru!==''">{{validation.description_ru}}</span>
         </div>
-        <div class="form-check">
-          <input type="checkbox" class="form-check-input" id="exampleCheck1" v-model="code.isZKS">
-          <label class="form-check-label" for="exampleCheck1">{{$t('isZKS')}}</label>
-        </div>
-        <br>
         <div class="form-group">
             <label for="group_name">{{$t('Group')}}</label>
             <input  class="form-control" id="group_name" list="groups" @keyup="typeahead($event.target.value, 'groups')">
@@ -84,8 +79,7 @@ export default {
         name_kk: "",
         name_ru: "",
         description_kk: "",
-        description_ru: "",
-        isZKS: ""
+        description_ru: ""
       },
       code: {
         id: null,
@@ -94,7 +88,6 @@ export default {
         name_ru: null,
         description_kk: null,
         description_ru: null,
-        isZKS: false,
         group: null,
         subgroup: null,
       },
@@ -132,7 +125,6 @@ export default {
       this.validation.description_kk=""
       this.validation.description_ru=""
       this.validation.code=""
-      this.validation.isZKS=""
       this.validation.group=""
       this.validation.subgroup=""
       var result = true;
@@ -141,18 +133,18 @@ export default {
         this.validation.code= this.$i18n.t('Code must be with length 17')
         result = false;
       }
-    /*if(this.code.name_kk===""){
+      if(this.code.name_kk===""){
         this.validation.name_kk= this.$i18n.t('Specify code name in kazakh')
         result = false;
-      }*/
+      }
       if(this.code.name_ru===""){
         this.validation.name_ru= this.$i18n.t('Specify code name in russian')
         result = false;
       }
-      /*if(this.code.description_kk===""){
+      if(this.code.description_kk===""){
         this.validation.description_kk= this.$i18n.t('Specify code description in kazakh')
         result = false;
-      }*/
+      }
       if(this.code.description_ru===""){
         this.validation.description_ru= this.$i18n.t('Specify code description in russian')
         result = false;

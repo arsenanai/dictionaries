@@ -21,23 +21,24 @@ class CodeResource extends JsonResource
             'name_ru' => $this->name_ru,
             'description_kk' => $this->description_kk,
             'description_ru' => $this->description_ru,
-            'isZKS' => $this->isZKS
+            
         ];
-        if($this->group!=null)
-            $result['group'] = [
-                'id' => $this->group->id,
-                'name_kk' => $this->group->name_kk,
-                'name_ru' => $this->group->name_ru,
-            ];
-        else
-            $result['group'] = null;
-        if($this->subgroup!=null)
+        if($this->subgroup!=null){
             $result['subgroup'] = [
                 'id' => $this->subgroup->id,
                 'name_kk' => $this->subgroup->name_kk,
                 'name_ru' => $this->subgroup->name_ru,
             ];
-        else
+            if($this->subgroup->group!=null)
+                $result['subgroup']['group'] = [
+                    'id' => $this->subgroup->group->id,
+                    'name_kk' => $this->subgroup->group->name_kk,
+                    'name_ru' => $this->subgroup->group->name_ru,
+                    'isZKS' => $this->subgroup->isZKS,
+                ];
+            else
+                $result['subgroup']['group'] = null;
+        }else
             $result['subgroup'] = null;
         return $result;
     }

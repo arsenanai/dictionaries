@@ -26,6 +26,7 @@ class TRUController extends Controller
     	$isZKS = $request->input('isZKS');
     	$lang = $request->input('lang');
     	$lang = ($lang==='ru')?'ru':'kk';
+    	App::setLocale($lang);
     	$query = Group::where('id','>',-1);
     	if($name!==null && $name != '')
     		$query = $query->where('name_'.$lang,'ilike', '%'.$name.'%');
@@ -46,6 +47,7 @@ class TRUController extends Controller
     	$isZKS = $request->input('isZKS');
     	$lang = $request->input('lang');
     	$lang = ($lang==='ru')?'ru':'kk';
+    	App::setLocale($lang);
     	$query = Subgroup::with('group');
     	if($group_name!=null)
     		$query = $query->whereHas('group', function($q) use($lang, $group_name){
@@ -54,7 +56,9 @@ class TRUController extends Controller
     	if($name!==null && $name != '')
     		$query = $query->where('name_'.$lang,'ilike', '%'.$name.'%');
     	if($isZKS != null && $isZKS!='')
-    		$query = $query->where('isZKS',($isZKS==='false') ? false : true);
+    		$query = $query->whereHas('group', function($q) use($isZKS){
+    			$q->where('isZKS',($isZKS==='false') ? false : true);
+    		});
     	if(in_array($sortBy,array('id','name_kk','name_ru'))){
     		$query = $query->orderBy($sortBy,($order==='desc')?'desc':'asc');
     	}
@@ -73,8 +77,8 @@ class TRUController extends Controller
     	$isZKS = $request->input('isZKS');
     	$lang = $request->input('lang');
     	$lang = ($lang==='ru')?'ru':'kk';
-    	$query = Code::with('group')
-    		->with('subgroup');
+    	App::setLocale($lang);
+    	$query = Code::with('subgroup.group');
     	if($group_name!=null)
     		$query = $query->whereHas('group', function($q) use($lang, $group_name){
     			$q->where('name_'.$lang, 'ilike', '%'.$group_name.'%');
@@ -90,7 +94,11 @@ class TRUController extends Controller
     	if($description!==null && $description != '')
     		$query = $query->where('description_'.$lang,'ilike', '%'.$description.'%');
     	if($isZKS != null && $isZKS!='')
-    		$query = $query->where('isZKS',($isZKS==='false') ? false : true);
+    		$query = $query->whereHas('subgroup', function($query) use($isZKS){
+    			$query = $query->whereHas('group', function($q) use($isZKS){
+    				$q->where('isZKS',($isZKS==='false') ? false : true);
+    			});
+    		});
     	if(in_array($sortBy,array('id','code','name_kk','name_ru','description_kk','description_ru'))){
     		$query = $query->orderBy($sortBy,($order==='desc')?'desc':'asc');
     	}
@@ -110,7 +118,7 @@ class TRUController extends Controller
 	}
 	public function showCode(Code $code)
 	{
-		$code = Code::with('group')->with('subgroup')->find($code->id);
+		$code = Code::with('subgroup.group')->find($code->id);
 		return new CodeResource($code);		
 	}
 
@@ -140,13 +148,13 @@ class TRUController extends Controller
 	        'name_kk' => 'required|string|max:256',
 	        'name_ru' => 'required|string|max:256',
 	        'group.id' => 'required|exists:groups,id',
-	        'isZKS' => 'boolean',
+	        //'isZKS' => 'boolean',
 	    ]);
 	    $subgroup = new Subgroup();
 	    $subgroup->name_kk = $request->input('name_kk');
 	    $subgroup->name_ru = $request->input('name_ru');
 	    $subgroup->group_id = $request->input('group.id');
-	    $subgroup->isZKS = ($request->input('isZKS')) ? true : false;
+	    //$subgroup->isZKS = ($request->input('isZKS')) ? true : false;
 	    $subgroup->save();
 	    return new SubgroupResource($subgroup);
 	}
@@ -158,8 +166,8 @@ class TRUController extends Controller
 	        'name_ru' => 'required|string|max:300',
 	        'description_kk' => 'string|max:1024',
 	        'description_ru' => 'string|max:1024',
-	        'isZKS' => 'boolean',
-	        'group.id' => 'required|exists:groups,id',
+	        //'isZKS' => 'boolean',
+	        'subgroup.id' => 'required|exists:subgroups,id',
 	    ]);
 	    $code = new Code();
 	    $code->code = $request->input('code');
@@ -167,11 +175,11 @@ class TRUController extends Controller
 	    $code->name_ru = $request->input('name_ru');
 	    $code->description_kk = $request->input('description_kk');
 	    $code->description_ru = $request->input('description_ru');
-	    $code->isZKS = ($request->input('isZKS')) ? true : false;
-	    $code->group_id = $request->input('group.id');
-	    if ($request->has('subgroup.id')) {
+	    //$code->isZKS = ($request->input('isZKS')) ? true : false;
+	    //$code->group_id = $request->input('group.id');
+	    //if ($request->has('subgroup.id')) {
         	$code->subgroup_id = $request->input('subgroup.id');
-    	}
+    	//}
 	    $code->save();
 	    return new CodeResource($code);
 	}
@@ -191,7 +199,7 @@ class TRUController extends Controller
 	        'name_kk' => 'required|string|max:256',
 	        'name_ru' => 'required|string|max:256',
 	        'group.id' => 'required|exists:groups,id',
-	        'isZKS' => 'boolean',
+	        //'isZKS' => 'boolean',
 	    ]);
 	    $subgroup->update($data);
 	    return new SubgroupResource($subgroup);
@@ -204,11 +212,11 @@ class TRUController extends Controller
 	        'name_ru' => 'required|string|max:300',
 	        'description_kk' => 'string|max:1024',
 	        'description_ru' => 'string|max:1024',
-	        'isZKS' => 'boolean',
-	        'group.id' => 'required|exists:groups,id',
+	        //'isZKS' => 'boolean',
+	        //'group.id' => 'required|exists:groups,id',
 	        'subgroup.id' => 'exists:subgroups,id'
 	    ]);
-	    $code->isZKS = ($request->isZKS) ? true : false;
+	    //$code->isZKS = ($request->isZKS) ? true : false;
 	    $code->update($data);
 	    return new CodeResource($code);
 	}
@@ -262,6 +270,7 @@ class TRUController extends Controller
 		$input = $request->input('name');
 		$except = $request->input('except');
 		$lang = ($lang==='ru')?'ru':'kk';
+		App::setLocale($lang);
 		$result = Group::select('id','name_kk','name_ru');
 		$result = $result->where('name_'.$lang, 'ilike', '%' . $input . '%');
 		if($except!=null)
@@ -277,6 +286,7 @@ class TRUController extends Controller
 		$except = $request->input('except');
 		$parent = $request->input('parent');
 		$lang = ($lang==='ru')?'ru':'kk';
+		App::setLocale($lang);
 		$result = Subgroup::select('id','name_kk','name_ru')
 		->where('name_'.$lang, 'ilike', '%' . $input . '%');
 		if($except!=null)
@@ -293,6 +303,7 @@ class TRUController extends Controller
 	public function searchCodes(Request $request){
 		$lang = $request->input('lang');
 		$lang = ($lang==='ru')?'ru':'kk';
+		App::setLocale($lang);
 		$code = $request->input('code');
 		$name = $request->input('name');
 		$description = $request->input('description');
@@ -314,8 +325,7 @@ class TRUController extends Controller
 	        'codes' => "required|array|min:1",
 	        'is_selected_all_codes' => 'required|boolean',
 	        'applied_filters' => 'required_if:is_selected_all_codes,true',
-	        'migrate_group_name' => 'required_without:migrate_subgroup_name',
-	        'migrate_subgroup_name' => 'required_without:migrate_group_name'
+	        'migrate_subgroup_name' => 'required'
 	    ]);
 		$codes = $request->input('codes');
 		$selectedAll = $request->input('is_selected_all_codes');
@@ -325,10 +335,10 @@ class TRUController extends Controller
 		$code = explode('_', $request->input('applied_filters'))[3];
 		$name = explode('_', $request->input('applied_filters'))[4];
 		$description = explode('_', $request->input('applied_filters'))[5];
-		$migrateGroupName = $request->input('migrate_group_name');
 		$migrateSubgroupName = $request->input('migrate_subgroup_name');
 		$lang = $request->input('lang');
     	$lang = ($lang==='ru')?'ru':'kk';
+    	App::setLocale($lang);
 		$request = DB::table('codes');
 		$request = $request->join('groups', 'codes.group_id', '=', 'groups.id');
     	$request = $request->join('subgroups', 'codes.subgroup_id', '=', 'subgroups.id');
@@ -364,6 +374,12 @@ class TRUController extends Controller
 					$request = $request->where('isZKS',($isZKS=='false') ? false : true);
 					//$debug .= "selecting by ZKS\n";
 				}
+				if(!($isZKS=='null' || $isZKS==''))
+		    		$request = $request->whereHas('subgroup', function($request) use($isZKS){
+		    			$request = $request->whereHas('group', function($q) use($isZKS){
+		    				$q->where('isZKS',($isZKS==='false') ? false : true);
+		    			});
+		    		});
 				if(!($code=='null' || $code==''))
 					$request = $request->where('code','ilike', $code.'%');
 				if(!($name=='null' || $name==''))
@@ -375,18 +391,6 @@ class TRUController extends Controller
 			}
 		}
 		$updateFields = array();
-		if($migrateGroupName!='' && $migrateGroupName!=null){
-			$target1 = Group::where('name_'.$lang, $migrateGroupName)->first();
-			if($target1!=null){
-				$updateFields['group_id'] = $target1->id;
-				//$debug .= "updating group_name\n";
-			}else{
-				$error = \Illuminate\Validation\ValidationException::withMessages([
-				   'Groups' => [__('Set group exactly')],
-				]);
-				throw $error;
-			}
-		}
 		if($migrateSubgroupName!='' && $migrateSubgroupName!=null){
 			$target = Subgroup::where('name_'.$lang, $migrateSubgroupName)->first();
 			if($target!=null){
@@ -419,10 +423,10 @@ class TRUController extends Controller
 		$selectedGroupName = (int)explode('_', $request->input('applied_filters'))[0];
 		$isZKS = explode('_', $request->input('applied_filters'))[1];
 		$name = explode('_', $request->input('applied_filters'))[2];
-		$migrateGroupName = $request->input('migrate_group_name');
+		$migrateSubgroupId = $request->input('migrate_subgroup_id');
 		$lang = $request->input('lang');
     	$lang = ($lang==='ru')?'ru':'kk';
-
+    	App::setLocale($lang);
     	$request = DB::table('subgroups');
 		$request = $request->join('groups', 'subgroups.group_id', '=', 'groups.id');
 		$debug = '';
@@ -446,23 +450,25 @@ class TRUController extends Controller
 					$request = $request->where('group.name_'.$lang,'ilike','%'.$selectedGroupName.'%');
 					//$debug .= "selecting by group_id\n";
 				}
-				if(!($isZKS=='null' || $isZKS=='')){
-					$request = $request->where('isZKS',($isZKS=='false') ? false : true);
-					//$debug .= "selecting by ZKS\n";
-				}
+				if(!($isZKS=='null' || $isZKS==''))
+		    		$request = $request->whereHas('subgroup', function($request) use($isZKS){
+		    			$request = $request->whereHas('group', function($q) use($isZKS){
+		    				$q->where('isZKS',($isZKS==='false') ? false : true);
+		    			});
+		    		});
 				if(!($name=='null' || $name==''))
 		    		$request = $request->where('name_'.$lang,'ilike', '%'.$name.'%');
 			}
 		}
 		$updateFields = array();
-		if($migrateGroupName!='' && $migrateGroupName!=null){
-			$target1 = Group::where('name_'.$lang, $migrateGroupName)->first();
+		if($migrateSubgroupId>-1){
+			$target1 = Subgroup::find($migrateSubgroupId);
 			if($target1!=null){
 				$updateFields['group_id'] = $target1->id;
 				//$debug .= "updating group_name\n";
 			}else{
 				$error = \Illuminate\Validation\ValidationException::withMessages([
-				   'Groups' => [__('Set group exactly')],
+				   'Groups' => [__('Set subgroup exactly')],
 				]);
 				throw $error;
 			}
@@ -492,8 +498,8 @@ class TRUController extends Controller
 	    		->select('codes.id as id','codes.name_'.$lang.' as name_'.$lang,'codes.description_'.$lang.' as description_'.$lang,'codes.code as code',
 	    			'groups.name_'.$lang.' as group_name_'.$lang, 'subgroups.name_'.$lang.' as subgroup_name_'.$lang
 	    	);
-	    		//->with('group')
-	    		//->with('subgroup');
+    		//->with('group')
+    		//->with('subgroup');
 	    	$query = $query->join('groups', 'groups.id','=','codes.group_id');
 	    	$query = $query->join('subgroups', 'subgroups.id','=','codes.subgroup_id');
 	    	if($group_name!=null)
@@ -503,15 +509,20 @@ class TRUController extends Controller
 	    	if($code!==null )
 	    		$query = $query->where('code','ilike', $code.'%');
 	    	if($name!==null)
-	    		$query = $query->were('name_'.$lang,'ilike', '%'.$name.'%');
+	    		$query = $query->where('name_'.$lang,'ilike', '%'.$name.'%');
 	    	if($description!==null)
 	    		$query = $query->where('description_'.$lang,'ilike', '%'.$description.'%');
 	    	if($isZKS != null)
 	    		$query = $query->where('isZKS',($isZKS==='false') ? false : true);
+	    	if($isZKS != null)
+	    		$query = $query->whereHas('subgroup', function($query) use($isZKS){
+	    			$query = $query->whereHas('group', function($q) use($isZKS){
+	    				$q->where('isZKS',($isZKS==='false') ? false : true);
+	    			});
+	    		});
 	    	if(in_array($sortBy,array('id','code','name_kk','name_ru','description_kk','description_ru')))
 	    		$query = $query->orderBy('codes.'.$sortBy,($order==='desc')?'desc':'asc');
 
-	    	
 	    	$items = $query->get();
 	    	/*$query->chunk(10000, function ($is) use($items){
 			  array_merge($items, $is->toArray());

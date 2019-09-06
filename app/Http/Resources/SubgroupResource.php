@@ -18,13 +18,14 @@ class SubgroupResource extends JsonResource
             'id' => $this->id,
             'name_kk' => $this->name_kk,
             'name_ru' => $this->name_ru,
-            'isZKS' => $this->isZKS
+            
         ];
         if($this->group!=null)
             $result['group'] = [
                 'id' => $this->group->id,
                 'name_kk' => $this->group->name_kk,
                 'name_ru' => $this->group->name_ru,
+                'isZKS' => $this->isZKS
             ];
         else
             $result['group'] = null;

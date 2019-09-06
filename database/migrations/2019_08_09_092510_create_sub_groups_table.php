@@ -19,7 +19,6 @@ class CreateSubGroupsTable extends Migration
             $table->unsignedBigInteger('group_id');
             $table->string('name_kk',256)->nullable(true);
             $table->string('name_ru',256);
-            $table->boolean('isZKS');
             $table->timestamps();
             $table->foreign('group_id')
             ->references('id')->on('groups')
