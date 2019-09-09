@@ -21,7 +21,7 @@ class CodeResource extends JsonResource
             'name_ru' => $this->name_ru,
             'description_kk' => $this->description_kk,
             'description_ru' => $this->description_ru,
-            
+            'type' => $this->type,
         ];
         if($this->subgroup!=null){
             $result['subgroup'] = [

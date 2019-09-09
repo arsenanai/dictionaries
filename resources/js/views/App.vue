@@ -62,6 +62,7 @@
               axios.defaults.headers.common['Accept-Language'] = lang
               document.querySelector('html').setAttribute('lang', lang)
               localStorage.setItem(this.appLanguage, lang)
+              this.$router.go()
             }
         },
         created(){
@@ -87,13 +88,15 @@
       -webkit-appearance: none; 
       margin: 0; 
     }
-    .selected, .selected:hover{
+    .selected {
         color: #007bff;
     }
+
     .table-sm th, .table-sm td {
         font-size:0.8rem;
     }
     .name-cell{
         max-width:200px;
     }
+    .pointer {cursor: pointer;}
 </style>

@@ -35,7 +35,14 @@
             <input readonly class="form-control" id="code_description_ru" v-model="code.description_ru" />
             <span v-if="validation.description_ru!==''">{{validation.description_ru}}</span>
         </div>
-        
+        <div class=form-group>
+          <label for="type">{{$t('Type')}}</label>
+          <select readonly class="form-control" v-model="code.type">
+            <option value=GOODS selected>{{$t('GOODS')}}</option>
+            <option value=WORK>{{$t('WORK')}}</option>
+            <option value=SERVICE>{{$t('SERVICE')}}</option>
+          </select>
+        </div>
         <div class="form-group">
             <label for="subgroup_name">{{$t('Subgroup')}}</label>
             <input  class="form-control" id="subgroup_name" list="subgroups" @keyup="typeahead($event.target.value, 'subgroups')" v-model="type_subgroup">

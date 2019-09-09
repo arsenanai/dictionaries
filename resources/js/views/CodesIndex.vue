@@ -2,58 +2,96 @@
     <div class="container">
         <h2>
             {{$t('Codes')}}
-            <router-link class="btn btn-outline-success float-right" :to="{ name: 'codes.create' }">{{$t('Add New')}}</router-link>
+            <router-link v-if=false class="btn btn-outline-success float-right" :to="{ name: 'codes.create' }">{{$t('Add New')}}</router-link>
         </h2>
         <hr>
         <div class="row">
             <div class="col">
+                <span v-if="names">
+                    {{names.length}}
+                </span>
+                <span v-if="cods">
+                    {{cods.length}}
+                </span>
+                <span v-if="descriptions">
+                    {{descriptions.length}}
+                </span>
                 <form class="form-inline">
-                    <label class="sr-only" for="inlineFormInputName2">{{$t('Group')}}</label>
-                    <input class="form-control mb-2 mr-sm-2" id="inlineFormInputName2" :placeholder="$t('Group')" 
-                     list="groups" @keyup="typeahead($event.target.value, 'group')"
-                     v-model="queries.group_name" @change="filterChanged=true">
-                    <datalist id="groups">
-                      <option v-for="group in groups" :value="display('name',group)"></option>
-                    </datalist>
-                    <label class="sr-only" for="inlineFormInputName3">{{$t('Subgroup')}}</label>
-                    <input list="subgroups" class="form-control mb-2 mr-sm-2" id="inlineFormInputName3" :placeholder="$t('Subgroup')"
-                    @keyup="typeahead($event.target.value, 'subgroup', null, queries.group_name)" v-model="queries.subgroup_name" @change="filterChanged=true"
-                    >
-                    <datalist id="subgroups">
-                      <option v-for="subgroup in subgroups" :value="display('name',subgroup)"></option>
-                    </datalist>
-                    <label class="sr-only" for="codeInput">{{$t('Code')}}</label>
-                    <input list="code.code" class="form-control mb-2 mr-sm-2" id="codeInput" :placeholder="$t('Code')" 
-                     v-model="queries.code" @change="filterChanged=true" @keyup="typeahead($event.target.value, 'code')">
-                     <datalist id="code.code">
-                      <option v-for="item in types" :value="item.code"></option>
-                    </datalist>
-                    <label class="sr-only" for="nameInput">{{$t('Name')}}</label>
-                    <input list="code.name" class="form-control mb-2 mr-sm-2" id="nameInput" :placeholder="$t('Name')" 
-                     v-model="queries.name" @change="filterChanged=true" @keyup="typeahead($event.target.value, 'code')">
-                     <datalist id="code.name">
-                      <option v-for="item in types" :value="display('name',item)"></option>
-                    </datalist>
-                    <label class="sr-only" for="descriptionInput">{{$t('Description')}}</label>
-                    <input list="code.desc" class="form-control mb-2 mr-sm-2" id="descriptionInput" :placeholder="$t('Description')" 
-                     v-model="queries.description" @change="filterChanged=true" @keyup="typeahead($event.target.value, 'code')">
-                     <datalist id="code.desc">
-                      <option v-for="item in types" :value="display('description',item)"></option>
-                    </datalist>
+                    <div class="input-group mb-2 mr-sm-2">
+                        <input class="form-control" id="inlineFormInputName2" :placeholder="$t('Group')" :aria-label="$t('Group')"
+                         list="groups" type="text" aria-describedby="basic-addon2"
+                         v-model="queries.group_name" @change="onFilterChanged('group')">
+                        <datalist id="groups">
+                          <option v-for="group in groups" >{{display('name',group)}}</option>
+                        </datalist>
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary" type="button" @click.prevent="queries.group_name=null">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="input-group mb-2 mr-sm-2">
+                        <input list="subgroups" class="form-control" id="inlineFormInputName3" :placeholder="$t('Subgroup')" :aria-label="$t('Subgroup')"
+                         v-model="queries.subgroup_name" @change="onFilterChanged('subgroup')" :readonly="isEmpty(queries.group_name)" aria-describedby="times2"
+                         type=text
+                        >
+                        <datalist id="subgroups">
+                          <option v-for="subgroup in subgroups" >{{display('name',subgroup)}}</option>
+                        </datalist>
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary" type="button" @click.prevent="queries.subgroup_name=null">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="input-group mb-2 mr-sm-2">
+                        <input type=text list="code.code" class="form-control" id="codeInput" :placeholder="$t('Code')" :aria-label="$t('Subgroup')"
+                         v-model="queries.code" @change="filterChanged=true">
+                         <datalist id="code.code">
+                          <option v-for="item in cods">{{item.code}}</option>
+                        </datalist>
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary" type="button" @click.prevent="queries.code=null">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="input-group mb-2 mr-sm-2">
+                        <input type=text list="code.name" class="form-control" id="nameInput" :placeholder="$t('Name')" :aria-label="$t('Name')"
+                         v-model="queries.name" @change="filterChanged=true">
+                         <datalist id="code.name">
+                          <option v-for="item in names">{{display('name',item)}}</option>
+                        </datalist>
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary" type="button" @click.prevent="queries.name=null">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="input-group mb-2 mr-sm-2">
+                        <input type=text list="code.desc" class="form-control" id="descriptionInput" :placeholder="$t('Description')" :aria-label="$t('Description')"
+                         v-model="queries.description" @change="filterChanged=true">
+                         <datalist id="code.desc">
+                          <option v-for="item in descriptions">{{display('description',item)}}</option>
+                        </datalist>
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary" type="button" @click.prevent="queries.description=null">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
                      <label class="sr-only" for="zks">{{$t('ZKS')}}</label>
                     <select v-model="queries.isZKS" id=zks class="form-control mb-2 mr-sm-2" @change="filterChanged=true">
-                        <option value selected disabled>{{$t('isZKS')}}</option>
-                        <option value >{{$t('All')}}</option>
+                        <option value selected>{{$t('ZKS')}} ({{$t('All')}})</option>
                         <option value="true">{{$t('Yes')}}</option>
                         <option value="false">{{$t('No')}}</option>
                     </select>
                     <label class="sr-only" for="type">{{$t('Type')}}</label>
                     <select v-model="queries.type" id=type class="form-control mb-2 mr-sm-2" @change="filterChanged=true">
-                        <option value selected disabled>{{$t('Type')}}</option>
-                        <option value >{{$t('All')}}</option>
+                        <option value selected>{{$t('Type')}} ({{$t('All')}})</option>
+                        <option value="GOODS">{{$t('GOODS')}}</option>
                         <option value="WORK">{{$t('WORK')}}</option>
                         <option value="SERVICE">{{$t('SERVICE')}}</option>
-                        <option value="GOODS">{{$t('GOODS')}}</option>
                     </select>
                     <button type="submit" class="btn btn-outline-primary mb-2 mr-sm-2" @click.prevent="filter()"
                         :disabled="filterChanged===false">{{$t('Filter')}}</button>
@@ -62,7 +100,7 @@
                         {{$t('Migrate')}}
                     </a>
                     <a class="btn btn-outline-secondary mb-2 mr-sm-2" :href="getExportLink()" target="_blank">
-                        CSV
+                        Excel
                     </a>
                 </form>
             </div>
@@ -91,50 +129,60 @@
             </div>
         </div>
         <div class="table-responsive">
-            <table class="table table-sm table-bordered table-striped table-hover" >
+            <table class="table table-sm table-bordered table-striped" >
                 <thead class=""> 
-                    <th scope="col" @click="selectAll()">#
-                    </th>
-                    <th scope="col" class="d-none d-md-table-cell">
-                        {{$t('Group')}}
-                        <i :class="getOrder('groups')"></i>
-                    </th>
-                    <th scope="col" class="d-none d-md-table-cell">
-                        {{$t('Subgroup')}}
-                        <i :class="getOrder('subgroups')"></i>
-                    </th>
-                    <th scope="col" :class="{'font-italic': queries.sort==='code'}"
-                        @click="sortBy('code')">
-                        {{$t('Code')}}
-                        <i :class="getOrder('code')"></i>
-                    </th>
-                    <th scope="col" :class="{'font-italic': (queries.sort==='name_kk'||queries.sort==='name_ru')}"
-                        @click="sortBy('codes.name')">
-                        {{$t('Name')}}
-                        <i :class="getOrder('name')"></i>
-                    </th>
-                    <th scope="col" class="d-none d-sm-table-cell" :class="{'font-italic': (queries.sort==='description_kk'||queries.sort==='description_ru')}"
-                        @click="sortBy('description')">
-                        {{$t('Description')}}
-                        <i :class="getOrder('description')"></i>
-                    </th>
-                    <th scope="col" class="d-none d-sm-table-cell">{{$t('isZKS')}}</th>
-                    <th scope="col">
-                        <span class="float-right">
-                            {{currentPage()}}/{{lastPage()}}
-                        </span>
-                    </th>
+                    <tr>
+                        <th scope="col" @click="selectAll()" style="cursor: pointer;">#
+                        </th>
+                        <th scope="col" class="d-none d-md-table-cell">
+                            {{$t('Group')}}
+                            <i :class="getOrder('groups')"></i>
+                        </th>
+                        <th scope="col" class="d-none d-md-table-cell">
+                            {{$t('Subgroup')}}
+                            <i :class="getOrder('subgroups')"></i>
+                        </th>
+                        <th scope="col" :class="{'font-italic': queries.sort==='code'}" style="cursor: pointer;"
+                            @click="sortBy('code')">
+                            {{$t('Code')}} 
+                            <i :class="getOrder('code')"></i>
+                        </th>
+                        <th scope="col" :class="{'font-italic': (queries.sort==='name_kk'||queries.sort==='name_ru')}" style="cursor: pointer;"
+                            @click="sortBy('name')">
+                            {{$t('Name')}}
+                            <i :class="getOrder('name')"></i>
+                        </th>
+                        <th scope="col" class="d-none d-sm-table-cell" :class="{'font-italic': (queries.sort==='description_kk'||queries.sort==='description_ru')}" style="cursor: pointer;"
+                            @click="sortBy('description')">
+                            {{$t('Description')}}
+                            <i :class="getOrder('description')"></i>
+                        </th>
+                        <th scope="col" class="d-none d-sm-table-cell">{{$t('isZKS')}}</th>
+                        <th scope=col class="d-none d-sm-table-cell">{{$t('Type')}}</th>
+                        <th scope="col">
+                            <span class="float-right">
+                                {{currentPage()}}/{{lastPage()}}
+                            </span>
+                        </th>
+                    </tr>
+                    
                 </thead>
                 <tbody v-if="codes!==null && codes.length>0">
-                    <tr v-for="(code,index) in codes" :class="{selected: code.selected}">
-                        <th scope="row" @click="select(code)">{{ (currentPage()-1)*perPage()+index+1 }}</th>
+                    <tr v-for="(code,index) in codes" :class="{selected: code.selected}" @click="select(code)" style="cursor: pointer;">
+                        <th scope="row" >
+                            {{ (currentPage()-1)*perPage()+index+1 }}
+                            <i v-if="code.selected" class="fas fa-check"></i>
+                        </th>
                         <td class="d-none d-md-table-cell name-cell">{{display('name',code.subgroup.group)}}</td>
                         <td class="d-none d-md-table-cell name-cell">{{display('name',code.subgroup)}}</td>
                         <td>{{ code.code }}</td>
                         <td>{{ display('name',code) }}</td>
                         <td class="d-none d-sm-table-cell">{{display('description',code)}}</td>
                         <td class="d-none d-sm-table-cell">
-                            <!--<i v-if="code.subgroup.group.isZKS" class="fas fa-check"></i>-->
+                            <i v-if="code.subgroup.group.isZKS" class="fas fa-check"></i>
+                        </td>
+                        <td class="d-none d-sm-table-cell">
+                            {{$t(code.type)}}
                         </td>
                         <td>
                             <div class="float-right">
@@ -150,14 +198,14 @@
                 </tbody>
                 <tbody v-else-if="(codes!==null && codes.length===0)">
                     <tr>
-                        <td class="font-italic" colspan=8>
+                        <td class="font-italic" colspan=9>
                             {{$t('Search returned an empty result')}}
                         </td>
                     </tr>
                 </tbody>
                 <tbody v-else>
                     <tr>
-                       <td colspan=8>
+                       <td colspan=9>
                            {{$t('Loading')}} ...
                        </td> 
                     </tr>
@@ -168,7 +216,7 @@
             {{$t('Total selected')}}: {{totalSelectedCodes()}}
         </span>
         <div class="modal fade" id="migrationModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-          <div class="modal-dialog" role="document">
+          <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
               <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLabel">{{$t('Migrate codes')}}</h5>
@@ -179,28 +227,25 @@
               <div class="modal-body">
                 <div class="row">
                     <div class="col">
-                        <form class="form-inline">
+                        <form>
                             <label class="sr-only" for="migrateGroup">{{$t('Group')}}</label>
-                            <select class="form-control mb-2 mr-sm-2" id="migrateGroup">
+                            <select class="form-control mb-2 mr-sm-2" id="migrateGroup" v-model="migrate_group_id">
                                 <option selected disabled value=-1>
                                     {{$t('Group')}}
                                 </option>
-                                <option v-for="group in groups">
-                                    
+                                <option v-for="group in groups" value="group.id" :disabled="display('name',group)===queries.group_name">
+                                    {{display('name',group)}}
                                 </option>
                             </select>
-                            <input class="form-control mb-2 mr-sm-2" id="migrateGroup" :placeholder="$t('Group')" 
-                             list="migrate_groups" @keyup="typeahead($event.target.value, 'migrate_group',queries.group_name)" v-model="migrate_group_name">
-                            <datalist id="migrate_groups">
-                              <option v-for="group in groups" :value="display('name',group)"></option>
-                            </datalist>
                             <label class="sr-only" for="migrateSubgroup">{{$t('Subgroup')}}</label>
-                            <input list="migrate_subgroups" class="form-control mb-2 mr-sm-2" id="migrateSubgroup" :placeholder="$t('Subgroup')"
-                            @keyup="typeahead($event.target.value, 'migrate_subgroup',queries.subgroup_name,migrate_group_name)"
-                             v-model="migrate_subgroup_name">
-                            <datalist id="migrate_subgroups">
-                              <option v-for="subgroup in migrate_subgroups" :value="display('name',subgroup)"></option>
-                            </datalist>
+                            <select class="form-control mb-2 mr-sm-2" id="migrateSubgroup" v-model="migrate_subgroup_id" :disabled="migrate_group_id==-1">
+                                <option selected disabled value=-1>
+                                    {{$t('Subgroup')}}
+                                </option>
+                                <option v-for="subgroup in subgroups" value="subgroup.id" :disabled="display('name',subgroup)===queries.subgroup_name">
+                                    {{display('name',subgroup)}}
+                                </option>
+                            </select>
                         </form>
                     </div>
                 </div>
@@ -235,6 +280,7 @@ export default {
         return {
             saving: false,
             codes: null,
+            cods:null,
             names:null,
             descriptions:null,
             pageCache: 1,
@@ -273,6 +319,7 @@ export default {
     mounted(){
         this.fetchData()
         axios.defaults.headers.common['Accept-Language'] = this.$i18n.locale
+        this.typeahead('','group')
     },
     watch:{
         '$route': 'fetchData'
@@ -286,6 +333,7 @@ export default {
                 this.$route.query,
                 (err, data) => {
                     this.setData(err, data);
+
                 //next();
             });
         },
@@ -381,7 +429,7 @@ export default {
             return this.meta!==null ? this.meta.per_page : this.perPageCache;
         },
         typeahead(input, type, except = null, parent = null){
-            if(input.length >1){
+            //if(input.length >0){
                 var params = {} 
                   params.input = input
                   params.lang = this.$i18n.locale
@@ -392,16 +440,21 @@ export default {
                         if(this.queries[key]!=null && this.queries[key]!='' &&['code','name','description'].includes(key))
                             params[key] = this.queries[key]
                     }
-                api.search(this.getType(type), params).then((response) => {
-                    if(type==='code')
-                        this['types'] = response.data.data
-                    else
-                        this[type+'s'] = response.data.data
-                }).catch(e => {
-                    if(e.response.status==401)
-                        this.redirectToLogin()
-                });
-            }
+                    api.search(this.getType(type), params).then((response) => {
+                        if(type==='code'){
+                            if(this.queries['code']!=null)
+                                this['cods'] = response.data.data
+                            else if(this.queries['name']!=null)
+                                this['names'] = response.data.data
+                            else if(this.queries['description']!=null)
+                                this['descriptions'] = response.data.data
+                        }else
+                            this[type+'s'] = response.data.data
+                    }).catch(e => {
+                        if(e.response.status==401)
+                            this.redirectToLogin()
+                    });
+            //}
         },
         getType(type){
             if(type.startsWith('migrate_'))
@@ -541,6 +594,15 @@ export default {
                 }).catch((error) => {
                     console.log(error)
                 })*/
+        },
+        onFilterChanged(type){
+            this.filterChanged=true
+            if(type==='group')
+                this.typeahead('','subgroup',null,this.queries.group_name)
+
+        },
+        isEmpty(str) {
+            return (!str || 0 === str.length);
         },
     }
 }

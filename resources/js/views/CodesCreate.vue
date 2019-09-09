@@ -35,14 +35,13 @@
             <input  class="form-control" id="code_description_ru" v-model="code.description_ru" />
             <span v-if="validation.description_ru!==''">{{validation.description_ru}}</span>
         </div>
-        <div class="form-group">
-            <label for="group_name">{{$t('Group')}}</label>
-            <input  class="form-control" id="group_name" list="groups" @keyup="typeahead($event.target.value, 'groups')">
-            <datalist id="groups">
-              <option v-for="group in groups" :value="display('name',group)"></option>
-            </datalist>
-            <span v-if="validation.group!==''">{{validation.group}}</span>
-            
+        <div class=form-group>
+          <label for="type">{{$t('Type')}}</label>
+          <select class="form-control" v-model="code.type">
+            <option value=GOODS selected>{{$t('GOODS')}}</option>
+            <option value=WORK>{{$t('WORK')}}</option>
+            <option value=SERVICE>{{$t('SERVICE')}}</option>
+          </select>
         </div>
         <div class="form-group">
             <label for="subgroup_name">{{$t('Subgroup')}}</label>
@@ -74,7 +73,6 @@ export default {
       saving: false,
       validation:{
         code: "",
-        group: "",
         subgroup: "",
         name_kk: "",
         name_ru: "",
@@ -88,10 +86,9 @@ export default {
         name_ru: null,
         description_kk: null,
         description_ru: null,
-        group: null,
+        type: 'GOODS',
         subgroup: null,
       },
-      groups: null,
       subgroups: null,
       type_subgroup: null,
     };
@@ -125,7 +122,6 @@ export default {
       this.validation.description_kk=""
       this.validation.description_ru=""
       this.validation.code=""
-      this.validation.group=""
       this.validation.subgroup=""
       var result = true;
       if(this.code.code==="" 
@@ -149,25 +145,15 @@ export default {
         this.validation.description_ru= this.$i18n.t('Specify code description in russian')
         result = false;
       }
-      if(this.code.group===null){
-        this.validation.group = this.$i18n.t('Choose code group')
+      if(this.code.subgroup===null){
+        this.validation.subgroup = this.$i18n.t('Choose code subgroup')
         result = false
       }
     return result
   },
     typeahead(input, type) {
       var matched = false;
-      if(this.groups && type==='groups'){
-        var group;
-        if(this.$i18n.locale==='ru')
-          group = this.groups.find(group => group.name_ru === input);
-        else
-          group = this.groups.find(group => group.name_kk === input);
-        if(group){
-          this.code.group = group
-          matched = true
-        }
-      }else if(this.subgroups && type==='subgroups'){
+      if(this.subgroups && type==='subgroups'){
         var subgroup;
         if(this.$i18n.locale==='ru')
           subgroup = this.subgroups.find(subgroup => subgroup.name_ru === input);
@@ -180,14 +166,7 @@ export default {
       }
       if (input.length > 1 && matched===false) {
         
-        if(type==='groups'){
-          api.search('group', input, this.$i18n.locale, -1).then((response) => {
-            this.groups = response.data.data
-          }).catch(e => {
-            if(e.response.status==401)
-              this.redirectToLogin()
-          });
-        }else if(type==='subgroups'){
+        if(type==='subgroups'){
           api.search('subgroup', input, this.$i18n.locale, -1, this.code.group.id).then((response) => {
             this.subgroups = response.data.data
           }).catch(e => {
@@ -196,14 +175,7 @@ export default {
           });
         }
       }else if(input.length == 0){
-        if(type==='groups'){
-          this.code.group=null;
-          this.groups=null;
-          this.code.subgroup=null;
-          this.subgroups=null;
-          this.type_subgroup=null
-        }
-        else if(type==='subgroups'){
+        if(type==='subgroups'){
           this.code.subgroup=null;
           this.subgroups=null;
         }

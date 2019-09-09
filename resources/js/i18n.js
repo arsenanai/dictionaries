@@ -70,6 +70,7 @@ const messages = {
 'Successfully migrated: ':'Сәтті көшірілді',
 'Total selected':'Жалпы таңдалғандар',
 'Total to be migrated: ':'Жалпы көшірілетіні',
+'Type': 'Түрі',
 'Update':'Өңдеу',
 'User Deleted':'Қолданушы жойылды',
 'User updated':'Қолданушы өңделді',
@@ -83,7 +84,10 @@ const messages = {
 'codes migrated: ':'',
 'isZKS':'КСС белгісі',
 'updated successfully':'сәтті өңделді',
-
+'WORK': 'Жұмыс',
+'SERVICE': 'Қызмет',
+'GOODS': 'Тауар',
+'sort': 'сорт.',
 	},
 	"ru": {
 		login: {
@@ -94,7 +98,7 @@ const messages = {
 		},
 'Add New':'Добавить новый',
 'All':'Все',
-'Are you sure that you want to delete that ':'Вы уверены, что хотите удалить это',
+'Are you sure that you want to delete that ':'Вы уверены, что хотите удалить ',
 'Are you sure?':'Вы уверены?',
 'Bad credentials': 'Неверные креденциалы',
 'Cancel':'Отмена',
@@ -151,6 +155,7 @@ const messages = {
 'Successfully migrated: ':'Успешно перенесены',
 'Total selected':'Всего выбрано',
 'Total to be migrated: ':'Всего будет перенесено',
+'Type': 'Тип',
 'Update':'Изменить',
 'User Deleted':'Пользователь удален',
 'User updated':'Пользователь изменен',
@@ -164,7 +169,10 @@ const messages = {
 'codes migrated: ':'коды перенесены',
 'isZKS':'признак ЗКС',
 'updated successfully':'успешно изменен(а)',
-
+'WORK': 'Работа',
+'SERVICE': 'Услуга',
+'GOODS': 'Товар',
+'sort': 'сорт.',
 	},
 }
 
