@@ -7,32 +7,23 @@
         <hr>
         <div class="row">
             <div class="col">
-                <span v-if="names">
-                    {{names.length}}
-                </span>
-                <span v-if="cods">
-                    {{cods.length}}
-                </span>
-                <span v-if="descriptions">
-                    {{descriptions.length}}
-                </span>
                 <form class="form-inline">
                     <div class="input-group mb-2 mr-sm-2">
                         <input class="form-control" id="inlineFormInputName2" :placeholder="$t('Group')" :aria-label="$t('Group')"
                          list="groups" type="text" aria-describedby="basic-addon2"
-                         v-model="queries.group_name" @change="onFilterChanged('group')">
+                         v-model="queries.group_name" @change="onFilterChanged('group',queries.group_name)">
                         <datalist id="groups">
                           <option v-for="group in groups" >{{display('name',group)}}</option>
                         </datalist>
                         <div class="input-group-append">
-                            <button class="btn btn-outline-secondary" type="button" @click.prevent="queries.group_name=null">
+                            <button class="btn btn-outline-secondary" type="button" @click.prevent="queries.group_name=queries.subgroup_name=null">
                                 <i class="fas fa-times"></i>
                             </button>
                         </div>
                     </div>
                     <div class="input-group mb-2 mr-sm-2">
                         <input list="subgroups" class="form-control" id="inlineFormInputName3" :placeholder="$t('Subgroup')" :aria-label="$t('Subgroup')"
-                         v-model="queries.subgroup_name" @change="onFilterChanged('subgroup')" :readonly="isEmpty(queries.group_name)" aria-describedby="times2"
+                         v-model="queries.subgroup_name" @change="filterChanged=true" :readonly="isEmpty(queries.group_name)" aria-describedby="times2"
                          type=text
                         >
                         <datalist id="subgroups">
@@ -46,9 +37,9 @@
                     </div>
                     <div class="input-group mb-2 mr-sm-2">
                         <input type=text list="code.code" class="form-control" id="codeInput" :placeholder="$t('Code')" :aria-label="$t('Subgroup')"
-                         v-model="queries.code" @change="filterChanged=true">
-                         <datalist id="code.code">
-                          <option v-for="item in cods">{{item.code}}</option>
+                         v-model="queries.code" @change="filterChanged=true" @keyup="typeahead($event.target.value,'code_code',null,null,$event)">
+                        <datalist id="code.code">
+                          <option v-for="item in code_codes">{{item.code}}</option>
                         </datalist>
                         <div class="input-group-append">
                             <button class="btn btn-outline-secondary" type="button" @click.prevent="queries.code=null">
@@ -58,9 +49,9 @@
                     </div>
                     <div class="input-group mb-2 mr-sm-2">
                         <input type=text list="code.name" class="form-control" id="nameInput" :placeholder="$t('Name')" :aria-label="$t('Name')"
-                         v-model="queries.name" @change="filterChanged=true">
+                         v-model="queries.name" @change="filterChanged=true" @keyup="typeahead($event.target.value,'code_name',null,null,$event)">
                          <datalist id="code.name">
-                          <option v-for="item in names">{{display('name',item)}}</option>
+                          <option v-for="item in code_names">{{display('name',item)}}</option>
                         </datalist>
                         <div class="input-group-append">
                             <button class="btn btn-outline-secondary" type="button" @click.prevent="queries.name=null">
@@ -70,9 +61,9 @@
                     </div>
                     <div class="input-group mb-2 mr-sm-2">
                         <input type=text list="code.desc" class="form-control" id="descriptionInput" :placeholder="$t('Description')" :aria-label="$t('Description')"
-                         v-model="queries.description" @change="filterChanged=true">
+                         v-model="queries.description" @change="filterChanged=true" @keyup="typeahead($event.target.value,'code_description',null,null,$event)">
                          <datalist id="code.desc">
-                          <option v-for="item in descriptions">{{display('description',item)}}</option>
+                          <option v-for="item in code_descriptions">{{display('description',item)}}</option>
                         </datalist>
                         <div class="input-group-append">
                             <button class="btn btn-outline-secondary" type="button" @click.prevent="queries.description=null">
@@ -229,20 +220,20 @@
                     <div class="col">
                         <form>
                             <label class="sr-only" for="migrateGroup">{{$t('Group')}}</label>
-                            <select class="form-control mb-2 mr-sm-2" id="migrateGroup" v-model="migrate_group_id">
+                            <select class="form-control mb-2 mr-sm-2" id="migrateGroup" v-model="migrate_group_name" @change="onFilterChanged('group',migrate_group_name)">
                                 <option selected disabled value=-1>
                                     {{$t('Group')}}
                                 </option>
-                                <option v-for="group in groups" value="group.id" :disabled="display('name',group)===queries.group_name">
+                                <option v-for="group in groups" :value="display('name',group)" :disabled="display('name',group)===queries.group_name">
                                     {{display('name',group)}}
                                 </option>
                             </select>
                             <label class="sr-only" for="migrateSubgroup">{{$t('Subgroup')}}</label>
-                            <select class="form-control mb-2 mr-sm-2" id="migrateSubgroup" v-model="migrate_subgroup_id" :disabled="migrate_group_id==-1">
+                            <select class="form-control mb-2 mr-sm-2" id="migrateSubgroup" v-model="migrate_subgroup_name" :disabled="migrate_group_name==null||migrate_group_name==''">
                                 <option selected disabled value=-1>
                                     {{$t('Subgroup')}}
                                 </option>
-                                <option v-for="subgroup in subgroups" value="subgroup.id" :disabled="display('name',subgroup)===queries.subgroup_name">
+                                <option v-for="subgroup in subgroups" :value="display('name',subgroup)" :disabled="display('name',subgroup)===queries.subgroup_name">
                                     {{display('name',subgroup)}}
                                 </option>
                             </select>
@@ -252,7 +243,7 @@
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">{{$t('Cancel')}}</button>
-                <button type="button" class="btn btn-primary" :disabled="migrate_subgroup_id==-1" @click.prevent="migrate()">{{$t('Migrate')}}</button>
+                <button type="button" class="btn btn-primary" :disabled="migrate_group_name==null||migrate_group_name==''" @click.prevent="migrate()">{{$t('Migrate')}}</button>
               </div>
             </div>
           </div>
@@ -280,9 +271,9 @@ export default {
         return {
             saving: false,
             codes: null,
-            cods:null,
-            names:null,
-            descriptions:null,
+            code_codes:null,
+            code_names:null,
+            code_descriptions:null,
             pageCache: 1,
             perPageCache: 15,
             meta: null,
@@ -299,14 +290,19 @@ export default {
             },
             groups: null,
             subgroups: null,
-            migrate_group_id: -1,
-            migrate_subgroup_id: -1,
+            migrate_group_name: null,
+            migrate_subgroup_name: null,
             groups: null,
             subgroups: null,
             filterChanged: false,
             filterApplied: false,
             selectedCodes: [],
             selectedAll: false,
+            choose: {
+                code:false,
+                name:false,
+                description:false,
+            },
             links: {
                 first: null,
                 last: null,
@@ -428,8 +424,9 @@ export default {
         perPage(){
             return this.meta!==null ? this.meta.per_page : this.perPageCache;
         },
-        typeahead(input, type, except = null, parent = null){
-            //if(input.length >0){
+        typeahead(input, type, except = null, parent = null, event = null){
+            if (event instanceof KeyboardEvent || event === null){
+                this.filterChanged = true
                 var params = {} 
                   params.input = input
                   params.lang = this.$i18n.locale
@@ -441,24 +438,18 @@ export default {
                             params[key] = this.queries[key]
                     }
                     api.search(this.getType(type), params).then((response) => {
-                        if(type==='code'){
-                            if(this.queries['code']!=null)
-                                this['cods'] = response.data.data
-                            else if(this.queries['name']!=null)
-                                this['names'] = response.data.data
-                            else if(this.queries['description']!=null)
-                                this['descriptions'] = response.data.data
-                        }else
-                            this[type+'s'] = response.data.data
+                        this[type+'s'] = response.data.data
                     }).catch(e => {
                         if(e.response.status==401)
                             this.redirectToLogin()
                     });
-            //}
+            }
         },
         getType(type){
             if(type.startsWith('migrate_'))
                 return type.split('_')[1]
+            else if(type.startsWith('code_'))
+                return type.split('_')[0]
             else
                 return type
         },
@@ -540,7 +531,7 @@ export default {
                     'applied_filters':this.queries.group_name+'_'+this.queries.subgroup_name+'_'+this.queries.isZKS+'_'+this.queries.code
                     +'_'+this.queries.name+'_'+this.queries.description+'_'+this.queries.type,
                     //'migrate_group_name': this.migrate_group_name,
-                    'migrate_subgroup_id': this.migrate_subgroup_id, 
+                    'migrate_subgroup_name': this.migrate_subgroup_name, 
                     'lang': this.$i18n.locale,
                 }
                 api.migrate(params)
@@ -595,10 +586,10 @@ export default {
                     console.log(error)
                 })*/
         },
-        onFilterChanged(type){
+        onFilterChanged(type,input){
             this.filterChanged=true
             if(type==='group')
-                this.typeahead('','subgroup',null,this.queries.group_name)
+                this.typeahead('','subgroup',null,input)
 
         },
         isEmpty(str) {

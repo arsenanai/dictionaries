@@ -35,7 +35,9 @@ class TRUController extends Controller
     	if(in_array($sortBy,array('id','name_kk','name_ru'))){
     		$query = $query->orderBy($sortBy,($order==='desc')?'desc':'asc');
     	}
-    	$query = $query->paginate(15);
+    	//APP_PAGINATION_PER_PAGE=15
+		//APP_TYPEAHEAD_LIMIT=10
+    	$query = $query->paginate(env('APP_PAGINATION_PER_PAGE'));
     	return GroupResource::collection($query);
     }
     public function indexSubgroup(Request $request)
@@ -62,14 +64,13 @@ class TRUController extends Controller
     	if(in_array($sortBy,array('id','name_kk','name_ru'))){
     		$query = $query->orderBy($sortBy,($order==='desc')?'desc':'asc');
     	}
-    	$query = $query->paginate(15);
+    	$query = $query->paginate(env('APP_PAGINATION_PER_PAGE'));
     	return SubgroupResource::collection($query);
     }
     public function indexCode(Request $request)
     {
     	$sortBy = $request->input('sort');
     	$order = $request->input('order');
-    	$group_name = $request->input('group_name');
     	$subgroup_name = $request->input('subgroup_name');
     	$code = $request->input('code');
     	$name = $request->input('name');
@@ -80,10 +81,6 @@ class TRUController extends Controller
     	$lang = ($lang==='ru')?'ru':'kk';
     	App::setLocale($lang);
     	$query = Code::with('subgroup.group');
-    	if($group_name!=null)
-    		$query = $query->whereHas('group', function($q) use($lang, $group_name){
-    			$q->where('name_'.$lang, 'ilike', '%'.$group_name.'%');
-			});
     	if($subgroup_name!=null)
     		$query = $query->whereHas('subgroup', function($q) use($lang, $subgroup_name){
     			$q->where('name_'.$lang, 'ilike', '%'.$subgroup_name.'%');
@@ -105,7 +102,7 @@ class TRUController extends Controller
     	if(in_array($sortBy,array('id','code','name_kk','name_ru','description_kk','description_ru'))){
     		$query = $query->orderBy($sortBy,($order==='desc')?'desc':'asc');
     	}
-    	$query = $query->paginate(15);
+    	$query = $query->paginate(env('APP_PAGINATION_PER_PAGE'));
     	return CodeResource::collection($query);
     }
 
@@ -314,14 +311,15 @@ class TRUController extends Controller
 		$name = $request->input('name');
 		$description = $request->input('description');
 		if($name!=null)
-			$result = DB::table('codes')->select('name_'.$lang)->where('name_'.$lang,'ilike','%'.$name.'%');
+			$result = Code::select('name_'.$lang)->where('name_'.$lang,'ilike','%'.$name.'%')->groupBy('name_'.$lang);
 		else if($description!=null)
-			$result = DB::table('codes')->select('description_'.$lang)->where('description_'.$lang,'ilike','%'.$description.'%');
+			$result = Code::select('description_'.$lang)->where('description_'.$lang,'ilike','%'.$description.'%')->groupBy('description_'.$lang);
 		else
-			$result = DB::table('codes')->select('code')->where('code','ilike',$code. '%');
+			$result = Code::select('code')->where('code','ilike',$code. '%')->groupBy('code');
+
 		$result = $result
-			->get();
-	    return response(['data' => $result], 200);
+			->limit(10)->get();
+	    return CodeResource::collection($result);
 	}
 
 	public function migrateCodes(Request $request){
@@ -346,8 +344,8 @@ class TRUController extends Controller
     	$lang = ($lang==='ru')?'ru':'kk';
     	App::setLocale($lang);
 		$request = DB::table('codes');
-		$request = $request->join('groups', 'codes.group_id', '=', 'groups.id');
     	$request = $request->join('subgroups', 'codes.subgroup_id', '=', 'subgroups.id');
+    	$request = $request->join('groups', 'subgroups.group_id', '=', 'groups.id');
 		$debug = '';
 		if($selectedAll===false){
 			//$debug .= "selecting by ids\n";
@@ -368,10 +366,10 @@ class TRUController extends Controller
 				throw $error;
 			}else{
 				$applied = false;
-				if(!($selectedGroupName==null || $selectedGroupName=='')){
+				/*if(!($selectedGroupName==null || $selectedGroupName=='')){
 					$request = $request->where('group.name_'.$lang,'ilike','%'.$selectedGroupName.'%');
 					//$debug .= "selecting by group_id\n";
-				}
+				}*/
 				if(!($selectedSubgroupName==null || $selectedSubgroupName=='')){
 					$request = $request->where('subgroup.name_'.$lang,'ilike','%'.$selectedSubgroupName.'%');
 					//$debug .= "selecting by subgroup_id\n";
