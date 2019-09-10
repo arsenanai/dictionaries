@@ -417,6 +417,30 @@ export default {
             else
                 return this.selectedItems.length
         },
+        onDelete(id) {
+            if (confirm(this.$i18n.t('Are you sure that you want to delete that ')+this.$i18n.t('Subgroup')+"?")) {
+                this.saving = true;
+                api.delete(id)
+               .then((response) => {
+                    console.log(response)
+                  this.message = 'Subgroup Deleted';
+                  var toDelete = -1;
+                  this.subgroups.every((code, i) => {
+                    if(code.id===id){
+                        toDelete = i
+                        return false
+                    }else
+                        return true
+                  });
+                  if(toDelete!=-1)
+                    this.codes.splice(toDelete, 1);
+               }).catch(e => {
+                console.log(e)
+                if(e.response.status==401)
+                  this.redirectToLogin()
+               });
+            }
+        },
     }
 }
 </script>

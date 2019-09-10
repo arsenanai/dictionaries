@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Writer\Xls;
+use Illuminate\Support\Facades\Validator;
 
 class TRUController extends Controller
 {
@@ -133,20 +134,16 @@ class TRUController extends Controller
 	}
 
 	public function createSubgroup(Subgroup $group, Request $request){
-		/*$data = $request->validate([
-	        'name' => 'required',
-	        'email' => 'required|unique:users',
-	        'password' => 'required|min:8',
-	    ]);
-
-	    return new UserResource(User::create([
-	        'name' => $data['name'],
-	        'email' => $data['email'],
-	        'password' => bcrypt($data['password']),
-	    ]));*/
+		Validator::extend('uniqueGroupIdAndNameRu', function ($attribute, $value, $parameters, $validator) {
+		    $count = DB::table('subgroups')
+		    	->where('group_id', $parameters[0])
+                ->where('name_ru', $value)
+                ->count();
+		    return $count === 0;
+		});
 		$data = $request->validate([
 	        'name_kk' => 'required|string|max:256',
-	        'name_ru' => 'required|string|max:256',
+	        'name_ru' => "required|string|max:256|uniqueGroupIdAndNameRu:{$request->input('group.id')}",
 	        'group.id' => 'required|exists:groups,id',
 	        //'isZKS' => 'boolean',
 	    ]);
@@ -502,8 +499,8 @@ class TRUController extends Controller
 	    	);
     		//->with('group')
     		//->with('subgroup');
-	    	$query = $query->join('groups', 'groups.id','=','codes.group_id');
 	    	$query = $query->join('subgroups', 'subgroups.id','=','codes.subgroup_id');
+	    	$query = $query->join('groups', 'groups.id','=','subgroups.group_id');
 	    	if($group_name!=null)
 	    		$query = $query->where('groups.name_'.$lang, 'ilike', '%'.$group_name.'%');
 	    	if($subgroup_name!=null)

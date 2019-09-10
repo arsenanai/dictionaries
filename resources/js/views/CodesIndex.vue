@@ -177,12 +177,12 @@
                         </td>
                         <td>
                             <div class="float-right">
-                                <router-link class="btn btn-outline-primary btn-sm" :to="getLink('edit',code)">
+                                <!--<router-link class="btn btn-outline-primary btn-sm" :to="getLink('edit',code)">
                                     <i class="fa fa-edit"></i>
                                 </router-link>
                                 <button :disabled="saving" @click.prevent="onDelete(code.id)" class="btn btn-outline-danger btn-sm">
                                     <i class="fa fa-trash"></i>
-                                </button>
+                                </button>-->
                             </div>
                         </td>
                     </tr>
@@ -524,7 +524,7 @@ export default {
             }
         },
         migrate(){
-            if (confirm(this.$i18n.t('Total to be migrated: ')+this.totalSelectedCodes()+". "+this.$i18n.t('Are you sure?'))) {
+            if (confirm(this.$i18n.t('Total to be migrated: ')+" "+this.totalSelectedCodes()+". "+this.$i18n.t('Are you sure?'))) {
                 var params = {
                     'codes': this.selectedCodes,
                     'is_selected_all_codes': this.selectedAll,
@@ -537,20 +537,20 @@ export default {
                 api.migrate(params)
                 .then((response) => {
                     //console.log(response.data)
-                    alert(this.$i18n.t('Successfully migrated: ')+response.data.affected_rows)
+                    alert(this.$i18n.t('Successfully migrated: ')+" "+response.data.affected_rows)
                     this.$router.go()
                 }).catch(e => {
-                    console.log(e)
                     if(e.response.status==401)
                       this.redirectToLogin()
                     if(e.response.status==422){
-                        var message = e.response.data.message + '\n'
-                        for(var key in e.response.data.errors){
-                            e.response.data.errors[key].forEach((value)=>{
-                                message += value +'\n'
-                            })
-                        }
-                        alert(message)
+                      var message = this.$i18n.t(e.response.data.message) + '\n'
+                      for(var key in e.response.data.errors){
+                          e.response.data.errors[key].forEach((value)=>{
+                              message += this.$i18n.t(value) +'\n'
+                          })
+                      }
+                      alert(message)
+                      console.log(message)
                     }
                 })
             }

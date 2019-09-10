@@ -88,6 +88,8 @@ const messages = {
 'SERVICE': 'Қызмет',
 'GOODS': 'Тауар',
 'sort': 'сорт.',
+'The given data was invalid.': 'Мәлімет дұрыс толтырылмады',
+'validation.unique_group_id_and_name_ru':'Мұндай топтағы орысша топша атауы қолданылған',
 	},
 	"ru": {
 		login: {
@@ -173,6 +175,8 @@ const messages = {
 'SERVICE': 'Услуга',
 'GOODS': 'Товар',
 'sort': 'сорт.',
+'The given data was invalid.': 'Введенные данные не корректны',
+'validation.unique_group_id_and_name_ru':'В данной группе указанное наименование на русском уже используется',
 	},
 }
 

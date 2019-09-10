@@ -21,7 +21,8 @@
           </div>
           <div class="form-group">
               <label for="group_name">{{$t('Group')}}</label>
-              <input class="form-control" id="group_name" list="groups" @keyup="typeahead($event.target.value, 'groups')">
+              
+              <input class="form-control" id="group_name" list="groups" @keyup="typeahead($event.target.value, 'groups',$event)">
             <datalist id="groups">
               <option v-for="group in groups" :value="display('name',group)"></option>
             </datalist>
@@ -75,7 +76,17 @@
                 }, 1000);
             }).catch(e => {
                 if(e.response.status==401)
-                  this.redirectToLogin()
+                      this.redirectToLogin()
+                    if(e.response.status==422){
+                      var message = this.$i18n.t(e.response.data.message) + '\n'
+                      for(var key in e.response.data.errors){
+                          e.response.data.errors[key].forEach((value)=>{
+                              message += this.$i18n.t(value) +'\n'
+                          })
+                      }
+                      alert(message)
+                      console.log(message)
+                    }
             }).then(_ => this.saving = false);
         }
       },
@@ -96,36 +107,25 @@
         }
         if(this.subgroup.group == null){
           this.validation.group = this.$i18n.t('Group have to be choosen')
+          result = false;
         }
       return result
     },
-    typeahead(input, type) {
-      var matched = false;
-      if(this.groups && type==='groups'){
-        var group;
-        if(this.$i18n.locale==='ru')
-          group = this.groups.find(group => group.name_ru === input);
-        else
-          group = this.groups.find(group => group.name_kk === input);
-        if(group){
-          this.subgroup.group = group
-          matched = true
-        }
-      }
-      if (input.length > 1 && matched===false) {
-        if(type==='groups'){
-          api.searchGroup(input, this.$i18n.locale).then((response) => {
-            this.groups = response.data.data
-          }).catch(e => {
-            if(e.response.status==401)
-              this.redirectToLogin()
-          });
-        }
-      }else if(input.length == 0){
-        if(type==='groups'){
-          this.subgroup.group=null;
-          this.groups=null;
-        }
+    typeahead(input, type, event=null) {
+      if (event instanceof KeyboardEvent || event === null){
+          if(type==='groups'){
+            var params = {} 
+                  params.input = input
+                  params.lang = this.$i18n.locale
+            api.search('group',params).then((response) => {
+              this.groups = response.data.data
+            }).catch(e => {
+              if(e.response.status==401)
+                this.redirectToLogin()
+            });
+          }
+      }else{
+        this.subgroup.group = this.groups.find(group => group['name_'+this.$i18n.locale] === input);
       }
     },
     created() {
@@ -145,19 +145,3 @@
   }
 };
 </script>
-<style lang="scss" scoped>
-$red: lighten(red, 30%);
-$darkRed: darken($red, 50%);
-.form-group label {
-  display: block;
-}
-.alert {
-    background: $red;
-    color: $darkRed;
-    padding: 1rem;
-    margin-bottom: 1rem;
-    width: 50%;
-    border: 1px solid $darkRed;
-    border-radius: 5px;
-}
-</style>
