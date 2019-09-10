@@ -34,8 +34,8 @@
         data() {
             return {
               token: null,
-              login: '',
-              pass: '',
+              login: 'ensuser@skc.kz',
+              pass: '6O0#2k9`5}-.^>T',
               loading: false,
               message: null,
             };

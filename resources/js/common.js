@@ -23,8 +23,9 @@ export const common = {
 	      		return "";
 	    },
 	    redirectToLogin(){
-	    	localStorage.removeItem(this.tokenVariable);
-	    	this.$router.push({name: 'auth.login'})
+	    	//this.$router.push({name: 'auth.logout'})
+	    	//localStorage.removeItem(this.tokenVariable);
+	    	//this.$router.push({name: 'auth.login'})
 	    }
 	}
 }
