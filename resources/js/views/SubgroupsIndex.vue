@@ -152,18 +152,8 @@
 </template>
 <script>
 import axios from 'axios';
-import api from '../api/subgroups';
+import api from '../api/routes';
 import {common} from '../common.js'
-const getData = (params, callback) => {
-    axios.defaults.headers.common['Authorization'] = 'Bearer '+localStorage.getItem("enstru_token");
-    axios
-        .get('/api/subgroups', {params} )
-        .then(response => {
-            callback(null, response.data);
-        }).catch(error => {
-            callback(error, error.response);
-        });
-};
 
 export default {
     mixins: [common],
@@ -209,12 +199,20 @@ export default {
             this.filterApplied = false
             this.subgroups = this.links = this.meta = null
             this.setParams()
-            getData(
+            this.getData(
                 this.$route.query,
                 (err, data) => {
                     this.setData(err, data);
                 //next();
             });
+        },
+        getData(params, callback){
+            api.all('subgroup', {params} )
+                .then(response => {
+                    callback(null, response.data);
+                }).catch(error => {
+                    callback(error, error.response);
+                });
         },
         setParams(){
             for(var key in this.$route.query) 
@@ -254,9 +252,7 @@ export default {
         },
         setData(err, data) {
             if (err) {
-                this.error = err.toString();
-                if(this.error.includes('401'))
-                    this.redirectToLogin()
+                basicErrorHandling(err)
             } else {
                 this.subgroups = data.data;
                 this.subgroups.forEach((subgroup, index) => {
@@ -342,8 +338,7 @@ export default {
                     else
                         this[type+'s'] = response.data.data
                 }).catch(e => {
-                    if(e.response.status==401)
-                        this.redirectToLogin()
+                    basicErrorHandling(e)
                 });
             }
         },
@@ -390,15 +385,13 @@ export default {
                     'migrate_group_name': this.migrate_group_name,
                     'lang': this.$i18n.locale,
                 }
-                api.migrate(params)
+                api.migrate('subgroup',params)
                 .then((response) => {
                     //console.log(response.data)
                     alert(this.$i18n.t('Successfully migrated: ')+response.data.affected_rows)
                     this.$router.go()
                 }).catch(e => {
-                    console.log(e)
-                    if(e.response.status==401)
-                      this.redirectToLogin()
+                    basicErrorHandling(e)
                     if(e.response.status==422){
                         var message = e.response.data.message + '\n'
                         for(var key in e.response.data.errors){
@@ -418,9 +411,9 @@ export default {
                 return this.selectedItems.length
         },
         onDelete(id) {
-            if (confirm(this.$i18n.t('Are you sure that you want to delete that ')+this.$i18n.t('Subgroup')+"?")) {
+            if (confirm(this.$i18n.t('Are you sure that you want to delete that ')+"?")) {
                 this.saving = true;
-                api.delete(id)
+                api.delete('subgroup',id)
                .then((response) => {
                     console.log(response)
                   this.message = 'Subgroup Deleted';
@@ -435,9 +428,7 @@ export default {
                   if(toDelete!=-1)
                     this.codes.splice(toDelete, 1);
                }).catch(e => {
-                console.log(e)
-                if(e.response.status==401)
-                  this.redirectToLogin()
+                basicErrorHandling(e)
                });
             }
         },

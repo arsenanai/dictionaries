@@ -16,14 +16,14 @@
                           <option v-for="group in groups" >{{display('name',group)}}</option>
                         </datalist>
                         <div class="input-group-append">
-                            <button class="btn btn-outline-secondary" type="button" @click.prevent="queries.group_name=queries.subgroup_name=null">
+                            <button class="btn btn-outline-secondary" type="button" @click.prevent="queries.group_name=queries.subgroup_name=subgroups=null">
                                 <i class="fas fa-times"></i>
                             </button>
                         </div>
                     </div>
                     <div class="input-group mb-2 mr-sm-2">
                         <input list="subgroups" class="form-control" id="inlineFormInputName3" :placeholder="$t('Subgroup')" :aria-label="$t('Subgroup')"
-                         v-model="queries.subgroup_name" @change="filterChanged=true" :readonly="isEmpty(queries.group_name)" aria-describedby="times2"
+                         v-model="queries.subgroup_name" @change="filterChanged=true" :readonly="isEmpty(queries.group_name) || subgroups==null" aria-describedby="times2"
                          type=text
                         >
                         <datalist id="subgroups">
@@ -161,8 +161,8 @@
                 <tbody v-if="codes!==null && codes.length>0">
                     <tr v-for="(code,index) in codes" :class="{selected: code.selected}" @click="select(code)" style="cursor: pointer;">
                         <th scope="row" >
-                            {{ (currentPage()-1)*perPage()+index+1 }}
                             <i v-if="code.selected" class="fas fa-check"></i>
+                            {{ (currentPage()-1)*perPage()+index+1 }}
                         </th>
                         <td class="d-none d-md-table-cell name-cell">{{display('name',code.subgroup.group)}}</td>
                         <td class="d-none d-md-table-cell name-cell">{{display('name',code.subgroup)}}</td>
@@ -229,7 +229,7 @@
                                 </option>
                             </select>
                             <label class="sr-only" for="migrateSubgroup">{{$t('Subgroup')}}</label>
-                            <select class="form-control mb-2 mr-sm-2" id="migrateSubgroup" v-model="migrate_subgroup_name" :disabled="migrate_group_name==null||migrate_group_name==''">
+                            <select class="form-control mb-2 mr-sm-2" id="migrateSubgroup" v-model="migrate_subgroup_name" :disabled="migrate_group_name==null||migrate_group_name==''||subgroups==null">
                                 <option selected disabled value=-1>
                                     {{$t('Subgroup')}}
                                 </option>
@@ -252,18 +252,8 @@
 </template>
 <script>
 import axios from 'axios';
-import api from '../api/codes';
+import api from '../api/routes';
 import {common} from '../common.js'
-const getCodes = (params, callback) => {
-    axios.defaults.headers.common['Authorization'] = 'Bearer '+localStorage.getItem("enstru_token");
-    axios
-        .get('/api/codes', {params} )
-        .then(response => {
-            callback(null, response.data);
-        }).catch(error => {
-            callback(error, error.response);
-        });
-};
 
 export default {
     mixins:[common],
@@ -314,7 +304,6 @@ export default {
     },
     mounted(){
         this.fetchData()
-        axios.defaults.headers.common['Accept-Language'] = this.$i18n.locale
         this.typeahead('','group')
     },
     watch:{
@@ -325,13 +314,21 @@ export default {
             this.filterApplied = false
             this.codes = this.links = this.meta = null
             this.setParams()
-            getCodes(
+            this.getCodes(
                 this.$route.query,
                 (err, data) => {
                     this.setData(err, data);
 
                 //next();
             });
+        },
+        getCodes(params, callback){
+            api.all('code',{params})
+                .then(response => {
+                    callback(null, response.data);
+                }).catch(error => {
+                    callback(error, error.response);
+                });
         },
         setParams(){
             for(var key in this.$route.query) 
@@ -379,11 +376,9 @@ export default {
                 query: this.fillParams(page)
             });
         },
-        setData(err, data) {
-            if (err) {
-                this.error = err.toString();
-                if(this.error.includes('401'))
-                    this.redirectToLogin()
+        setData(e, data) {
+            if (e) {
+                basicErrorHandling(e)
             } else {
                 this.codes = data.data;
                 this.codes.forEach((code, index) => {
@@ -433,15 +428,15 @@ export default {
                   params.except = except
                   params.parent = parent
                   const keys = Object.keys(this.queries)
-                    for(const key of keys){
-                        if(this.queries[key]!=null && this.queries[key]!='' &&['code','name','description'].includes(key))
-                            params[key] = this.queries[key]
-                    }
+                    if(type!='subgroup'&&type!='group')
+                        for(const key of keys){
+                            if(this.queries[key]!=null && this.queries[key]!='' &&['code','name','description'].includes(key))
+                                params[key] = this.queries[key]
+                        }
                     api.search(this.getType(type), params).then((response) => {
                         this[type+'s'] = response.data.data
                     }).catch(e => {
-                        if(e.response.status==401)
-                            this.redirectToLogin()
+                        basicErrorHandling(e)
                     });
             }
         },
@@ -477,10 +472,10 @@ export default {
                 }else
                     return ''
         },
-        onDelete(id) {
-            if (confirm(this.$i18n.t('Are you sure that you want to delete that ')+this.$i18n.t('Code')+"?")) {
+        /*onDelete(id) {
+            if (confirm(this.$i18n.t('Are you sure that you want to delete that ')+"?")) {
                 this.saving = true;
-                api.delete(id)
+                api.delete('code',id)
                .then((response) => {
                   this.message = 'Code Deleted';
                   var toDelete = -1;
@@ -494,11 +489,10 @@ export default {
                   if(toDelete!=-1)
                     this.codes.splice(toDelete, 1);
                }).catch(e => {
-                if(e.response.status==401)
-                  this.redirectToLogin()
+                basicErrorHandling(e)
                });
             }
-        },
+        },*/
         select(code){
             code.selected = !code.selected
             if(code.selected)
@@ -534,14 +528,15 @@ export default {
                     'migrate_subgroup_name': this.migrate_subgroup_name, 
                     'lang': this.$i18n.locale,
                 }
-                api.migrate(params)
+                api.migrate('code',params)
                 .then((response) => {
                     //console.log(response.data)
                     alert(this.$i18n.t('Successfully migrated: ')+" "+response.data.affected_rows)
                     this.$router.go()
                 }).catch(e => {
+                    basicErrorHandling(e)
                     if(e.response.status==401)
-                      this.redirectToLogin()
+                        this.redirectToLogin()
                     if(e.response.status==422){
                       var message = this.$i18n.t(e.response.data.message) + '\n'
                       for(var key in e.response.data.errors){
@@ -582,8 +577,8 @@ export default {
                         'codes.xlsx',
                         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
                       )
-                }).catch((error) => {
-                    console.log(error)
+                }).catch((e) => {
+                    basicErrorHandling(e)
                 })*/
         },
         onFilterChanged(type,input){

@@ -31,7 +31,7 @@
   </div>
 </template>
 <script>
-import api from '../api/users';
+import api from '../api/routes';
 import {common} from '../common.js'
 export default {
   mixins: [common],
@@ -55,7 +55,7 @@ export default {
     onSubmit(event) {
     	if(this.validated()===true){
     		this.saving = true;
-	        api.update(this.user.id, {
+	        api.update('user',this.user.id, {
 	            name: this.user.name,
 	            email: this.user.email,
 	        }).then((response) => {
@@ -66,8 +66,7 @@ export default {
 	            	this.$router.push({name:"users.index"});
 	            }, 2000);
 	        }).catch(e => {
-	            if(e.response.status==401)
-                this.redirectToLogin()
+            basicErrorHandling(e)
 	        }).then(_ => this.saving = false);
     	}
     },
@@ -89,15 +88,12 @@ export default {
   onDelete() {
     this.saving = true;
 
-    api.delete(this.user.id)
+    api.delete('user',this.user.id)
        .then((response) => {
           this.message = this.$i18n.t('User Deleted');
         setTimeout(() => this.$router.push({ name: 'users.index' }), 1000);
        }).catch((e) => {
-        if(e.response.status==401)
-          this.redirectToLogin()
-        //this.$router.push({ name: '404' });
-        this.message = e.response
+        basicErrorHandling(e)
       });
   },
 	validateEmail(email) {
@@ -106,7 +102,7 @@ export default {
 	},
   },
   created() {
-      api.find(this.$route.params.id)
+      api.find('user',this.$route.params.id)
       .then((response) => {
           //setTimeout(() => {
             this.loaded = true;
@@ -114,26 +110,8 @@ export default {
           //}, 1000);
       })
       .catch((e) => {
-        if(e.response.status==401)
-          this.redirectToLogin()
-        this.$router.push({ name: '404' });
+        basicErrorHandling(e)
       });
   }
 };
 </script>
-<style lang="scss" scoped>
-$red: lighten(red, 30%);
-$darkRed: darken($red, 50%);
-.form-group label {
-  display: block;
-}
-.alert {
-    background: $red;
-    color: $darkRed;
-    padding: 1rem;
-    margin-bottom: 1rem;
-    width: 50%;
-    border: 1px solid $darkRed;
-    border-radius: 5px;
-}
-</style>

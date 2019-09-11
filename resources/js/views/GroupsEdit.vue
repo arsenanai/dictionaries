@@ -7,7 +7,7 @@
             <!--<router-link class="btn btn-outline-success float-right" :to="{ name: 'codes.create' }">{{$t('Add New')}}</router-link>-->
         </h2>
         <hr>
-        <div v-if="message" class="alert">{{ message }}</div>
+        <div v-if="message" :class="message.type">{{ message.text }}</div>
         <div v-if="! loaded">Loading...</div>
           <form @submit.prevent="onSubmit($event)" v-else>
             <div class="form-group">
@@ -35,7 +35,7 @@
   </div>
 </template>
 <script>
-import api from '../api/groups';
+import api from '../api/routes';
 import {common} from '../common'
 export default {
   mixins: [common],
@@ -60,21 +60,22 @@ export default {
     onSubmit(event) {
     	if(this.validated()===true){
     		this.saving = true;
-	        api.update(this.group.id, {
+        this.message = null;
+	        api.update('group',this.group.id, {
 	            name_kk: this.group.name_kk,
 	            name_ru: this.group.name_ru,
               isZKS: this.group.isZKS,
 	        }).then((response) => {
-	            this.message = this.$i18n.t('Group updated');
+              this.message={}
+              this.message.type='alert alert-success'
+	            this.message.text = this.$i18n.t('Group updated');
 	            this.group = response.data.data;
 	            setTimeout(() => {
 	            	this.message = null
 	            	this.$router.push({name:"groups.index"});
 	            }, 1000);
 	        }).catch(e => {
-            if(e.response.status==401)
-                  this.redirectToLogin()
-	            console.log(error)
+            basicErrorHandling(e)
 	        }).then(_ => this.saving = false);
     	}
     },
@@ -96,19 +97,21 @@ export default {
 	},
   onDelete() {
     this.saving = true;
-
-    api.delete(this.group.id)
+    this.message = null
+    api.delete('group',this.group.id)
        .then((response) => {
-          this.message = this.$i18n.t('Group Deleted');
+          this.message = {}
+          this.message.type = 'alert alert-success'
+          this.message.text = this.$i18n.t('Group Deleted');
         setTimeout(() => this.$router.push({ name: 'groups.index' }), 2000);
        }).catch(e => {
-        if(e.response.status==401)
-                  this.redirectToLogin()
+        basicErrorHandling(e)
        });
   	},
   },
   created() {
-      api.find(this.$route.params.id)
+    this.message = null
+      api.find('group',this.$route.params.id)
       .then((response) => {
           //setTimeout(() => {
             this.loaded = true;
@@ -116,26 +119,8 @@ export default {
           //}, 1000);
       })
       .catch((e) => {
-        if(e.response.status==401)
-          this.redirectToLogin()
-        this.$router.push({ name: '404' });
+        basicErrorHandling(e)
       });
   }
 };
 </script>
-<style lang="scss" scoped>
-$red: lighten(red, 30%);
-$darkRed: darken($red, 50%);
-.form-group label {
-  display: block;
-}
-.alert {
-    background: $red;
-    color: $darkRed;
-    padding: 1rem;
-    margin-bottom: 1rem;
-    width: 50%;
-    border: 1px solid $darkRed;
-    border-radius: 5px;
-}
-</style>

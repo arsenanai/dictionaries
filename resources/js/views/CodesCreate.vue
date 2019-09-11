@@ -8,7 +8,7 @@
             <!--<router-link class="btn btn-outline-success float-right" :to="{ name: 'codes.create' }">{{$t('Add New')}}</router-link>-->
         </h2>
         <hr>
-      <div v-if="message" class="alert alert-warning">{{ message }}</div>
+      <div v-if="message" :class="message.type">{{ message.text }}</div>
       <form @submit.prevent="onSubmit($event)">
         <div class="form-group">
             <label for="code_name">{{$t('Code')}}</label>
@@ -62,7 +62,7 @@
   </div>
 </template>
 <script>
-import api from '../api/codes';
+import api from '../api/routes';
 import {common} from '../common.js'
 
 export default {
@@ -96,22 +96,30 @@ export default {
   methods: {
     onSubmit(event) {
       if(this.validated()===true){
+        this.message = null
         this.saving = true;
-          api.create(this.code).then((response) => {
-              this.message = this.$i18n.t('Code created successfully');
+          api.create('code',this.code).then((response) => {
+            this.message={}
+            this.message.type='alert alert-success'
+            this.message.text=this.$i18n.t('Code created successfully');
               this.code = response.data.data;
               setTimeout(() => {
                 this.saving = false;
                 this.message = null
                 this.$router.push({name:"codes.index"});
-              }, 1000);
-          }).catch(error => {
-              if(JSON.stringify(error.response.data).includes("The code has already been taken.")){
-                this.validation.code = this.$i18n.t('Code has already been taken');
-              }else{
-                if(error.response.status==401)
-                  this.redirectToLogin()
-                alert(JSON.stringify(error.response.data))
+              }, 500);
+          }).catch(e => {
+              basicErrorHandling(e)
+              if(e.response.status==422){
+                this.message = {}
+                this.message.type = 'alert alert-danger'
+                var message = this.$i18n.t(e.response.data.message)
+                for(var key in e.response.data.errors){
+                    e.response.data.errors[key].forEach((value)=>{
+                        this.validation[key] = this.$i18n.t(value)
+                    })
+                }
+                this.message.text = message;
               }
           }).then(_ => this.saving = false);
       }
@@ -170,8 +178,7 @@ export default {
           api.search('subgroup', input, this.$i18n.locale, -1, this.code.group.id).then((response) => {
             this.subgroups = response.data.data
           }).catch(e => {
-            if(e.response.status==401)
-              this.redirectToLogin()
+            basicErrorHandling(e)
           });
         }
       }else if(input.length == 0){
@@ -184,5 +191,3 @@ export default {
   }
 };
 </script>
-<style lang="scss" scoped>
-</style>

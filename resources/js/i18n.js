@@ -90,6 +90,10 @@ const messages = {
 'sort': 'сорт.',
 'The given data was invalid.': 'Мәлімет дұрыс толтырылмады',
 'validation.unique_group_id_and_name_ru':'Мұндай топтағы орысша топша атауы қолданылған',
+'The name ru has already been taken.':'Орысша атауы қолданылған',
+'The name kk has already been taken.':'Қазақша атауы қолданылған',
+'Not Found':'Бет табылмады',
+'Woops! Looks like the page you requested cannot be found.':'Сіз іздеген бет табылмады',
 	},
 	"ru": {
 		login: {
@@ -100,7 +104,7 @@ const messages = {
 		},
 'Add New':'Добавить новый',
 'All':'Все',
-'Are you sure that you want to delete that ':'Вы уверены, что хотите удалить ',
+'Are you sure that you want to delete that ':'Вы уверены, что хотите удалить это',
 'Are you sure?':'Вы уверены?',
 'Bad credentials': 'Неверные креденциалы',
 'Cancel':'Отмена',
@@ -177,6 +181,10 @@ const messages = {
 'sort': 'сорт.',
 'The given data was invalid.': 'Введенные данные не корректны',
 'validation.unique_group_id_and_name_ru':'В данной группе указанное наименование на русском уже используется',
+'The name ru has already been taken.':'Наименование на русском уже используется',
+'The name kk has already been taken.':'Наименование на казахском уже используется',
+'Not Found':'Не найдено',
+'Woops! Looks like the page you requested cannot be found.':'Страница которую вы искали не найдена',
 	},
 }
 

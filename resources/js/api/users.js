@@ -2,9 +2,6 @@ import axios from 'axios';
 
 const client = axios.create({
   baseURL: '/api',
-  headers: {
-    Authorization: 'Bearer '+localStorage.getItem('enstru_token')
-  }
 });
 
 export default {

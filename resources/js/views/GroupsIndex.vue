@@ -8,17 +8,22 @@
         <div class="row">
             <div class="col">
                 <form class="form-inline">
-                    <label class="sr-only" for="nameInput">{{$t('Name')}}</label>
-                    <input class="form-control mb-2 mr-sm-2" id="nameInput" :placeholder="$t('Name')" 
-                     v-model="queries.name" @change="filterChanged=true" 
-                     @keyup="typeahead($event.target.value, 'group')" list="names">
-                     <datalist id="names">
-                      <option v-for="item in types" :value="display('name',item)"></option>
-                    </datalist>
-                     <label class="sr-only" for="inlineFormInputName1">{{$t('ZKS')}}</label>
-                    <select v-model="queries.isZKS" class="form-control mb-2 mr-sm-2" @change="filterChanged=true">
-                        <option value selected disabled>{{$t('isZKS')}}</option>
-                        <option value >{{$t('All')}}</option>
+                    <div class="input-group mb-2 mr-sm-2">
+                        <input class="form-control" id="inlineFormInputName2" :placeholder="$t('Name')" :aria-label="$t('Name')"
+                         list="groups" type="text" aria-describedby="basic-addon2"
+                         v-model="queries.name" @change="filterChanged=true">
+                        <datalist id="groups">
+                          <option v-for="group in types" >{{display('name',group)}}</option>
+                        </datalist>
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary" type="button" @click.prevent="queries.name=null">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                     <label class="sr-only" for="zks">{{$t('ZKS')}}</label>
+                    <select v-model="queries.isZKS" id=zks class="form-control mb-2 mr-sm-2" @change="filterChanged=true">
+                        <option value selected>{{$t('ZKS')}} ({{$t('All')}})</option>
                         <option value="true">{{$t('Yes')}}</option>
                         <option value="false">{{$t('No')}}</option>
                     </select>
@@ -72,10 +77,10 @@
                         <td class="d-none d-sm-table-cell"><i v-if="group.isZKS" class="fas fa-check"></i></td>
                         <td>
                             <div class="float-right">
-                                <router-link class="btn btn-outline-primary btn-sm" :to="getLink('edit',group)">
+                                <router-link class="btn btn-outline-primary btn-sm" :to="getLink('edit',group)" v-if="group.name_kk!='Қалғандары'">
                                     <i class="fa fa-edit"></i>
                                 </router-link>
-                                <button :disabled="saving" @click.prevent="onDelete(group.id)" class="btn btn-outline-danger btn-sm">
+                                <button :disabled="saving" @click.prevent="onDelete(group.id)" class="btn btn-outline-danger btn-sm" v-if="group.name_kk!='Қалғандары'">
                                     <i class="fa fa-trash"></i>
                                 </button>
                             </div>
@@ -102,18 +107,8 @@
 </template>
 <script>
 import axios from 'axios';
-import api from '../api/groups';
+import api from '../api/routes';
 import {common} from '../common.js'
-const getData = (params, callback) => {
-    axios.defaults.headers.common['Authorization'] = 'Bearer '+localStorage.getItem("enstru_token");
-    axios
-        .get('/api/groups', {params} )
-        .then(response => {
-            callback(null, response.data);
-        }).catch(error => {
-            callback(error, error.response);
-        });
-};
 
 export default {
     mixins: [common],
@@ -144,6 +139,7 @@ export default {
     },
     mounted(){
         this.fetchData()
+        this.typeahead('','group')
     },
     watch:{
         '$route': 'fetchData'
@@ -153,12 +149,20 @@ export default {
             this.filterApplied = false
             this.groups = this.links = this.meta = null
             this.setParams()
-            getData(
+            this.getData(
                 this.$route.query,
                 (err, data) => {
                     this.setData(err, data);
                 //next();
             });
+        },
+        getData(params, callback){
+            api.all('group',{params})
+                .then(response => {
+                    callback(null, response.data);
+                }).catch(error => {
+                    callback(error, error.response);
+                });
         },
         setParams(){
             for(var key in this.$route.query) 
@@ -198,9 +202,7 @@ export default {
         },
         setData(err, data) {
             if (err) {
-                this.error = err.toString();
-                if(this.error.includes('401'))
-                    this.redirectToLogin()
+                basicErrorHandling(err)
             } else {
                 this.groups = data.data;
                 this.groups.forEach((group, index) => {
@@ -258,9 +260,9 @@ export default {
         },
         getOrder(target){
             if(this.queries.sort!=null)
-                if(this.queries.sort.startsWith(target)){
+                if(this.queries.sort.startsWith(target))
                     return (this.queries.order==='desc') ? 'fas fa-caret-up' : 'fas fa-caret-down'
-                }else
+                else
                     return ''
         },
         getLink(which, target){
@@ -273,21 +275,20 @@ export default {
                 }
 
         },
-        typeahead(input, type, except = null, parent = null){
-            if(input.length >1){
+        typeahead(input, type, event=null){
+            if (event instanceof KeyboardEvent|| event===null){
                 var params = {} 
                   params.input = input
                   params.lang = this.$i18n.locale
-                  params.except = except
-                  params.parent = parent
+                  //params.except = except
+                  //params.parent = parent
                 api.search(this.getType(type), params).then((response) => {
-                    if(type==='group')
+                    //if(type==='group')
                         this['types'] = response.data.data
-                    else
-                        this[type+'s'] = response.data.data
+                    //else
+                    //    this[type+'s'] = response.data.data
                 }).catch(e => {
-                    if(e.response.status==401)
-                        this.redirectToLogin()
+                    basicErrorHandling(e)
                 });
             }
         },
@@ -299,6 +300,17 @@ export default {
         },
         filter(){
             this.goToCustomPage(1)
+        },
+        onDelete(id) {
+            if (confirm(this.$i18n.t('Are you sure that you want to delete that ')+"?")) {
+                this.saving = true;
+                api.delete('group',id)
+               .then((response) => {
+                  this.$router.go()
+               }).catch(e => {
+                basicErrorHandling(e)
+               });
+            }
         },
     }
 }

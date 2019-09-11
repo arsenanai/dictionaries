@@ -57,8 +57,8 @@ Route::group(['middleware' => ['json.response']], function () {
         Route::get('/codes', 'TRUController@indexCode');
         Route::get('/codes/show/{code}', 'TRUController@showCode');
         Route::post('/codes', 'TRUController@createCode');
-        Route::put('/codes/{code}', 'TRUController@updateCode');
-        Route::delete('/codes/{code}', 'TRUController@destroyCode');
+        //Route::put('/codes/{code}', 'TRUController@updateCode');
+        //Route::delete('/codes/{code}', 'TRUController@destroyCode');
         Route::get('/codes/by-name', 'TRUController@searchCodes');
         Route::post('/codes/migrate', 'TRUController@migrateCodes');
 

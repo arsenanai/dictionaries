@@ -57,6 +57,11 @@
                 }
                 return result
             },
+            /*'grant_type' => 'refresh_token',
+        'refresh_token' => 'the-refresh-token',
+        'client_id' => 'client-id',
+        'client_secret' => 'client-secret',
+        'scope' => '',*/
             changeLocale(lang){
               this.$i18n.locale = lang
               axios.defaults.headers.common['Accept-Language'] = lang

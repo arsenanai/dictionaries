@@ -7,7 +7,7 @@
             <!--<router-link class="btn btn-outline-success float-right" :to="{ name: 'codes.create' }">{{$t('Add New')}}</router-link>-->
         </h2>
         <hr>
-      <div v-if="message" class="alert alert-warning">{{ message }}</div>
+      <div v-if="message" :class="message.type">{{ message.text }}</div>
       <div v-if="! loaded">{{$t('Loading')}}...</div>
       <form @submit.prevent="onSubmit($event)" v-else>
         <div class="form-group">
@@ -61,7 +61,7 @@
   </div>
 </template>
 <script>
-import api from '../api/codes';
+import api from '../api/routes';
 import {common} from '../common'
 export default {
   mixins: [common],
@@ -97,16 +97,34 @@ export default {
   },
   methods: {
     onSubmit(event) {
-    	if(this.validated()===true){
-    		this.saving = true;
-	        api.update(this.code.id, this.code).then((response) => {
-	            this.message = this.$i18n.t('Code')+' '+this.$i18n.t('updated successfully') ;
-	            this.code = response.data.data;
-	        }).catch(e => {
-	            if(e.response.status==401)
-                  this.redirectToLogin()
-	        }).then(_ => this.saving = false);
-    	}
+      if(this.validated()===true){
+        this.message = null
+        this.saving = true;
+          api.update('code',this.code.id, this.code).then((response) => {
+            this.message={}
+            this.message.type='alert alert-success'
+            this.message.text=this.$i18n.t('Code')+' '+this.$i18n.t('updated successfully') ;
+              this.code = response.data.data;
+              setTimeout(() => {
+                this.saving = false;
+                this.message = null
+                this.$router.push({name:"codes.index"});
+              }, 500);
+          }).catch(e => {
+              basicErrorHandling(e)
+              if(e.response.status==422){
+                this.message = {}
+                this.message.type = 'alert alert-danger'
+                var message = this.$i18n.t(e.response.data.message)
+                for(var key in e.response.data.errors){
+                    e.response.data.errors[key].forEach((value)=>{
+                        this.validation[key] = this.$i18n.t(value)
+                    })
+                }
+                this.message.text = message;
+              }
+          }).then(_ => this.saving = false);
+      }
     },
     validated(){
 	  	this.validation.name_kk=""
@@ -146,13 +164,12 @@ export default {
 	},
   onDelete() {
     this.saving = true;
-    api.delete(this.code.id)
+    api.delete('code',this.code.id)
        .then((response) => {
           this.message = 'Code Deleted';
         setTimeout(() => this.$router.push({ name: 'codes.index' }), 1000);
        }).catch(e=>{
-        if(e.response.status==401)
-                  this.redirectToLogin()
+        basicErrorHandling(e)
        });
   },
     typeahead(input, type) {
@@ -187,8 +204,7 @@ export default {
           api.search('group', {params}).then((response) => {
             this.groups = response.data.data
           }).catch(e => {
-            if(e.response.status==401)
-              this.redirectToLogin()
+            basicErrorHandling(e)
           });
         }else if(type==='subgroups'){
           var params = {} 
@@ -198,8 +214,7 @@ export default {
           api.search('subgroup', {params}).then((response) => {
             this.subgroups = response.data.data
           }).catch(e => {
-            if(e.response.status==401)
-              this.redirectToLogin()
+            basicErrorHandling(e)
           });
         }
       }else if(input.length == 0){
@@ -230,12 +245,8 @@ export default {
           }, 1000);
       })
       .catch((e) => {
-        if(e.response.status==401)
-          this.redirectToLogin()
-        this.$router.push({ name: '404' });
+        basicErrorHandling(e)
       });
   }
 };
 </script>
-<style lang="scss" scoped>
-</style>

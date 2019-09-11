@@ -7,15 +7,17 @@
             <!--<router-link class="btn btn-outline-success float-right" :to="{ name: 'codes.create' }">{{$t('Add New')}}</router-link>-->
         </h2>
         <hr>
-        <div v-if="message" class="alert">{{ message }}</div>
+        <div v-if="message" :class="message.type">{{ message.text }}</div>
         <form @submit.prevent="onSubmit($event)">
           <div class="form-group">
-              <label for="group_name">Name KK</label>
+              <label for="group_name">{{$t('Name KK')}}</label>
               <input class="form-control" id="group_name" v-model="group.name_kk" />
+              <span v-if="validation.name_kk!==''">{{validation.name_kk}}</span>
           </div>
           <div class="form-group">
-              <label for="group_name">Name RU</label>
+              <label for="group_name">{{$t('Name RU')}}</label>
               <input class="form-control" id="group_name" v-model="group.name_ru" />
+              <span v-if="validation.name_ru!==''">{{validation.name_ru}}</span>
           </div>
           <div class="form-check">
              <input class="form-check-input" type="checkbox" v-model="group.isZKS" /> {{$t('isZKS')}}
@@ -23,7 +25,7 @@
           <br>
           <div class="form-group">
               <button type="submit" class="btn btn-outline-primary" :disabled="saving">
-                  {{ saving ? 'Creating...' : 'Create' }}
+                  {{ saving ? $t('Creating')+'...' : $t('Create') }}
               </button>
           </div>
         </form>
@@ -32,56 +34,75 @@
   </div>
 </template>
 <script>
-    import api from '../api/groups';
+    import api from '../api/routes';
     import {common} from '../common'
     export default {
       mixins: [common],
         data() {
             return {
                 saving: false,
-                message: false,
+                message: null,
                 group: {
                     name_kk: '',
                     name_ru: '',
                     isZKS: false,
-                }
+                },
+                validation:{
+                  name_kk:"",
+                  name_ru:""
+                },
             }
         },
         methods: {
-            onSubmit($event) {
-                this.saving = true
-                this.message = false
-                api.create(this.group)
-                  .then((data) => {
-                      this.$router.push({ name: 'groups.index' });
-                  })
-                  .catch((e) => {
-                    if(e.response.status==401)
-                    this.redirectToLogin()
-                      this.message = e.response.data.message || 'There was an issue creating the group.';
-                  })
-                  .then(() => this.saving = false)
+          validated(){
+              this.validation.name_kk=""
+              this.validation.name_ru=""
+              var result = true;
+              if(this.group.name_kk==="" 
+                || this.group.name_kk===null){
+                this.validation.name_kk = this.$i18n.t('Name in kazakh can not be empty')
+                result = false;
+              }
+            if(this.group.name_ru==="" 
+                || this.group.name_ru===null){
+                this.validation.name_ru = this.$i18n.t('Name in russian can not be empty')
+                result = false;
+              }
+            return result
+          },
+          onSubmit($event) {
+            if(this.validated()===true){
+              this.saving = true
+              this.message = null
+              api.create('group',this.group)
+                .then(response => {
+                  this.message={}
+                  this.message.type='alert alert-success'
+                  this.message.text=this.$i18n.t('Group created');
+                  this.subgroup = response.data.data;
+                  setTimeout(() => {
+                    //this.message = null
+                    this.$router.push({name:"groups.index"});
+                  }, 500);
+                })
+                .catch(e => {
+                  basicErrorHandling(e)
+                  if(e.response.status==422){
+                    this.message = {}
+                    this.message.type = 'alert alert-danger'
+                    var message = this.$i18n.t(e.response.data.message)
+                    for(var key in e.response.data.errors){
+                        e.response.data.errors[key].forEach((value)=>{
+                            this.validation[key] = this.$i18n.t(value)
+                            //message += this.$i18n.t(value) +' \n'
+                        })
+                    }
+                    this.message.text = message;
+                  }
+                })
+                .then(() => this.saving = false)
             }
+          }
         }
     }
 </script>
-<style lang="scss" scoped>
-$red: lighten(red, 30%);
-$darkRed: darken($red, 50%);
-
-.form-group {
-    margin-bottom: 1em;
-    label {
-        display: block;
-    }
-}
-.alert {
-    background: $red;
-    color: $darkRed;
-    padding: 1rem;
-    margin-bottom: 1rem;
-    width: 50%;
-    border: 1px solid $darkRed;
-    border-radius: 5px;
-}
-</style>

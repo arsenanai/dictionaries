@@ -32,7 +32,7 @@
   </div>
 </template>
 <script>
-    import api from '../api/users';
+    import api from '../api/routes';
     import {common} from '../common'
     export default {
       mixins: [common],
@@ -51,37 +51,16 @@
             onSubmit($event) {
                 this.saving = true
                 this.message = false
-                api.create(this.user)
+                api.create('user',this.user)
                   .then((data) => {
                       this.$router.push({ name: 'users.index' });
                   })
                   .catch((e) => {
-                      this.message = e.response.data.message || 'There was an issue creating the user.';
-                      if(e.response.status=='401')
-                        this.redirectToLogin()
+                    basicErrorHandling(e)
+                      
                   })
                   .then(() => this.saving = false)
             }
         }
     }
 </script>
-<style lang="scss" scoped>
-$red: lighten(red, 30%);
-$darkRed: darken($red, 50%);
-
-.form-group {
-    margin-bottom: 1em;
-    label {
-        display: block;
-    }
-}
-.alert {
-    background: $red;
-    color: $darkRed;
-    padding: 1rem;
-    margin-bottom: 1rem;
-    width: 50%;
-    border: 1px solid $darkRed;
-    border-radius: 5px;
-}
-</style>

@@ -74,18 +74,8 @@
 </template>
 <script>
 import axios from 'axios';
-import api from '../api/users';
+import api from '../api/routes';
 import {common} from '../common.js'
-const getData = (params, callback) => {
-    axios.defaults.headers.common['Authorization'] = 'Bearer '+localStorage.getItem("enstru_token");
-    axios
-        .get('/api/users', {params} )
-        .then(response => {
-            callback(null, response.data);
-        }).catch(error => {
-            callback(error, error.response);
-        });
-};
 export default {
     mixins: [common],
     data() {
@@ -124,12 +114,20 @@ export default {
             this.filterApplied = false
             this.users = this.links = this.meta = null
             this.setParams()
-            getData(
+            this.getData(
                 this.$route.query,
                 (err, data) => {
                     this.setData(err, data);
                 //next();
             });
+        },
+        getData(params, callback){
+            api.all('user', {params} )
+                .then(response => {
+                    callback(null, response.data);
+                }).catch(error => {
+                    callback(error, error.response);
+                });
         },
         setParams(){
             for(var key in this.$route.query) 
@@ -160,9 +158,7 @@ export default {
         },
         setData(err, data) {
             if (err) {
-                this.error = err.toString();
-                if(this.error.includes('401'))
-                    this.redirectToLogin()
+                basicErrorHandling(err)
             } else {
                 this.users = data.data;
                 this.links = data.links;

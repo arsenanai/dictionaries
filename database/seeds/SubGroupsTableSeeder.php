@@ -311,12 +311,12 @@ class SubGroupsTableSeeder extends Seeder
         $error='';
         $groupsUnknown='';
         foreach($groups as $i => $subgroups){
-            $g = Group::where('name_ru',$i)->first();
+            $g = Group::where('name_ru',trim($i))->first();
             if($g){
                 foreach($subgroups as $subgroup){
                     $s = new Subgroup();
                     $s->group_id = $g->id;
-                    $s->name_ru = $subgroup;
+                    $s->name_ru = trim($subgroup);
                     try{
                         $s->save();
                         $count++;

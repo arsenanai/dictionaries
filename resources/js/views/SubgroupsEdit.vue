@@ -39,7 +39,7 @@
   </div>
 </template>
 <script>
-import api from '../api/subgroups';
+import api from '../api/routes';
 import {common} from '../common.js'
 export default {
   mixins: [common],
@@ -67,7 +67,7 @@ export default {
     onSubmit(event) {
     	if(this.validated()===true){
     		this.saving = true;
-	        api.update(this.subgroup.id, {
+	        api.update('subgroup',this.subgroup.id, {
 	            name_kk: this.subgroup.name_kk,
 	            name_ru: this.subgroup.name_ru,
 	            group: this.subgroup.group
@@ -79,8 +79,7 @@ export default {
 	            	this.$router.push({name:"subgroups.index"});
 	            }, 2000);
 	        }).catch(e => {
-	            if(e.response.status==401)
-                  this.redirectToLogin()
+            basicErrorHandling(e)
 	        }).then(_ => this.saving = false);
     	}
     },
@@ -94,7 +93,7 @@ export default {
 	  		this.validation.name_kk = this.$i18n.t('Name in kazakh can not be empty')
 	  		result = false;
 	  	}
-		if(this.subgroup.name_ru==="" 
+		  if(this.subgroup.name_ru==="" 
 	  		|| this.subgroup.name_ru===null){
 	  		this.validation.name_ru = this.$i18n.t('Name in russian can not be empty')
 	  		result = false;
@@ -125,8 +124,7 @@ export default {
           api.search('group', {params}).then((response) => {
             this.groups = response.data.data
           }).catch(e => {
-            if(e.response.status==401)
-              this.redirectToLogin()
+            basicErrorHandling(e)
           });
         }
       }else if(input.length == 0){
@@ -141,18 +139,17 @@ export default {
     },
   onDelete() {
     this.saving = true;
-    api.delete(this.subgroup.id)
+    api.delete('subgroup',this.subgroup.id)
        .then((response) => {
           this.message = this.$i18n.t('Subgroup Deleted')+', '+this.$i18n.t('codes migrated: ')+response.data.migrated_childs;
         //setTimeout(() => this.$router.push({ name: 'subgroups.index' }), 2000);
        }).catch(e => {
-          if(e.response.status==401)
-            this.redirectToLogin()
+        basicErrorHandling(e)
        });
   	},
   },
   created() {
-      api.find(this.$route.params.id)
+      api.find('subgroup',this.$route.params.id)
       .then((response) => {
           //setTimeout(() => {
             this.loaded = true;
@@ -161,27 +158,8 @@ export default {
           //}, 1000);
       })
       .catch((e) => {
-        if(e.response.status==401)
-          this.redirectToLogin()
-
-        //this.$router.push({ name: '404' });
+        basicErrorHandling(e)
       });
   }
 };
 </script>
-<style lang="scss" scoped>
-$red: lighten(red, 30%);
-$darkRed: darken($red, 50%);
-.form-group label {
-  display: block;
-}
-.alert {
-    background: $red;
-    color: $darkRed;
-    padding: 1rem;
-    margin-bottom: 1rem;
-    width: 50%;
-    border: 1px solid $darkRed;
-    border-radius: 5px;
-}
-</style>

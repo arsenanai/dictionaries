@@ -35,10 +35,9 @@ class TRUController extends Controller
     		$query = $query->where('isZKS',($isZKS==='false') ? false : true);
     	if(in_array($sortBy,array('id','name_kk','name_ru'))){
     		$query = $query->orderBy($sortBy,($order==='desc')?'desc':'asc');
-    	}
-    	//APP_PAGINATION_PER_PAGE=15
-		//APP_TYPEAHEAD_LIMIT=10
-    	$query = $query->paginate(env('APP_PAGINATION_PER_PAGE'));
+    	}else
+    		$query = $query->orderBy('id','asc');
+    	$query = $query->paginate(env('APP_PAGINATION_PER_PAGE',15));
     	return GroupResource::collection($query);
     }
     public function indexSubgroup(Request $request)
@@ -64,8 +63,9 @@ class TRUController extends Controller
     		});
     	if(in_array($sortBy,array('id','name_kk','name_ru'))){
     		$query = $query->orderBy($sortBy,($order==='desc')?'desc':'asc');
-    	}
-    	$query = $query->paginate(env('APP_PAGINATION_PER_PAGE'));
+    	}else
+    		$query = $query->orderBy('id','asc');
+    	$query = $query->paginate(env('APP_PAGINATION_PER_PAGE',15));
     	return SubgroupResource::collection($query);
     }
     public function indexCode(Request $request)
@@ -102,8 +102,9 @@ class TRUController extends Controller
     		$query = $query->where('type',$type);
     	if(in_array($sortBy,array('id','code','name_kk','name_ru','description_kk','description_ru'))){
     		$query = $query->orderBy($sortBy,($order==='desc')?'desc':'asc');
-    	}
-    	$query = $query->paginate(env('APP_PAGINATION_PER_PAGE'));
+    	}else
+    		$query = $query->orderBy('id','asc');
+    	$query = $query->paginate(env('APP_PAGINATION_PER_PAGE',15));
     	return CodeResource::collection($query);
     }
 
@@ -125,8 +126,8 @@ class TRUController extends Controller
 
 	public function createGroup(Group $group, Request $request){
 		$data = $request->validate([
-	        'name_kk' => 'required|string|max:256',
-	        'name_ru' => 'required|string|max:256',
+	        'name_kk' => 'required|string|max:256|unique:groups',
+	        'name_ru' => 'required|string|max:256|unique:groups',
 	        'isZKS' => 'boolean',
 	    ]);
 	    $group->create($data);
@@ -143,14 +144,14 @@ class TRUController extends Controller
 		});
 		$data = $request->validate([
 	        'name_kk' => 'required|string|max:256',
-	        'name_ru' => "required|string|max:256|uniqueGroupIdAndNameRu:{$request->input('group.id')}",
-	        'group.id' => 'required|exists:groups,id',
+	        'name_ru' => "required|string|max:256|uniqueGroupIdAndNameRu:{$request->input('group_id')}",
+	        'group_id' => 'required|exists:groups,id',
 	        //'isZKS' => 'boolean',
 	    ]);
 	    $subgroup = new Subgroup();
 	    $subgroup->name_kk = $request->input('name_kk');
 	    $subgroup->name_ru = $request->input('name_ru');
-	    $subgroup->group_id = $request->input('group.id');
+	    $subgroup->group_id = $request->input('group_id');
 	    //$subgroup->isZKS = ($request->input('isZKS')) ? true : false;
 	    $subgroup->save();
 	    return new SubgroupResource($subgroup);
@@ -189,7 +190,8 @@ class TRUController extends Controller
 	        'name_ru' => 'required|string|max:256',
 	        'isZKS' => 'boolean',
 	    ]);
-	    $group->update($data);
+	    if($group->id!==1)//Others Group
+	    	$group->update($data);
 	    return new GroupResource($group);
 	}
 
@@ -198,9 +200,9 @@ class TRUController extends Controller
 	        'name_kk' => 'required|string|max:256',
 	        'name_ru' => 'required|string|max:256',
 	        'group.id' => 'required|exists:groups,id',
-	        //'isZKS' => 'boolean',
 	    ]);
-	    $subgroup->update($data);
+	    if($subgroup->id!==1)//Others Subgroup
+	    	$subgroup->update($data);
 	    return new SubgroupResource($subgroup);
 	}
 
@@ -223,7 +225,7 @@ class TRUController extends Controller
 
 	public function destroyGroup(Group $group)
 	{
-		$affectedRows = Code::where('group_id', $group->id)
+		$affectedRows = Subgroup::where('group_id', $group->id)
 			->update(array('group_id' => 
 				Group::select('id')
 				->where('name_kk','Қалғандары')
@@ -267,16 +269,17 @@ class TRUController extends Controller
 
 	public function searchGroupsByName(Request $request){
 		$lang = $request->input('lang');
-		$input = $request->input('name');
+		$input = $request->input('input');
 		$except = $request->input('except');
-		$lang = ($lang==='ru')?'ru':'kk';
+		$lang = ($lang==='kk')?'kk':'ru';
 		App::setLocale($lang);
-		$result = Group::select('id','name_kk','name_ru');
+		$result = Group::select('id','name_'.$lang);
 		$result = $result->where('name_'.$lang, 'ilike', '%' . $input . '%');
 		if($except!=null)
 			$result = $result->where('name_'.$lang,'not ilike','%' .$except. '%');
 		$result = $result
-			->limit(30)->get();
+			->orderBy('name_'.$lang,'asc')
+			->limit(100)->get();
 		return GroupResource::collection($result);
 	}
 
@@ -287,8 +290,9 @@ class TRUController extends Controller
 		$parent = $request->input('parent');
 		$lang = ($lang==='ru')?'ru':'kk';
 		App::setLocale($lang);
-		$result = Subgroup::select('id','name_kk','name_ru')
-		->where('name_'.$lang, 'ilike', '%' . $input . '%');
+		$result = Subgroup::select('id','name_kk','name_ru');
+		if($request->has('name'))
+			$request = $request->where('name_'.$lang, 'ilike', '%' . $input . '%');
 		if($except!=null)
 			$result = $result->where('name_'.$lang,'not ilike','%' .$except. '%');
 		if($parent!=null)
@@ -296,7 +300,8 @@ class TRUController extends Controller
     			$q->where('name_'.$lang, 'ilike', '%'.$parent.'%');
 			});
 		$result = $result
-			->limit(30)->get();
+			->orderBy('name_'.$lang,'asc')
+			->limit(100)->get();
 		return SubgroupResource::collection($result);
 	}
 
@@ -307,15 +312,15 @@ class TRUController extends Controller
 		$code = $request->input('code');
 		$name = $request->input('name');
 		$description = $request->input('description');
-		if($name!=null)
-			$result = Code::select('name_'.$lang)->where('name_'.$lang,'ilike','%'.$name.'%')->groupBy('name_'.$lang);
-		else if($description!=null)
-			$result = Code::select('description_'.$lang)->where('description_'.$lang,'ilike','%'.$description.'%')->groupBy('description_'.$lang);
-		else
-			$result = Code::select('code')->where('code','ilike',$code. '%')->groupBy('code');
-
+		if($name!=null){
+			$result = Code::select('name_'.$lang)->where('name_'.$lang,'ilike','%'.$name.'%')->groupBy('name_'.$lang)->orderBy('name_'.$lang,'asc');
+		}else if($description!=null){
+			$result = Code::select('description_'.$lang)->where('description_'.$lang,'ilike','%'.$description.'%')->groupBy('description_'.$lang)->orderBy('description_'.$lang,'asc');
+		}else{
+			$result = Code::select('code')->where('code','ilike',$code. '%')->groupBy('code')->orderBy('code','asc');
+		}
 		$result = $result
-			->limit(10)->get();
+			->limit(env('APP_TYPEAHEAD_LIMIT',10))->get();
 	    return CodeResource::collection($result);
 	}
 
@@ -340,13 +345,13 @@ class TRUController extends Controller
 		$lang = $request->input('lang');
     	$lang = ($lang==='ru')?'ru':'kk';
     	App::setLocale($lang);
-		$request = DB::table('codes');
-    	$request = $request->join('subgroups', 'codes.subgroup_id', '=', 'subgroups.id');
-    	$request = $request->join('groups', 'subgroups.group_id', '=', 'groups.id');
+		$query = DB::table('codes');
+    	$query = $query->join('subgroups', 'codes.subgroup_id', '=', 'subgroups.id');
+    	$query = $query->join('groups', 'subgroups.group_id', '=', 'groups.id');
 		$debug = '';
 		if($selectedAll===false){
 			//$debug .= "selecting by ids\n";
-			$request = $request->whereIn('codes.id',$codes);
+			$query = $query->whereIn('codes.id',$codes);
 		}else{
 			//$debug .= "selecting all\n";
 			if(
@@ -364,27 +369,27 @@ class TRUController extends Controller
 			}else{
 				$applied = false;
 				/*if(!($selectedGroupName==null || $selectedGroupName=='')){
-					$request = $request->where('group.name_'.$lang,'ilike','%'.$selectedGroupName.'%');
+					$query = $query->where('group.name_'.$lang,'ilike','%'.$selectedGroupName.'%');
 					//$debug .= "selecting by group_id\n";
 				}*/
 				if(!($selectedSubgroupName==null || $selectedSubgroupName=='')){
-					$request = $request->where('subgroup.name_'.$lang,'ilike','%'.$selectedSubgroupName.'%');
+					$query = $query->where('subgroup.name_'.$lang,'ilike','%'.$selectedSubgroupName.'%');
 					//$debug .= "selecting by subgroup_id\n";
 				}
 				if(!($isZKS=='null' || $isZKS==''))
-		    		$request = $request->whereHas('subgroup', function($request) use($isZKS){
-		    			$request = $request->whereHas('group', function($q) use($isZKS){
+		    		$query = $query->whereHas('subgroup', function($query) use($isZKS){
+		    			$query = $query->whereHas('group', function($q) use($isZKS){
 		    				$q->where('isZKS',($isZKS==='false') ? false : true);
 		    			});
 		    		});
 		    	if($request->has('type'))
-		    		$request->where('type',$type);
+		    		$query->where('type',$type);
 				if(!($code=='null' || $code==''))
-					$request = $request->where('code','ilike', $code.'%');
+					$query = $query->where('code','ilike', $code.'%');
 				if(!($name=='null' || $name==''))
-		    		$request = $request->where('name_'.$lang,'ilike', '%'.$name.'%');
+		    		$query = $query->where('codes.name_'.$lang,'ilike', '%'.$name.'%');
 		    	if(!($description=='null' || $description==''))
-		    		$request = $request->where('description_'.$lang,'ilike', '%'.$description.'%');
+		    		$query = $query->where('description_'.$lang,'ilike', '%'.$description.'%');
 		    		//$debug .= "selecting by query\n";
 				
 			}
@@ -402,7 +407,7 @@ class TRUController extends Controller
 				throw $error;
 			}
 		}
-		$affectedRows = $request->update($updateFields);
+		$affectedRows = $query->update($updateFields);
 		$response = [
 			'message' => 'success',
 			'affected_rows' => $affectedRows

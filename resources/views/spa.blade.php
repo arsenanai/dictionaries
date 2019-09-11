@@ -11,7 +11,10 @@
     <div id="app">
         <app></app>
     </div>
-
+    <script type="text/javascript">
+    	const passportClientId = "{{env('PASSPORT_CLIENT_ID')}}"
+		const passportClientSecret = "{{env('PASSPORT_CLIENT_SECRET')}}"
+    </script>
     <script src="{{ mix('js/app.js') }}"></script>
 </body>
 </html>

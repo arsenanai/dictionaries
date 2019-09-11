@@ -23,7 +23,6 @@ import CodesEdit from './views/CodesEdit';
 import CodesCreate from './views/CodesCreate';
 import NotFound from './views/NotFound';
 import Login from './views/Login';
-import Index from './views/Index';
 import Logout from './views/Logout';
 import {i18n} from './i18n';
 
@@ -115,14 +114,12 @@ const router = new VueRouter({
 
 router.beforeEach((to, from, next) => {
   if (to.matched.some(record => record.meta.public)) {
-    next() // does not require auth, make sure to always call next()!
+    next()
   } else {
-    // this route requires auth, check if logged in
-    // if not, redirect to login page.
     if (localStorage.getItem('enstru_token')===null) {
       next({ name: 'auth.login' })
     } else {
-      next() // go to wherever I'm going
+      next()
     }
   }
 })

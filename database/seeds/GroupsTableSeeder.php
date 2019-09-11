@@ -32,7 +32,7 @@ class GroupsTableSeeder extends Seeder
         $error='';
         foreach($groups as $group){
             $g = new Group();
-            $g->name_ru = $group;
+            $g->name_ru = trim($group);
             $g->isZKS = false;
             try{
                 $g->save();
@@ -145,14 +145,13 @@ class GroupsTableSeeder extends Seeder
             'Услуги легкового/оперативного автотранспорта и спецтехники. 2 Этап',
             'Ремонт и обслуживание автотранспортной и специальной техники',
             'Светотехническая продукция (лампы и светильники)',
-            ' Спецодежда',
             'Электрозащита (заземление, штанги, указатели)',
             'Предсменное медицинское освидетельствование персонала /Послесменное медицинское освидетельствование персонала'
         );
         $error='';
         foreach($groups as $group){
             $g = new Group();
-            $g->name_ru = $group;
+            $g->name_ru = trim($group);
             $g->isZKS = true;
             try{
                 $g->save();
