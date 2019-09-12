@@ -66,7 +66,7 @@ export default {
 	            	this.$router.push({name:"users.index"});
 	            }, 2000);
 	        }).catch(e => {
-            basicErrorHandling(e)
+            this.basicErrorHandling(e)
 	        }).then(_ => this.saving = false);
     	}
     },
@@ -93,7 +93,7 @@ export default {
           this.message = this.$i18n.t('User Deleted');
         setTimeout(() => this.$router.push({ name: 'users.index' }), 1000);
        }).catch((e) => {
-        basicErrorHandling(e)
+        this.basicErrorHandling(e)
       });
   },
 	validateEmail(email) {
@@ -110,7 +110,7 @@ export default {
           //}, 1000);
       })
       .catch((e) => {
-        basicErrorHandling(e)
+        this.basicErrorHandling(e)
       });
   }
 };

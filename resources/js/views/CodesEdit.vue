@@ -111,7 +111,7 @@ export default {
                 this.$router.push({name:"codes.index"});
               }, 500);
           }).catch(e => {
-              basicErrorHandling(e)
+              this.basicErrorHandling(e)
               if(e.response.status==422){
                 this.message = {}
                 this.message.type = 'alert alert-danger'
@@ -169,7 +169,7 @@ export default {
           this.message = 'Code Deleted';
         setTimeout(() => this.$router.push({ name: 'codes.index' }), 1000);
        }).catch(e=>{
-        basicErrorHandling(e)
+        this.basicErrorHandling(e)
        });
   },
     typeahead(input, type) {
@@ -199,22 +199,22 @@ export default {
         
         if(type==='groups'){
           var params = {} 
-          params.name = input
+          params.input = input
           params.lang = this.$i18n.locale
-          api.search('group', {params}).then((response) => {
+          api.search('group', params).then((response) => {
             this.groups = response.data.data
           }).catch(e => {
-            basicErrorHandling(e)
+            this.basicErrorHandling(e)
           });
         }else if(type==='subgroups'){
           var params = {} 
-          params.name = input
+          params.input = input
           params.lang = this.$i18n.locale
           params.parent = this.display('name',this.code.group)
           api.search('subgroup', {params}).then((response) => {
             this.subgroups = response.data.data
           }).catch(e => {
-            basicErrorHandling(e)
+            this.basicErrorHandling(e)
           });
         }
       }else if(input.length == 0){
@@ -245,7 +245,7 @@ export default {
           }, 1000);
       })
       .catch((e) => {
-        basicErrorHandling(e)
+        this.basicErrorHandling(e)
       });
   }
 };

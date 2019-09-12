@@ -7,7 +7,7 @@
             <!--<router-link class="btn btn-outline-success float-right" :to="{ name: 'codes.create' }">{{$t('Add New')}}</router-link>-->
         </h2>
         <hr>
-          <div v-if="message" class="alert">{{ message }}</div>
+          <div v-if="message" :class="message.type">{{ message.text }}</div>
           <div v-if="! loaded">{{$t('Loading')}}...</div>
           <form @submit.prevent="onSubmit($event)" v-else>
             <div class="form-group">
@@ -21,11 +21,15 @@
                 <span v-if="validation.name_ru!==''">{{validation.name_ru}}</span>
             </div>
             <div class="form-group">
-              <label for="group_name">{{$t('Group')}}</label>
-              <input class="form-control" id="group_name" list="groups" @keyup="typeahead($event.target.value, 'groups')" v-model="type_group_name">
-            <datalist id="groups">
-              <option v-for="group in groups" :value="display('name',group)">{{display('name',group)}}</option>
-            </datalist>
+              <label class="sr-only" for="migrateGroup">{{$t('Group')}}</label>
+              <select class="form-control mb-2 mr-sm-2" id="migrateGroup" v-model="subgroup.group_id">
+                  <option selected disabled value=-1>
+                      {{$t('Group')}}
+                  </option>
+                  <option v-for="group in groups" :value="group.id">
+                      {{display('name',group)+((group.isZKS==true) ? " ("+$t('ZKS')+")" : '')}}
+                  </option>
+              </select>
               <span v-if="validation.group!==''">{{validation.group}}</span>
           </div>
             <div class="form-group">
@@ -52,12 +56,12 @@ export default {
       validation:{
       	name_kk:"",
       	name_ru:"",
-      	group: ""
+      	group_id: ""
       },
       type_group_name:null,
       subgroup: {
         id: null,
-        group: null,
+        group_id: -1,
         name_kk: "",
         name_ru: "",
       }
@@ -67,19 +71,33 @@ export default {
     onSubmit(event) {
     	if(this.validated()===true){
     		this.saving = true;
+        this.message=null;
 	        api.update('subgroup',this.subgroup.id, {
 	            name_kk: this.subgroup.name_kk,
 	            name_ru: this.subgroup.name_ru,
-	            group: this.subgroup.group
+	            group_id: this.subgroup.group_id
 	        }).then((response) => {
-	            this.message = this.$i18n.t('Subgroup updated');
+            this.message={}
+            this.message.type="alert alert-success"
+	            this.message.text = this.$i18n.t('Subgroup updated');
 	            this.subgroup = response.data.data;
 	            setTimeout(() => {
 	            	this.message = null
 	            	this.$router.push({name:"subgroups.index"});
-	            }, 2000);
+	            }, 500);
 	        }).catch(e => {
-            basicErrorHandling(e)
+            this.basicErrorHandling(e)
+            if(e.response.status==422){
+                this.message = {}
+                this.message.type = 'alert alert-danger'
+                var message = this.$i18n.t(e.response.data.message)
+                for(var key in e.response.data.errors){
+                    e.response.data.errors[key].forEach((value)=>{
+                        this.validation[key] = this.$i18n.t(value)
+                    })
+                }
+                this.message.text = message;
+              }
 	        }).then(_ => this.saving = false);
     	}
     },
@@ -103,48 +121,28 @@ export default {
 	  	}
 	  return result
 	},
-    typeahead(input, type) {
-      var matched = false;
-      if(this.groups && type==='groups'){
-        var group;
-        if(this.$i18n.locale==='ru')
-          group = this.groups.find(group => group.name_ru === input);
-        else
-          group = this.groups.find(group => group.name_kk === input);
-        if(group){
-          this.subgroup.group = group
-          matched = true
-        }
-      }
-      if (input.length > 1 && matched===false) {
-        if(type==='groups'){
-          var params={}
-          params.name = input
-          params.lang = this.$i18n.locale
-          api.search('group', {params}).then((response) => {
-            this.groups = response.data.data
-          }).catch(e => {
-            basicErrorHandling(e)
-          });
-        }
-      }else if(input.length == 0){
-        if(type==='groups'){
-          this.subgroup.group=null;
-          this.groups=null;
-          this.subgroup.subgroup=null;
-          this.subgroups=null;
-          this.type_subgroup=null
-        }
-      }
+   fetchDatalist(input,type,parent=null){
+            var params = {} 
+              params.input = input
+              params.lang = this.$i18n.locale
+              params.parent = parent
+            this.request(type,params)
+        },
+    request(type,params){
+        api.search(this.getType(type), params).then((response) => {
+            this[type+'s'] = response.data.data
+        }).catch(e => {
+            this.basicErrorHandling(e)
+        });
     },
   onDelete() {
     this.saving = true;
     api.delete('subgroup',this.subgroup.id)
        .then((response) => {
-          this.message = this.$i18n.t('Subgroup Deleted')+', '+this.$i18n.t('codes migrated: ')+response.data.migrated_childs;
-        //setTimeout(() => this.$router.push({ name: 'subgroups.index' }), 2000);
+          alert(this.$i18n.t('Subgroup Deleted')+', '+this.$i18n.t('codes migrated: ')+" "+response.data.migrated_childs);
+          this.$router.push({ name: 'subgroups.index' });
        }).catch(e => {
-        basicErrorHandling(e)
+        this.basicErrorHandling(e)
        });
   	},
   },
@@ -154,12 +152,13 @@ export default {
           //setTimeout(() => {
             this.loaded = true;
             this.subgroup = response.data.data;
-            this.type_group_name = this.display('name',this.subgroup.group)
+            this.subgroup.group_id = this.subgroup.group.id
           //}, 1000);
       })
       .catch((e) => {
-        basicErrorHandling(e)
+        this.basicErrorHandling(e)
       });
+      this.fetchDatalist('','group')
   }
 };
 </script>

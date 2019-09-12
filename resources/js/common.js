@@ -22,13 +22,31 @@ export const common = {
 	      	else
 	      		return "";
 	    },
-	    redirectToLogin(){
+	    logout(){
 	    	this.$router.push({name:'auth.logout'})
 	    },
 	    basicErrorHandling(e){
 	    	console.log(e)
             if(e.response.status==401)
-                this.redirectToLogin()
+                this.logout()
 	    },
+	    
+	    getType(type){
+            if(type.startsWith('migrate_'))
+                return type.split('_')[1]
+            else if(type.startsWith('code_')
+            		||type.startsWith('subgroup_')
+            		||type.startsWith('group_')
+            	)
+                return type.split('_')[0]
+            else
+                return type
+        },
+        stringIsSet(string){
+        	return (string!=null && string != '')
+        },
+        arrayIsSet(array){
+        	return (array!=null && array.length>0)
+        },
 	}
 }

@@ -206,9 +206,6 @@ export default {
                 }
 
         },
-        getType(type){
-            return type
-        },
     }
 }
 </script>

@@ -75,7 +75,7 @@ export default {
 	            	this.$router.push({name:"groups.index"});
 	            }, 1000);
 	        }).catch(e => {
-            basicErrorHandling(e)
+            this.basicErrorHandling(e)
 	        }).then(_ => this.saving = false);
     	}
     },
@@ -100,12 +100,10 @@ export default {
     this.message = null
     api.delete('group',this.group.id)
        .then((response) => {
-          this.message = {}
-          this.message.type = 'alert alert-success'
-          this.message.text = this.$i18n.t('Group Deleted');
-        setTimeout(() => this.$router.push({ name: 'groups.index' }), 2000);
+          alert(this.$i18n.t('Group Deleted')+', '+this.$i18n.t('subgroups migrated: ')+" "+response.data.migrated_childs);
+          this.$router.push({ name: 'groups.index' });
        }).catch(e => {
-        basicErrorHandling(e)
+        this.basicErrorHandling(e)
        });
   	},
   },
@@ -119,7 +117,7 @@ export default {
           //}, 1000);
       })
       .catch((e) => {
-        basicErrorHandling(e)
+        this.basicErrorHandling(e)
       });
   }
 };

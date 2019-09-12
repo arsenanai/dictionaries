@@ -11,45 +11,47 @@
                     <div class="input-group mb-2 mr-sm-2">
                         <input class="form-control" id="inlineFormInputName2" :placeholder="$t('Group')" :aria-label="$t('Group')"
                          list="groups" type="text" aria-describedby="basic-addon2"
-                         v-model="queries.group_name" @change="onFilterChanged('group',queries.group_name)">
+                         v-model="queries.group_name"
+                            @change="onFilterChanged('group',queries.group_name)">
                         <datalist id="groups">
-                          <option v-for="group in groups" >{{display('name',group)}}</option>
+                          <option v-for="group in groups">{{display('name',group)}}</option>
                         </datalist>
                         <div class="input-group-append">
-                            <button class="btn btn-outline-secondary" type="button" @click.prevent="queries.group_name=queries.subgroup_name=subgroups=null">
+                            <button class="btn btn-outline-secondary" type="button" @click.prevent="queries.group_name=queries.subgroup_name=subgroups=null;filterChanged=true">
                                 <i class="fas fa-times"></i>
                             </button>
                         </div>
                     </div>
                     <div class="input-group mb-2 mr-sm-2">
                         <input list="subgroups" class="form-control" id="inlineFormInputName3" :placeholder="$t('Subgroup')" :aria-label="$t('Subgroup')"
-                         v-model="queries.subgroup_name" @change="filterChanged=true" :readonly="isEmpty(queries.group_name) || subgroups==null" aria-describedby="times2"
-                         type=text
+                         v-model="queries.subgroup_name" @change="filterChanged=true" 
+                         aria-describedby="times2" type=text
+                         :disabled="!stringIsSet(queries.group_name)||!arrayIsSet(subgroups)"
                         >
                         <datalist id="subgroups">
                           <option v-for="subgroup in subgroups" >{{display('name',subgroup)}}</option>
                         </datalist>
                         <div class="input-group-append">
-                            <button class="btn btn-outline-secondary" type="button" @click.prevent="queries.subgroup_name=null">
+                            <button class="btn btn-outline-secondary" type="button" @click.prevent="queries.subgroup_name=null;filterChanged=true">
                                 <i class="fas fa-times"></i>
                             </button>
                         </div>
                     </div>
                     <div class="input-group mb-2 mr-sm-2">
                         <input type=text list="code.code" class="form-control" id="codeInput" :placeholder="$t('Code')" :aria-label="$t('Subgroup')"
-                         v-model="queries.code" @change="filterChanged=true" @keyup="typeahead($event.target.value,'code_code',null,null,$event)">
+                         v-model="queries.code" @change="filterChanged=true" @keyup="typeahead(null,'code_code',null,null,$event)">
                         <datalist id="code.code">
                           <option v-for="item in code_codes">{{item.code}}</option>
                         </datalist>
                         <div class="input-group-append">
-                            <button class="btn btn-outline-secondary" type="button" @click.prevent="queries.code=null">
+                            <button class="btn btn-outline-secondary" type="button" @click.prevent="queries.code=null;filterChanged=true">
                                 <i class="fas fa-times"></i>
                             </button>
                         </div>
                     </div>
                     <div class="input-group mb-2 mr-sm-2">
                         <input type=text list="code.name" class="form-control" id="nameInput" :placeholder="$t('Name')" :aria-label="$t('Name')"
-                         v-model="queries.name" @change="filterChanged=true" @keyup="typeahead($event.target.value,'code_name',null,null,$event)">
+                         v-model="queries.name" @change="filterChanged=true" @keyup="typeahead(null,'code_name',null,null,$event)">
                          <datalist id="code.name">
                           <option v-for="item in code_names">{{display('name',item)}}</option>
                         </datalist>
@@ -61,7 +63,7 @@
                     </div>
                     <div class="input-group mb-2 mr-sm-2">
                         <input type=text list="code.desc" class="form-control" id="descriptionInput" :placeholder="$t('Description')" :aria-label="$t('Description')"
-                         v-model="queries.description" @change="filterChanged=true" @keyup="typeahead($event.target.value,'code_description',null,null,$event)">
+                         v-model="queries.description" @change="filterChanged=true" @keyup="typeahead(null,'code_description',null,null,$event)">
                          <datalist id="code.desc">
                           <option v-for="item in code_descriptions">{{display('description',item)}}</option>
                         </datalist>
@@ -86,7 +88,7 @@
                     </select>
                     <button type="submit" class="btn btn-outline-primary mb-2 mr-sm-2" @click.prevent="filter()"
                         :disabled="filterChanged===false">{{$t('Filter')}}</button>
-                    <a class="btn btn-outline-secondary mb-2 mr-sm-2" :class="{disabled: (selectedCodes.length===0)}"  
+                    <a class="btn btn-outline-secondary mb-2 mr-sm-2" :class="{disabled: (selectedCodes.length===0 || (selectedAll==true && filterApplied==false))}"  
                         data-toggle="modal" data-target="#migrationModal">
                         {{$t('Migrate')}}
                     </a>
@@ -204,7 +206,7 @@
             </table>
         </div>
         <span class="alert alert-warning" v-if="selectedAll || selectedCodes.length>0">
-            {{$t('Total selected')}}: {{totalSelectedCodes()}}
+            {{$t('Total selected')}}: {{totalSelected()}}
         </span>
         <div class="modal fade" id="migrationModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
           <div class="modal-dialog modal-lg" role="document">
@@ -225,11 +227,11 @@
                                     {{$t('Group')}}
                                 </option>
                                 <option v-for="group in groups" :value="display('name',group)" :disabled="display('name',group)===queries.group_name">
-                                    {{display('name',group)}}
+                                    {{display('name',group)+((group.isZKS==true) ? " ("+$t('ZKS')+")" : '')}}
                                 </option>
                             </select>
                             <label class="sr-only" for="migrateSubgroup">{{$t('Subgroup')}}</label>
-                            <select class="form-control mb-2 mr-sm-2" id="migrateSubgroup" v-model="migrate_subgroup_name" :disabled="migrate_group_name==null||migrate_group_name==''||subgroups==null">
+                            <select class="form-control mb-2 mr-sm-2" id="migrateSubgroup" v-model="migrate_subgroup_name" :disabled="!stringIsSet(migrate_group_name)||subgroups==null">
                                 <option selected disabled value=-1>
                                     {{$t('Subgroup')}}
                                 </option>
@@ -243,7 +245,7 @@
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">{{$t('Cancel')}}</button>
-                <button type="button" class="btn btn-primary" :disabled="migrate_group_name==null||migrate_group_name==''" @click.prevent="migrate()">{{$t('Migrate')}}</button>
+                <button type="button" class="btn btn-primary" :disabled="!stringIsSet(migrate_group_name)" @click.prevent="migrate()">{{$t('Migrate')}}</button>
               </div>
             </div>
           </div>
@@ -282,8 +284,6 @@ export default {
             subgroups: null,
             migrate_group_name: null,
             migrate_subgroup_name: null,
-            groups: null,
-            subgroups: null,
             filterChanged: false,
             filterApplied: false,
             selectedCodes: [],
@@ -304,7 +304,7 @@ export default {
     },
     mounted(){
         this.fetchData()
-        this.typeahead('','group')
+        this.fetchDatalist('','group')
     },
     watch:{
         '$route': 'fetchData'
@@ -322,6 +322,15 @@ export default {
                 //next();
             });
         },
+        fetchDatalist(input,type,parent=null){
+            var params = {} 
+              params.input = input
+              params.lang = this.$i18n.locale
+              params.parent = parent
+              if(type==='group')
+                params.onlyWithSubgroups=true
+            this.request(type,params)
+        },
         getCodes(params, callback){
             api.all('code',{params})
                 .then(response => {
@@ -331,23 +340,24 @@ export default {
                 });
         },
         setParams(){
-            for(var key in this.$route.query) 
-                if(['sort','order','group_name','subgroup_name','isZKS','code','name','description','type'].includes(key))
+            var filtered = false
+            for(var key in this.$route.query) {
+                if(Object.keys(this.queries).includes(key))
                     this.queries[key]=this.$route.query[key];
-            if(this.queries.subgroup_name!==null || this.queries.group_name!==null 
-                || this.queries.isZKS !== '' || this.queries.code !== '' || this.queries.name !== '' || this.queries.description !== ''){
-                this.filterApplied = true
+                    if(this.stringIsSet(this.queries[key]))
+                        filtered = true
             }
+            this.filterApplied = filtered
         },
         fillParams(page){
             var params = {} 
             if(page>1)
                 params.page = page
-            //if(this.queries.group_name || this.queries.subgroup_name || this.queries.name || this.queries.description)
+            if(this.queries.group_name || this.queries.subgroup_name || this.queries.name || this.queries.description)
                 params.lang = this.$i18n.locale
             const keys = Object.keys(this.queries)
             for(const key of keys){
-                if(this.queries[key]!=null && this.queries[key]!='' &&['sort','order','group_name','subgroup_name','isZKS','code','name','description', 'type'].includes(key))
+                if(this.queries[key]!=null && this.queries[key]!='' && Object.keys(this.queries).includes(key))
                     params[key] = this.queries[key]
             }
             return params;
@@ -378,7 +388,7 @@ export default {
         },
         setData(e, data) {
             if (e) {
-                basicErrorHandling(e)
+                this.basicErrorHandling(e)
             } else {
                 this.codes = data.data;
                 this.codes.forEach((code, index) => {
@@ -386,6 +396,8 @@ export default {
                 })
                 this.links = data.links;
                 this.meta = data.meta;
+                this.selectedCodes= []
+                this.selectedAll= false
             }
         },
         getLink(which, code){
@@ -421,32 +433,28 @@ export default {
         },
         typeahead(input, type, except = null, parent = null, event = null){
             if (event instanceof KeyboardEvent || event === null){
+                //this[type+'s'] = null
                 this.filterChanged = true
                 var params = {} 
-                  params.input = input
-                  params.lang = this.$i18n.locale
-                  params.except = except
-                  params.parent = parent
-                  const keys = Object.keys(this.queries)
-                    if(type!='subgroup'&&type!='group')
-                        for(const key of keys){
-                            if(this.queries[key]!=null && this.queries[key]!='' &&['code','name','description'].includes(key))
-                                params[key] = this.queries[key]
-                        }
-                    api.search(this.getType(type), params).then((response) => {
-                        this[type+'s'] = response.data.data
-                    }).catch(e => {
-                        basicErrorHandling(e)
-                    });
+                params.input = input
+                params.lang = this.$i18n.locale
+                params.except = except
+                params.parent = parent
+                const keys = Object.keys(this.queries)
+                if(type!='subgroup'&&type!='group')
+                    for(const key of keys){
+                        if(this.queries[key]!=null && this.queries[key]!='' && ['code','name','description'].includes(key))
+                            params[key] = this.queries[key]
+                    }
+                this.request(type,params)
             }
         },
-        getType(type){
-            if(type.startsWith('migrate_'))
-                return type.split('_')[1]
-            else if(type.startsWith('code_'))
-                return type.split('_')[0]
-            else
-                return type
+        request(type,params){
+            api.search(this.getType(type), params).then((response) => {
+                this[type+'s'] = response.data.data
+            }).catch(e => {
+                this.basicErrorHandling(e)
+            });
         },
         sortBy(target){
             if(this.queries.sort!=null){
@@ -489,7 +497,7 @@ export default {
                   if(toDelete!=-1)
                     this.codes.splice(toDelete, 1);
                }).catch(e => {
-                basicErrorHandling(e)
+                this.basicErrorHandling(e)
                });
             }
         },*/
@@ -498,6 +506,7 @@ export default {
             if(code.selected)
                 this.selectedCodes.push(code.id)
             else{
+                this.selectedAll = false
                 var index = this.selectedCodes.indexOf(code.id);
                 if (index > -1)
                   this.selectedCodes.splice(index, 1);
@@ -518,7 +527,7 @@ export default {
             }
         },
         migrate(){
-            if (confirm(this.$i18n.t('Total to be migrated: ')+" "+this.totalSelectedCodes()+". "+this.$i18n.t('Are you sure?'))) {
+            if (confirm(this.$i18n.t('Total to be migrated')+": "+this.totalSelected()+". "+this.$i18n.t('Are you sure?'))) {
                 var params = {
                     'codes': this.selectedCodes,
                     'is_selected_all_codes': this.selectedAll,
@@ -531,12 +540,10 @@ export default {
                 api.migrate('code',params)
                 .then((response) => {
                     //console.log(response.data)
-                    alert(this.$i18n.t('Successfully migrated: ')+" "+response.data.affected_rows)
+                    alert(this.$i18n.t('Successfully migrated')+": "+response.data.affected_rows)
                     this.$router.go()
                 }).catch(e => {
-                    basicErrorHandling(e)
-                    if(e.response.status==401)
-                        this.redirectToLogin()
+                    this.basicErrorHandling(e)
                     if(e.response.status==422){
                       var message = this.$i18n.t(e.response.data.message) + '\n'
                       for(var key in e.response.data.errors){
@@ -550,7 +557,7 @@ export default {
                 })
             }
         },
-        totalSelectedCodes(){
+        totalSelected(){
             if(this.selectedAll===true)
                 return this.meta.total
             else
@@ -578,17 +585,15 @@ export default {
                         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
                       )
                 }).catch((e) => {
-                    basicErrorHandling(e)
+                    this.basicErrorHandling(e)
                 })*/
         },
-        onFilterChanged(type,input){
-            this.filterChanged=true
-            if(type==='group')
-                this.typeahead('','subgroup',null,input)
-
-        },
-        isEmpty(str) {
-            return (!str || 0 === str.length);
+        onFilterChanged(type,input,event=null){
+            //if (event instanceof KeyboardEvent || event === null){
+                this.filterChanged=true
+                if(type==='group')
+                    this.fetchDatalist('','subgroup',input)
+            //}
         },
     }
 }

@@ -13,7 +13,7 @@
                          list="groups" type="text" aria-describedby="basic-addon2"
                          v-model="queries.name" @change="filterChanged=true">
                         <datalist id="groups">
-                          <option v-for="group in types" >{{display('name',group)}}</option>
+                          <option v-for="group in group_names" >{{display('name',group)}}</option>
                         </datalist>
                         <div class="input-group-append">
                             <button class="btn btn-outline-secondary" type="button" @click.prevent="queries.name=null">
@@ -59,7 +59,7 @@
                     <th scope="col">#
                     </th>
                     <th scope="col" :class="{'font-italic': (queries.sort==='name_kk'||queries.sort==='name_ru')}"
-                        @click="sortBy('name')">
+                        @click="sortBy('name')" style="cursor: pointer;">
                         {{$t('Name')}}
                         <i :class="getOrder('name')"></i>
                     </th>
@@ -72,7 +72,9 @@
                 </thead>
                 <tbody v-if="groups!==null && groups.length>0">
                     <tr v-for="(group,index) in groups">
-                        <th scope="row">{{ (currentPage()-1)*perPage()+index+1 }}</th>
+                        <th scope="row">
+                            {{ (currentPage()-1)*perPage()+index+1 }}
+                        </th>
                         <td>{{ display('name',group) }}</td>
                         <td class="d-none d-sm-table-cell"><i v-if="group.isZKS" class="fas fa-check"></i></td>
                         <td>
@@ -118,7 +120,7 @@ export default {
             pageCache: 1,
             perPageCache: 15,
             groups:null,
-            types: null,
+            group_names: null,
             meta: null,
             links: {
                 first: null,
@@ -139,7 +141,7 @@ export default {
     },
     mounted(){
         this.fetchData()
-        this.typeahead('','group')
+        this.typeahead('','group_name')
     },
     watch:{
         '$route': 'fetchData'
@@ -275,28 +277,26 @@ export default {
                 }
 
         },
-        typeahead(input, type, event=null){
-            if (event instanceof KeyboardEvent|| event===null){
+        typeahead(input, type, except = null, parent = null, event = null){
+            if (event instanceof KeyboardEvent || event === null){
+                this.filterChanged = true
                 var params = {} 
                   params.input = input
                   params.lang = this.$i18n.locale
-                  //params.except = except
-                  //params.parent = parent
-                api.search(this.getType(type), params).then((response) => {
-                    //if(type==='group')
-                        this['types'] = response.data.data
-                    //else
-                    //    this[type+'s'] = response.data.data
-                }).catch(e => {
-                    basicErrorHandling(e)
-                });
+                  params.except = except
+                  params.parent = parent
+                  const keys = Object.keys(this.queries)
+                    if(type!='subgroup'&&type!='group')
+                        for(const key of keys){
+                            if(this.queries[key]!=null && this.queries[key]!='' &&['code','name','description'].includes(key))
+                                params[key] = this.queries[key]
+                        }
+                    api.search(this.getType(type), params).then((response) => {
+                        this[type+'s'] = response.data.data
+                    }).catch(e => {
+                        this.basicErrorHandling(e)
+                    });
             }
-        },
-        getType(type){
-            if(type.startsWith('migrate_'))
-                return type.split('_')[1]
-            else
-                return type
         },
         filter(){
             this.goToCustomPage(1)
@@ -306,12 +306,14 @@ export default {
                 this.saving = true;
                 api.delete('group',id)
                .then((response) => {
+                    alert(this.$i18n.t('Group Deleted')+', '+this.$i18n.t('subgroups migrated: ')+" "+response.data.migrated_childs);
                   this.$router.go()
                }).catch(e => {
-                basicErrorHandling(e)
+                this.basicErrorHandling(e)
                });
             }
         },
+
     }
 }
 </script>

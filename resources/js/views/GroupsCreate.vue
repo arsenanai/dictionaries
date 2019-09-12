@@ -86,7 +86,7 @@
                   }, 500);
                 })
                 .catch(e => {
-                  basicErrorHandling(e)
+                  this.basicErrorHandling(e)
                   if(e.response.status==422){
                     this.message = {}
                     this.message.type = 'alert alert-danger'

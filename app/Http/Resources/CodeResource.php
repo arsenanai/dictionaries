@@ -34,7 +34,7 @@ class CodeResource extends JsonResource
                     'id' => $this->subgroup->group->id,
                     'name_kk' => $this->subgroup->group->name_kk,
                     'name_ru' => $this->subgroup->group->name_ru,
-                    'isZKS' => $this->subgroup->isZKS,
+                    'isZKS' => $this->subgroup->group->isZKS
                 ];
             else
                 $result['subgroup']['group'] = null;

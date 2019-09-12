@@ -19,7 +19,6 @@
               <input class="form-control" id="subgroup_name_ru" v-model="subgroup.name_ru" />
               <span v-if="validation.name_ru!==''">{{validation.name_ru}}</span>
           </div>
-          {{subgroup.group_id}}
           <div class="form-group">
               <label for="group_name">{{$t('Group')}}</label>
               <select class="form-control" v-model="subgroup.group_id" id="group_name">
@@ -80,7 +79,7 @@
                   this.$router.push({name:"subgroups.index"});
                 }, 500);
             }).catch(e => {
-                basicErrorHandling(e)
+                this.basicErrorHandling(e)
                   
                   if(e.response.status==422){
                     this.message = {}
@@ -127,7 +126,7 @@
           console.log(response)
           this.groups = response.data.data
         }).catch(e => {
-          basicErrorHandling(e)
+          this.basicErrorHandling(e)
         });
       }
     },

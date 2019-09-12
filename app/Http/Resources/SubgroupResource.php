@@ -25,7 +25,7 @@ class SubgroupResource extends JsonResource
                 'id' => $this->group->id,
                 'name_kk' => $this->group->name_kk,
                 'name_ru' => $this->group->name_ru,
-                'isZKS' => $this->isZKS
+                'isZKS' => $this->group->isZKS
             ];
         else
             $result['group'] = null;

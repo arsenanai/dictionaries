@@ -109,7 +109,7 @@ export default {
                 this.$router.push({name:"codes.index"});
               }, 500);
           }).catch(e => {
-              basicErrorHandling(e)
+              this.basicErrorHandling(e)
               if(e.response.status==422){
                 this.message = {}
                 this.message.type = 'alert alert-danger'
@@ -175,10 +175,15 @@ export default {
       if (input.length > 1 && matched===false) {
         
         if(type==='subgroups'){
-          api.search('subgroup', input, this.$i18n.locale, -1, this.code.group.id).then((response) => {
+          var params = {} 
+          params.input = input
+          params.lang = this.$i18n.locale
+          params.except = -1
+          params.parent = this.code.group.id
+          api.search('subgroup', params).then((response) => {
             this.subgroups = response.data.data
           }).catch(e => {
-            basicErrorHandling(e)
+            this.basicErrorHandling(e)
           });
         }
       }else if(input.length == 0){

@@ -56,7 +56,7 @@
                       this.$router.push({ name: 'users.index' });
                   })
                   .catch((e) => {
-                    basicErrorHandling(e)
+                    this.basicErrorHandling(e)
                       
                   })
                   .then(() => this.saving = false)
