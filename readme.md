@@ -28,7 +28,7 @@ deployment on ubuntu server:
 https://www.digitalocean.com/community/tutorials/how-to-deploy-a-laravel-application-with-nginx-on-ubuntu-16-04
 
 git clone https://arsenanai@bitbucket.org/arsenanai/enstru.git
-composer install
+composer install --optimize-autoloader --no-dev
 npm install
 sudo chgrp -R www-data storage bootstrap/cache
 sudo chmod -R ug+rwx storage bootstrap/cache
