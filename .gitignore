@@ -13,6 +13,7 @@ yarn-error.log
 messages_php.txt
 messages_js.txt
 /public/css/app.css
+/public/css/static.css
 /public/js/app.js
 /public/mix-manifest.json
 /public/fonts
