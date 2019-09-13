@@ -12,12 +12,14 @@
                         <input class="form-control" id="inlineFormInputName2" :placeholder="$t('Group')" :aria-label="$t('Group')"
                          list="groups" type="text" aria-describedby="basic-addon2"
                          v-model="queries.group_name"
-                            @change="onFilterChanged('group',queries.group_name)">
+                            @change="onFilterChanged('group',queries.group_name)"
+                            @keyup="type($event,'group','name_'+$i18n.locale)">
                         <datalist id="groups">
-                          <option v-for="group in groups">{{display('name',group)}}</option>
+                          <option v-for="group in minified_groups">{{group}}</option>
                         </datalist>
                         <div class="input-group-append">
-                            <button class="btn btn-outline-secondary" type="button" @click.prevent="queries.group_name=queries.subgroup_name=subgroups=null;filterChanged=true">
+                            <button class="btn btn-outline-secondary" type="button" 
+                            @click.prevent="onClear('group','name_'+$i18n.locale)">
                                 <i class="fa fa-times"></i>
                             </button>
                         </div>
@@ -25,14 +27,16 @@
                     <div class="input-group mb-2 mr-sm-2">
                         <input list="subgroups" class="form-control" id="inlineFormInputName3" :placeholder="$t('Subgroup')" :aria-label="$t('Subgroup')"
                          v-model="queries.subgroup_name" @change="filterChanged=true" 
+                         @keyup="type($event,'subgroup','name_'+$i18n.locale)"
                          aria-describedby="times2" type=text
-                         :disabled="!stringIsSet(queries.group_name)||!arrayIsSet(subgroups)"
+                         :disabled="!stringIsSet(queries.group_name)"
                         >
                         <datalist id="subgroups">
-                          <option v-for="subgroup in subgroups" >{{display('name',subgroup)}}</option>
+                          <option v-for="subgroup in minified_subgroups" >{{subgroup}}</option>
                         </datalist>
                         <div class="input-group-append">
-                            <button class="btn btn-outline-secondary" type="button" @click.prevent="queries.subgroup_name=null;filterChanged=true">
+                            <button class="btn btn-outline-secondary" type="button" @click.prevent="onClear('subgroup','name_'+$i18n.locale)"
+                            :disabled="!stringIsSet(queries.group_name)">
                                 <i class="fa fa-times"></i>
                             </button>
                         </div>
@@ -282,6 +286,8 @@ export default {
             },
             groups: null,
             subgroups: null,
+            minified_groups:null,
+            minified_subgroups:null,
             migrate_group_name: null,
             migrate_subgroup_name: null,
             filterChanged: false,
@@ -342,10 +348,14 @@ export default {
         setParams(){
             var filtered = false
             for(var key in this.$route.query) {
-                if(Object.keys(this.queries).includes(key))
+                if(Object.keys(this.queries).includes(key)){
                     this.queries[key]=this.$route.query[key];
                     if(this.stringIsSet(this.queries[key]))
                         filtered = true
+                    if(this.stringIsSet(this.queries[key])&&key==='group_name')
+                        this.fetchDatalist('','subgroup',this.queries[key])
+                }
+                
             }
             this.filterApplied = filtered
         },
@@ -451,10 +461,42 @@ export default {
         },
         request(type,params){
             api.search(this.getType(type), params).then((response) => {
-                this[type+'s'] = response.data.data
+                //console.log(response)
+                this[type+'s'] = response.data
+                if(['group','subgroup'].includes(type))
+                    this.minified(type,'name_'+this.$i18n.locale)
             }).catch(e => {
                 this.basicErrorHandling(e)
             });
+        },
+        type(event=null, type, field){
+            if (event instanceof KeyboardEvent){
+                this.filterChanged = true
+                this.minified(type,field)
+            }
+        },
+        minified(type,field){
+            var result = []
+            var inp = this.stringIsSet(this.queries[type+'_name']) ? this.queries[type+'_name'].toLowerCase() : ''
+            if(this.arrayIsSet(this[type+'s']))
+                this[type+'s'].forEach((item) => {
+                    if(item[field].toLowerCase().includes(inp))
+                        result.push(item[field])
+                });
+            this['minified_'+type+'s'] = result
+        },
+        onClear(type,field){
+            this.queries[type+"_name"]=null
+            if(type==='group')
+                this.queries.subgroup_name=this.subgroups=null;
+            if(['group','subgroup'].includes(type)){
+                var result = []
+                this[type+'s'].forEach((item) => {
+                    result.push(item[field])
+                });
+                this['minified_'+type+'s']=result
+            }
+            this.filterChanged=true;
         },
         sortBy(target){
             if(this.queries.sort!=null){

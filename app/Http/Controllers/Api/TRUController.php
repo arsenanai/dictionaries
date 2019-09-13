@@ -279,7 +279,7 @@ class TRUController extends Controller
 		$except = $request->input('except');
 		$lang = ($lang==='kk')?'kk':'ru';
 		App::setLocale($lang);
-		$query = Group::select('groups.id','groups.name_'.$lang,'isZKS');
+		$query = DB::table('groups')->select('groups.id','groups.name_'.$lang,'isZKS');
 		$query = $query->where('groups.name_'.$lang, 'ilike', '%' . $input . '%');
 		if($except!=null)
 			$query = $query->where('groups.name_'.$lang,'not ilike','%' .$except. '%');
@@ -288,8 +288,8 @@ class TRUController extends Controller
 		$query = $query
 			->groupBy('groups.id')
 			->orderBy('groups.name_'.$lang,'asc')
-			->limit(200)->get();
-		return GroupResource::collection($query);
+			->limit(100)->get();
+		return json_encode($query);
 	}
 
 	public function searchSubgroupsByName(Request $request){
@@ -299,19 +299,19 @@ class TRUController extends Controller
 		$parent = $request->input('parent');
 		$lang = ($lang==='ru')?'ru':'kk';
 		App::setLocale($lang);
-		$query = Subgroup::select('id','name_'.$lang);
+		$query = DB::table('subgroups')->select('subgroups.id','subgroups.name_'.$lang);
 		if($request->has('input'))
-			$query = $query->where('name_'.$lang, 'ilike', '%' . $input . '%');
+			$query = $query->where('subgroups.name_'.$lang, 'ilike', '%' . $input . '%');
 		if($except!=null)
-			$query = $query->where('name_'.$lang,'not ilike','%' .$except. '%');
-		if($parent!=null)
-			$query = $query->whereHas('group', function($q) use($lang, $parent){
-    			$q->where('name_'.$lang, 'ilike', '%'.$parent.'%');
-			});
+			$query = $query->where('subgroups.name_'.$lang,'not ilike','%' .$except. '%');
+		if($parent!=null){
+			$query = $query->join('groups','groups.id','=','subgroups.group_id')
+				->where('groups.name_'.$lang, 'ilike', '%'.$parent.'%');
+		}
 		$query = $query
-			->orderBy('name_'.$lang,'asc')
+			->orderBy('subgroups.name_'.$lang,'asc')
 			->limit(100)->get();
-		return SubgroupResource::collection($query);
+		return json_encode($query);
 	}
 
 	public function searchCodes(Request $request){
@@ -329,7 +329,7 @@ class TRUController extends Controller
 			$select .= 'description_'.$lang.',';
 		if($code!=null)
 			$select .= 'code,';
-		$query = Code::select(DB::raw(substr($select,0,-1)));
+		$query = DB::table('codes')->select(DB::raw(substr($select,0,-1)));
 		if($name!=null){
 			$query = $query->where('name_'.$lang,'ilike','%'.$name.'%')->orderBy('name_'.$lang,'asc');
 		}else if($description!=null){
@@ -341,8 +341,8 @@ class TRUController extends Controller
 			$query = $query->where('name_'.$lang,'ilike','%'.$input.'%')->orderBy('name_'.$lang,'asc');
 		}
 		$query = $query
-			->limit(env('APP_TYPEAHEAD_LIMIT',100))->get();
-	    return CodeResource::collection($query);
+			->limit(env('APP_TYPEAHEAD_LIMIT',10))->get();
+	    return json_encode($query);
 	}
 
 	public function migrateCodes(Request $request){
@@ -544,16 +544,16 @@ class TRUController extends Controller
 	    		});
 	    	if($request->has('type'))
 		    	$query = $query->where('type',$query->input('type'));
-	    	if(in_array($sortBy,array('id','code','name_kk','name_ru','description_kk','description_ru')))
+	    	if(in_array($sortBy,array('id','code','name_'.$lang,'description_'.$lang)))
 	    		$query = $query->orderBy('codes.'.$sortBy,($order==='desc')?'desc':'asc');
 
-	    	$items = $query->get();
+	    	return json_encode($query->get());
 	    	/*$query->chunk(10000, function ($is) use($items){
 			  array_merge($items, $is->toArray());
 			});*/
 			//echo json_encode($items); exit;
 
-			header('Content-Type: text/csv');
+			/*header('Content-Type: text/csv');
 			header('Content-Disposition: attachment; filename="codes.csv"');
 
 			$fp = fopen('php://output', 'wb');
@@ -561,7 +561,7 @@ class TRUController extends Controller
 			foreach ( $items as $i ) {
 			    fputcsv($fp, array($i->id,$i->group_name_ru,$i->subgroup_name_ru,$i->code,$i->name_ru,$i->description_ru));
 			}
-			fclose($fp);
+			fclose($fp);*/
 	    	/*$spreadsheet = new Spreadsheet();
 			$sheet = $spreadsheet->getActiveSheet();
 			$sheet->setCellValue('A1', 'Id');

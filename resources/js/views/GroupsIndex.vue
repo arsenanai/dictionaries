@@ -292,7 +292,7 @@ export default {
                                 params[key] = this.queries[key]
                         }
                     api.search(this.getType(type), params).then((response) => {
-                        this[type+'s'] = response.data.data
+                        this[type+'s'] = response.data
                     }).catch(e => {
                         this.basicErrorHandling(e)
                     });

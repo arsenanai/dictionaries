@@ -27,10 +27,11 @@ export const common = {
 	    },
 	    basicErrorHandling(e){
 	    	console.log(e)
-            if(e.response.status==401)
-                this.logout()
+	    	if(e.response)
+	    		if(e.response.status)
+            		if(e.response.status==401)
+                		this.logout()
 	    },
-	    
 	    getType(type){
             if(type.startsWith('migrate_'))
                 return type.split('_')[1]

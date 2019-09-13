@@ -370,7 +370,7 @@ export default {
         },
         request(type,params){
             api.search(this.getType(type), params).then((response) => {
-                this[type+'s'] = response.data.data
+                this[type+'s'] = response.data
             }).catch(e => {
                 this.basicErrorHandling(e)
             });
