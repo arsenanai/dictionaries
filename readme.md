@@ -23,3 +23,6 @@ php artisan db:seed
 running:
 php artisan serve
 yarn watch - if changing front-end
+
+deployment on ubuntu server:
+https://www.digitalocean.com/community/tutorials/how-to-deploy-a-laravel-application-with-nginx-on-ubuntu-16-04
