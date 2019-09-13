@@ -17,7 +17,7 @@
                         </datalist>
                         <div class="input-group-append">
                             <button class="btn btn-outline-secondary" type="button" @click.prevent="queries.name=null">
-                                <i class="fas fa-times"></i>
+                                <i class="fa fa-times"></i>
                             </button>
                         </div>
                     </div>
@@ -76,7 +76,7 @@
                             {{ (currentPage()-1)*perPage()+index+1 }}
                         </th>
                         <td>{{ display('name',group) }}</td>
-                        <td class="d-none d-sm-table-cell"><i v-if="group.isZKS" class="fas fa-check"></i></td>
+                        <td class="d-none d-sm-table-cell"><i v-if="group.isZKS" class="fa fa-check"></i></td>
                         <td>
                             <div class="float-right">
                                 <router-link class="btn btn-outline-primary btn-sm" :to="getLink('edit',group)" v-if="group.name_kk!='Қалғандары'">
@@ -263,7 +263,7 @@ export default {
         getOrder(target){
             if(this.queries.sort!=null)
                 if(this.queries.sort.startsWith(target))
-                    return (this.queries.order==='desc') ? 'fas fa-caret-up' : 'fas fa-caret-down'
+                    return (this.queries.order==='desc') ? 'fa fa-caret-up' : 'fa fa-caret-down'
                 else
                     return ''
         },

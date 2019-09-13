@@ -17,7 +17,7 @@
                         </datalist>
                         <div class="input-group-append">
                             <button class="btn btn-outline-secondary" type="button" @click.prevent="queries.group_name=queries.name=subgroup_names=null;filterChanged=true">
-                                <i class="fas fa-times"></i>
+                                <i class="fa fa-times"></i>
                             </button>
                         </div>
                     </div>
@@ -30,7 +30,7 @@
                         </datalist>
                         <div class="input-group-append">
                             <button class="btn btn-outline-secondary" type="button" @click.prevent="queries.name=null;filterChanged=true">
-                                <i class="fas fa-times"></i>
+                                <i class="fa fa-times"></i>
                             </button>
                         </div>
                     </div>
@@ -94,12 +94,12 @@
                 <tbody v-if="subgroups!==null && subgroups.length>0">
                     <tr v-for="(subgroup,index) in subgroups" :class="{selected: subgroup.selected}" @click="select(subgroup)">
                         <th scope="row">
-                            <i v-if="subgroup.selected" class="fas fa-check"></i>
+                            <i v-if="subgroup.selected" class="fa fa-check"></i>
                             {{ (currentPage()-1)*perPage()+index+1 }}
                         </th>
                         <td class="d-none d-md-table-cell name-cell">{{ display('name',subgroup.group) }}</td>
                         <td>{{ display('name',subgroup) }}</td>
-                        <td class="d-none d-sm-table-cell"><i v-if="subgroup.group.isZKS" class="fas fa-check"></i></td>
+                        <td class="d-none d-sm-table-cell"><i v-if="subgroup.group.isZKS" class="fa fa-check"></i></td>
                         <td>
                             <div class="float-right">
                                 <router-link class="btn btn-outline-primary btn-sm" :to="getLink('edit',subgroup)">
@@ -337,7 +337,7 @@ export default {
         getOrder(target){
             if(this.queries.sort!=null)
                 if(this.queries.sort.startsWith(target)){
-                    return (this.queries.order==='desc') ? 'fas fa-caret-up' : 'fas fa-caret-down'
+                    return (this.queries.order==='desc') ? 'fa fa-caret-up' : 'fa fa-caret-down'
                 }else
                     return ''
         },

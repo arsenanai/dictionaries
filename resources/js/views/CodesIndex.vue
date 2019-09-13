@@ -18,7 +18,7 @@
                         </datalist>
                         <div class="input-group-append">
                             <button class="btn btn-outline-secondary" type="button" @click.prevent="queries.group_name=queries.subgroup_name=subgroups=null;filterChanged=true">
-                                <i class="fas fa-times"></i>
+                                <i class="fa fa-times"></i>
                             </button>
                         </div>
                     </div>
@@ -33,7 +33,7 @@
                         </datalist>
                         <div class="input-group-append">
                             <button class="btn btn-outline-secondary" type="button" @click.prevent="queries.subgroup_name=null;filterChanged=true">
-                                <i class="fas fa-times"></i>
+                                <i class="fa fa-times"></i>
                             </button>
                         </div>
                     </div>
@@ -45,7 +45,7 @@
                         </datalist>
                         <div class="input-group-append">
                             <button class="btn btn-outline-secondary" type="button" @click.prevent="queries.code=null;filterChanged=true">
-                                <i class="fas fa-times"></i>
+                                <i class="fa fa-times"></i>
                             </button>
                         </div>
                     </div>
@@ -57,7 +57,7 @@
                         </datalist>
                         <div class="input-group-append">
                             <button class="btn btn-outline-secondary" type="button" @click.prevent="queries.name=null">
-                                <i class="fas fa-times"></i>
+                                <i class="fa fa-times"></i>
                             </button>
                         </div>
                     </div>
@@ -69,7 +69,7 @@
                         </datalist>
                         <div class="input-group-append">
                             <button class="btn btn-outline-secondary" type="button" @click.prevent="queries.description=null">
-                                <i class="fas fa-times"></i>
+                                <i class="fa fa-times"></i>
                             </button>
                         </div>
                     </div>
@@ -163,7 +163,7 @@
                 <tbody v-if="codes!==null && codes.length>0">
                     <tr v-for="(code,index) in codes" :class="{selected: code.selected}" @click="select(code)" style="cursor: pointer;">
                         <th scope="row" >
-                            <i v-if="code.selected" class="fas fa-check"></i>
+                            <i v-if="code.selected" class="fa fa-check"></i>
                             {{ (currentPage()-1)*perPage()+index+1 }}
                         </th>
                         <td class="d-none d-md-table-cell name-cell">{{display('name',code.subgroup.group)}}</td>
@@ -172,7 +172,7 @@
                         <td>{{ display('name',code) }}</td>
                         <td class="d-none d-sm-table-cell">{{display('description',code)}}</td>
                         <td class="d-none d-sm-table-cell">
-                            <i v-if="code.subgroup.group.isZKS" class="fas fa-check"></i>
+                            <i v-if="code.subgroup.group.isZKS" class="fa fa-check"></i>
                         </td>
                         <td class="d-none d-sm-table-cell">
                             {{$t(code.type)}}
@@ -476,7 +476,7 @@ export default {
         getOrder(target){
             if(this.queries.sort!=null)
                 if(this.queries.sort.startsWith(target)){
-                    return (this.queries.order==='desc') ? 'fas fa-caret-up' : 'fas fa-caret-down'
+                    return (this.queries.order==='desc') ? 'fa fa-caret-up' : 'fa fa-caret-down'
                 }else
                     return ''
         },
