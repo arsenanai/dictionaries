@@ -607,6 +607,7 @@ export default {
         },
         getExportLink(){
             var params = this.fillParams()
+            
             if(params['sort']==null && params['order']==null){
                 params['sort']='id'
                 params['order']='asc'
@@ -616,19 +617,8 @@ export default {
             const keys = Object.keys(params)
             for(const key of keys)
                 url.searchParams.set(key, params[key]);
-            
             url.searchParams.set('token',localStorage.getItem("enstru_token"))
             return url
-            /*api.excel(params)
-                .then((response) => {
-                    download(
-                        response.data,
-                        'codes.xlsx',
-                        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-                      )
-                }).catch((e) => {
-                    this.basicErrorHandling(e)
-                })*/
         },
         onFilterChanged(type,input,event=null){
             //if (event instanceof KeyboardEvent || event === null){

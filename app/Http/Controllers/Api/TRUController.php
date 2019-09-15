@@ -12,9 +12,7 @@ use App\Http\Resources\GroupResource;
 use App\Http\Resources\SubgroupResource;
 use App\Http\Resources\CodeResource;
 use Illuminate\Support\Facades\DB;
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-use PhpOffice\PhpSpreadsheet\Writer\Xls;
+use Rap2hpoutre\FastExcel\FastExcel;
 use Illuminate\Support\Facades\Validator;
 
 class TRUController extends Controller
@@ -531,63 +529,22 @@ class TRUController extends Controller
 	    	if($subgroup_name!=null)
 	    		$query = $query->where('subgroups.name_'.$lang, 'ilike', '%'.$subgroup_name.'%');
 	    	if($code!==null )
-	    		$query = $query->where('code','ilike', $code.'%');
+	    		$query = $query->where('codes.code','ilike', $code.'%');
 	    	if($name!==null)
-	    		$query = $query->where('name_'.$lang,'ilike', '%'.$name.'%');
+	    		$query = $query->where('codes.name_'.$lang,'ilike', '%'.$name.'%');
 	    	if($description!==null)
-	    		$query = $query->where('description_'.$lang,'ilike', '%'.$description.'%');
+	    		$query = $query->where('codes.description_'.$lang,'ilike', '%'.$description.'%');
 	    	if($isZKS != null)
-	    		$query = $query->whereHas('subgroup', function($query) use($isZKS){
-	    			$query = $query->whereHas('group', function($q) use($isZKS){
-	    				$q->where('isZKS',($isZKS==='false') ? false : true);
-	    			});
-	    		});
+	    		$query = $query->where('groups.isZKS', $isZKS);
 	    	if($request->has('type'))
 		    	$query = $query->where('type',$query->input('type'));
 	    	if(in_array($sortBy,array('id','code','name_'.$lang,'description_'.$lang)))
 	    		$query = $query->orderBy('codes.'.$sortBy,($order==='desc')?'desc':'asc');
 
-	    	return json_encode($query->get());
-	    	/*$query->chunk(10000, function ($is) use($items){
-			  array_merge($items, $is->toArray());
-			});*/
-			//echo json_encode($items); exit;
+	    	$data = $query->get();
+	    	//$file = (new FastExcel($data))->export('codes.xlsx');
 
-			/*header('Content-Type: text/csv');
-			header('Content-Disposition: attachment; filename="codes.csv"');
-
-			$fp = fopen('php://output', 'wb');
-			fputcsv($fp, array('Id',__('Group'),__('Subgroup'),__('Code'),__('Name'),__('Description')));
-			foreach ( $items as $i ) {
-			    fputcsv($fp, array($i->id,$i->group_name_ru,$i->subgroup_name_ru,$i->code,$i->name_ru,$i->description_ru));
-			}
-			fclose($fp);*/
-	    	/*$spreadsheet = new Spreadsheet();
-			$sheet = $spreadsheet->getActiveSheet();
-			$sheet->setCellValue('A1', 'Id');
-			$sheet->setCellValue('B1', __('Group'));
-			$sheet->setCellValue('C1', __('Subgroup'));
-			$sheet->setCellValue('D1', __('Code'));
-			$sheet->setCellValue('E1', __('Name'));
-			$sheet->setCellValue('F1', __('Description'));
-			
-			$rows = 2;
-			foreach($items as $i){
-				//echo $i->name_ru; exit; 
-				$sheet->setCellValue('A' . $rows, $i->id);
-				$sheet->setCellValue('B' . $rows, $i->group_name_ru);
-				$sheet->setCellValue('C' . $rows, $i->subgroup_name_ru);
-				$sheet->setCellValue('D' . $rows, $i->code);
-				$sheet->setCellValue('E' . $rows, $i->name_ru);
-				$sheet->setCellValue('F' . $rows, $i->description_ru);
-				$rows++;
-			}
-			echo 'without error till here'; exit;
-			//$fileName = "codes.xlsx";
-			$writer = new Xlsx($spreadsheet);
-			header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    		header('Content-Disposition: attachment; filename="codes.xlsx"');
-			$writer->save("php://output");*/
+	    	return (new FastExcel($data))->download('codes.xlsx');
 		}catch(\Exception $e){
 			echo $e->getMessage(); exit;
 		}

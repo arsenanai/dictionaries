@@ -87,6 +87,7 @@
         border: 1px solid #dee2e6;
         margin-left: -1px;
         color: #6c757d;
+        padding-bottom:9px;
     }
     input[type=number]::-webkit-inner-spin-button, 
     input[type=number]::-webkit-outer-spin-button { 

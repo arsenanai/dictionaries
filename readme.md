@@ -15,7 +15,7 @@ php artisan migrate
 php artisan passport:install
 #after every database cleaning and re-migrating run this:
 php artisan passport:client --password
-yarn install
+npm install
 
 #optional:
 php artisan db:seed
