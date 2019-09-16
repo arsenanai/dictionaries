@@ -149,7 +149,7 @@
                                 <option selected disabled value=-1>
                                     {{$t('Group')}}
                                 </option>
-                                <option v-for="group in groups" :value="display('name',group)" :disabled="display('name',group)===queries.group_name">
+                                <option v-for="group in migrate_groups" :value="display('name',group)" :disabled="display('name',group)===queries.group_name">
                                     {{display('name',group)+((group.isZKS==true) ? " ("+$t('ZKS')+")" : '')}}
                                 </option>
                             </select>
@@ -208,6 +208,7 @@ export default {
     mounted(){
         this.fetchData()
         this.fetchDatalist('','group')
+        this.fetchDatalist('','migrate_group')
     },
     watch:{
         '$route': 'fetchData'
@@ -229,6 +230,10 @@ export default {
               params.input = input
               params.lang = this.$i18n.locale
               params.parent = parent
+            if(type==='group')
+                params.onlyWithSubgroups=true
+            //else if(type==='migrate_group')
+            //    params.onlyWithSubgroups=true
             this.request(type,params)
         },
         getData(params, callback){
@@ -442,6 +447,8 @@ export default {
             this.filterChanged=true
             if(type==='group')
                 this.fetchDatalist('','subgroup_name',input)
+            //else if(type==='migrate_group')
+            //        this.fetchDatalist('','migrate_subgroup',input)
 
         },
 

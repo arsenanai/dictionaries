@@ -281,8 +281,11 @@ class TRUController extends Controller
 		$query = $query->where('groups.name_'.$lang, 'ilike', '%' . $input . '%');
 		if($except!=null)
 			$query = $query->where('groups.name_'.$lang,'not ilike','%' .$except. '%');
-		if($request->has('onlyWithSubgroups'))
+		if($request->has('onlyWithSubgroups') || $request->has('onlyWithCodes')){
 			$query = $query->join('subgroups','subgroups.group_id','=','groups.id');
+			if($request->has('onlyWithCodes'))
+				$query = $query->join('codes','codes.subgroup_id','=','subgroups.id');
+		}
 		$query = $query
 			->groupBy('groups.id')
 			->orderBy('groups.name_'.$lang,'asc')
@@ -306,7 +309,10 @@ class TRUController extends Controller
 			$query = $query->join('groups','groups.id','=','subgroups.group_id')
 				->where('groups.name_'.$lang, 'ilike', '%'.$parent.'%');
 		}
+		if($request->has('onlyWithCodes'))
+			$query = $query->join('codes','codes.subgroup_id','=','subgroups.id');
 		$query = $query
+			->groupBy('subgroups.id')
 			->orderBy('subgroups.name_'.$lang,'asc')
 			->limit(100)->get();
 		return json_encode($query);
