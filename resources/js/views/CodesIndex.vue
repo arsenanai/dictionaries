@@ -24,7 +24,7 @@
                         </option>
                     </select>
                     <div class="input-group mb-2 mr-sm-2">
-                        <input type=text list="code.code" class="form-control" id="codeInput" :placeholder="$t('Code')" :aria-label="$t('Subgroup')"
+                        <input type=text list="code.code" class="form-control" id="codeInput" :placeholder="$t('Code')" :aria-label="$t('Code')"
                          v-model="queries.code" @change="filterChanged=true" @keyup="typeahead(null,'code_code',null,null,$event)">
                         <datalist id="code.code">
                           <option v-for="item in code_codes">{{item.code}}</option>
@@ -354,7 +354,8 @@ export default {
                 params.lang = this.$i18n.locale
             const keys = Object.keys(this.queries)
             for(const key of keys){
-                if(this.queries[key]!=null && this.queries[key]!='' && this.queries[key]>-1 && Object.keys(this.queries).includes(key))
+                if((['group_id','subgroup_id'].includes(key) && this.queries[key]>-1) ||
+                (!['group_id','subgroup_id'].includes(key) && this.queries[key]!=null && this.queries[key]!='' && Object.keys(this.queries).includes(key)))
                     params[key] = this.queries[key]
             }
             return params;

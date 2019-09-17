@@ -9,7 +9,7 @@
             <div class="col">
                 <form class="form-inline">
                     <label class="sr-only" for="name">{{$t('Group')}}</label>
-                    <select class="form-control mb-2 mr-sm-2" style="max-width:200px;" v-model="queries.group_id" @change="filterChanged=true">
+                    <select class="form-control mb-2 mr-sm-2" style="max-width:200px;" v-model="queries.group_id" @change="onFilterChanged('group',queries.group_id)">
                         <option value=-1>{{$t('Group')}}</option>
                         <option v-for="group in groups" :value="group.id">
                             {{display('name',group)+((group.isZKS==true) ? " ("+$t('ZKS')+")" : '')}}
@@ -254,10 +254,13 @@ export default {
         setParams(){
             var filtered = false
             for(var key in this.$route.query) {
-                if(Object.keys(this.queries).includes(key))
+                if(Object.keys(this.queries).includes(key)){
                     this.queries[key]=this.$route.query[key];
                     if(this.stringIsSet(this.queries[key]))
                         filtered = true
+                    if(key==='group_id' && this.queries[key]>-1)
+                        this.fetchDatalist('','subgroup_name',this.queries[key])
+                }
             }
             this.filterApplied = filtered
         },
@@ -270,7 +273,8 @@ export default {
                 params.lang = this.$i18n.locale
             const keys = Object.keys(this.queries)
             for(const key of keys){
-                if(this.queries[key]!=null && this.queries[key]!=''&& this.queries[key]>-1 && Object.keys(this.queries).includes(key))
+                if((['group_id'].includes(key) && this.queries[key]>-1) ||
+                (!['group_id'].includes(key) && this.queries[key]!=null && this.queries[key]!='' && Object.keys(this.queries).includes(key)))
                     params[key] = this.queries[key]
             }
             return params;

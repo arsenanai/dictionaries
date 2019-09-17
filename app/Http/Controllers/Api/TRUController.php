@@ -359,6 +359,7 @@ class TRUController extends Controller
 			$query = $query->where('name_'.$lang,'ilike','%'.$input.'%')->orderBy('name_'.$lang,'asc');
 		}
 		$query = $query
+			->groupBy('codes.id')
 			->limit(env('APP_TYPEAHEAD_LIMIT',10))->get();
 	    return json_encode($query);
 	}
