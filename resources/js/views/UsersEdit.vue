@@ -60,7 +60,7 @@ export default {
 	            email: this.user.email,
 	        }).then((response) => {
 	            this.message = this.$i18n.t('User updated');
-	            this.user = response.data.data;
+	            this.user = response.data;
 	            setTimeout(() => {
 	            	this.message = null
 	            	this.$router.push({name:"users.index"});

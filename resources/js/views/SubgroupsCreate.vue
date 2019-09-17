@@ -75,7 +75,7 @@
                 this.message={}
                 this.message.type='alert alert-success'
                 this.message.text=this.$i18n.t('Subgroup created');
-                this.subgroup = response.data.data;
+                this.subgroup = response.data;
                 setTimeout(() => {
                   //this.message = null
                   this.$router.push({name:"subgroups.index"});

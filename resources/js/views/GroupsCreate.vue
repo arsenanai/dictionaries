@@ -79,7 +79,7 @@
                   this.message={}
                   this.message.type='alert alert-success'
                   this.message.text=this.$i18n.t('Group created');
-                  this.subgroup = response.data.data;
+                  this.subgroup = response.data;
                   setTimeout(() => {
                     //this.message = null
                     this.$router.push({name:"groups.index"});

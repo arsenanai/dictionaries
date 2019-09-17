@@ -104,7 +104,7 @@ export default {
             this.message={}
             this.message.type='alert alert-success'
             this.message.text=this.$i18n.t('Code')+' '+this.$i18n.t('updated successfully') ;
-              this.code = response.data.data;
+              this.code = response.data;
               setTimeout(() => {
                 this.saving = false;
                 this.message = null

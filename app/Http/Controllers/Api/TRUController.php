@@ -414,7 +414,7 @@ class TRUController extends Controller
 		    	if($request->has('type'))
 		    		$query->where('codes.type',$type);
 				if(!($code=='null' || $code==''))
-					$query = $query->where('code','ilike', $code.'%');
+					$query = $query->where('codes.code','ilike', $code.'%');
 				if(!($name=='null' || $name==''))
 		    		$query = $query->where('codes.name_'.$lang,'ilike', '%'.$name.'%');
 		    	if(!($description=='null' || $description==''))
