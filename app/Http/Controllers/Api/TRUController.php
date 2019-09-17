@@ -21,14 +21,14 @@ class TRUController extends Controller
 	{
 		$sortBy = $request->input('sort');
     	$order = $request->input('order');
-    	$name = $request->input('name');
+    	$id = $request->input('id');
     	$isZKS = $request->input('isZKS');
     	$lang = $request->input('lang');
     	$lang = ($lang==='ru')?'ru':'kk';
     	App::setLocale($lang);
     	$query = Group::where('id','>',-1);
-    	if($name!==null && $name != '')
-    		$query = $query->where('name_'.$lang,'ilike', '%'.$name.'%');
+    	if($id!==null && $id != -1)
+    		$query = $query->where('id', $id);
     	if($isZKS != null && $isZKS!='')
     		$query = $query->where('isZKS',($isZKS==='false') ? false : true);
     	if(in_array($sortBy,array('id','name_kk','name_ru'))){
@@ -42,16 +42,16 @@ class TRUController extends Controller
     {
     	$sortBy = $request->input('sort');
     	$order = $request->input('order');
-    	$group_name = $request->input('group_name');
+    	$group_id = $request->input('group_id');
     	$name = $request->input('name');
     	$isZKS = $request->input('isZKS');
     	$lang = $request->input('lang');
     	$lang = ($lang==='ru')?'ru':'kk';
     	App::setLocale($lang);
     	$query = Subgroup::with('group');
-    	if($group_name!=null)
-    		$query = $query->whereHas('group', function($q) use($lang, $group_name){
-    			$q->where('name_'.$lang, 'ilike', '%'.$group_name.'%');
+    	if($group_id!=null)
+    		$query = $query->whereHas('group', function($q) use($lang, $group_id){
+    			$q->where('id', $group_id);
 			});
     	if($name!==null && $name != '')
     		$query = $query->where('name_'.$lang,'ilike', '%'.$name.'%');
@@ -70,8 +70,8 @@ class TRUController extends Controller
     {
     	$sortBy = $request->input('sort');
     	$order = $request->input('order');
-    	$group_name = $request->input('group_name');
-    	$subgroup_name = $request->input('subgroup_name');
+    	$group_id = $request->input('group_id');
+    	$subgroup_id = $request->input('subgroup_id');
     	$code = $request->input('code');
     	$name = $request->input('name');
     	$description = $request->input('description');
@@ -81,15 +81,15 @@ class TRUController extends Controller
     	$lang = ($lang==='ru')?'ru':'kk';
     	App::setLocale($lang);
     	$query = Code::with('subgroup.group');
-    	if($group_name!=null)
-    		$query = $query->whereHas('subgroup', function($q) use($lang, $group_name){
-    			$q = $q->whereHas('group', function($q) use($lang, $group_name){
-    				$q->where('name_'.$lang, 'ilike', '%'.$group_name.'%');
+    	if($group_id>-1)
+    		$query = $query->whereHas('subgroup', function($q) use($lang, $group_id){
+    			$q = $q->whereHas('group', function($q) use($lang, $group_id){
+    				$q->where('id', $group_id);
     			});
 			});
-    	if($subgroup_name!=null)
-    		$query = $query->whereHas('subgroup', function($q) use($lang, $subgroup_name){
-    			$q->where('name_'.$lang, 'ilike', '%'.$subgroup_name.'%');
+    	if($subgroup_id>-1)
+    		$query = $query->whereHas('subgroup', function($q) use($lang, $subgroup_id){
+    			$q->where('id', $subgroup_id);
 			});
     	if($code!==null && $code != '')
     		$query = $query->where('code','ilike', $code.'%');
@@ -130,9 +130,16 @@ class TRUController extends Controller
 	}
 
 	public function createGroup(Group $group, Request $request){
+		Validator::extend('uniqueIsZKSAndNameRu', function ($attribute, $value, $parameters, $validator) {
+		    $count = DB::table('groups')
+		    	->where('isZKS', ($parameters[0]==false) ? false : true)
+                ->where('name_ru', $value)
+                ->count();
+		    return $count === 0;
+		});
 		$data = $request->validate([
-	        'name_kk' => 'required|string|max:256|unique:groups',
-	        'name_ru' => 'required|string|max:256|unique:groups',
+	        'name_kk' => 'required|string|max:256',
+	        'name_ru' => "required|string|max:256|uniqueIsZKSAndNameRu:{$request->input('isZKS')}",
 	        'isZKS' => 'boolean',
 	    ]);
 	    $group->create($data);
@@ -186,9 +193,16 @@ class TRUController extends Controller
 	}
 
 	public function updateGroup(Group $group, Request $request){
+		Validator::extend('uniqueIsZKSAndNameRu', function ($attribute, $value, $parameters, $validator) {
+		    $count = DB::table('groups')
+		    	->where('isZKS', $parameters[0])
+                ->where('name_ru', $value)
+                ->count();
+		    return $count === 0;
+		});
 		$data = $request->validate([
 	        'name_kk' => 'required|string|max:256',
-	        'name_ru' => 'required|string|max:256',
+	        'name_ru' => "required|string|max:256|uniqueIsZKSAndNameRu:{$request->input('isZKS')}",
 	        'isZKS' => 'boolean',
 	    ]);
 	    if($group->id!==1)//Others Group
@@ -295,19 +309,19 @@ class TRUController extends Controller
 
 	public function searchSubgroupsByName(Request $request){
 		$lang = $request->input('lang');
-		$input = $request->input('input');
+		//$input = $request->input('input');
 		$except = $request->input('except');
 		$parent = $request->input('parent');
 		$lang = ($lang==='ru')?'ru':'kk';
 		App::setLocale($lang);
 		$query = DB::table('subgroups')->select('subgroups.id','subgroups.name_'.$lang);
-		if($request->has('input'))
-			$query = $query->where('subgroups.name_'.$lang, 'ilike', '%' . $input . '%');
+		//if($request->has('input'))
+		//	$query = $query->where('subgroups.id', $input);
 		if($except!=null)
-			$query = $query->where('subgroups.name_'.$lang,'not ilike','%' .$except. '%');
+			$query = $query->where('subgroups.id','!=',$except);
 		if($parent!=null){
 			$query = $query->join('groups','groups.id','=','subgroups.group_id')
-				->where('groups.name_'.$lang, 'ilike', '%'.$parent.'%');
+				->where('groups.id',  $parent);
 		}
 		if($request->has('onlyWithCodes'))
 			$query = $query->join('codes','codes.subgroup_id','=','subgroups.id');
@@ -322,7 +336,7 @@ class TRUController extends Controller
 		$lang = $request->input('lang');
 		$lang = ($lang==='ru')?'ru':'kk';
 		App::setLocale($lang);
-		$input = $request->input('input');
+		$input= $request->input('input');
 		$code = $request->input('code');
 		$name = $request->input('name');
 		$description = $request->input('description');
@@ -350,22 +364,22 @@ class TRUController extends Controller
 	}
 
 	public function migrateCodes(Request $request){
-		//DB::enableQueryLog();
+		DB::enableQueryLog();
 		$data = $request->validate([
 	        'codes' => "required|array|min:1",
 	        'is_selected_all_codes' => 'required|boolean',
 	        'applied_filters' => 'required_if:is_selected_all_codes,true',
-	        'migrate_subgroup_name' => 'required'
+	        'migrate_subgroup_id' => 'required|exists:subgroups,id'
 	    ]);
 		$codes = $request->input('codes');
 		$selectedAll = $request->input('is_selected_all_codes');
-		$selectedGroupName = explode('_', $request->input('applied_filters'))[0];
-		$selectedSubgroupName = explode('_', $request->input('applied_filters'))[1];
+		$selectedGroupId = explode('_', $request->input('applied_filters'))[0];
+		$selectedSubgroupId = explode('_', $request->input('applied_filters'))[1];
 		$isZKS = explode('_', $request->input('applied_filters'))[2];
 		$code = explode('_', $request->input('applied_filters'))[3];
 		$name = explode('_', $request->input('applied_filters'))[4];
 		$description = explode('_', $request->input('applied_filters'))[5];
-		$migrateSubgroupName = $request->input('migrate_subgroup_name');
+		$migrateSubgroupId = $request->input('migrate_subgroup_id');
 		$type = $request->input('type');
 		$lang = $request->input('lang');
     	$lang = ($lang==='ru')?'ru':'kk';
@@ -380,8 +394,8 @@ class TRUController extends Controller
 		}else{
 			//$debug .= "selecting all\n";
 			if(
-				($selectedGroupName==null || $selectedGroupName=='')
-				&& ($selectedSubgroupName==null || $selectedSubgroupName=='') 
+				($selectedGroupId==null || $selectedGroupId==-1)
+				&& ($selectedSubgroupId==null || $selectedSubgroupId==-1) 
 				&& ($isZKS=='null' || $isZKS=='') 
 				&& ($code=='null' || $code=='')
 				&& ($name=='null' || $name=='')
@@ -393,38 +407,28 @@ class TRUController extends Controller
 				throw $error;
 			}else{
 				$applied = false;
-				/*if(!($selectedGroupName==null || $selectedGroupName=='')){
-					$query = $query->where('group.name_'.$lang,'ilike','%'.$selectedGroupName.'%');
-					//$debug .= "selecting by group_id\n";
-				}*/
-				if(!($selectedSubgroupName==null || $selectedSubgroupName=='')){
-					$query = $query->where('subgroup.name_'.$lang,'ilike','%'.$selectedSubgroupName.'%');
-					//$debug .= "selecting by subgroup_id\n";
-				}
+				if(!($selectedSubgroupId=='null' || $selectedSubgroupId==-1))
+					$query = $query->where('subgroups.id',$selectedSubgroupId);
 				if(!($isZKS=='null' || $isZKS==''))
-		    		$query = $query->whereHas('subgroup', function($query) use($isZKS){
-		    			$query = $query->whereHas('group', function($q) use($isZKS){
-		    				$q->where('isZKS',($isZKS==='false') ? false : true);
-		    			});
-		    		});
+		    		$query = $query->where('groups.isZKS',($isZKS==='false') ? false : true);
 		    	if($request->has('type'))
-		    		$query->where('type',$type);
+		    		$query->where('codes.type',$type);
 				if(!($code=='null' || $code==''))
 					$query = $query->where('code','ilike', $code.'%');
 				if(!($name=='null' || $name==''))
 		    		$query = $query->where('codes.name_'.$lang,'ilike', '%'.$name.'%');
 		    	if(!($description=='null' || $description==''))
-		    		$query = $query->where('description_'.$lang,'ilike', '%'.$description.'%');
+		    		$query = $query->where('codes.description_'.$lang,'ilike', '%'.$description.'%');
 		    		//$debug .= "selecting by query\n";
 				
 			}
 		}
 		$updateFields = array();
-		if($migrateSubgroupName!='' && $migrateSubgroupName!=null){
-			$target = Subgroup::where('name_'.$lang, $migrateSubgroupName)->first();
+		if($migrateSubgroupId!='' && $migrateSubgroupId!=null){
+			$target = Subgroup::where('id', $migrateSubgroupId)->first();
 			if($target!=null){
-				$updateFields['subgroup_id'] = $target->id;
-				//$debug .= "updating subgroup_name\n";
+				$updateFields['subgroup_id'] = $migrateSubgroupId;
+				//$debug .= "updating subgroup_id\n";
 			}else{
 				$error = \Illuminate\Validation\ValidationException::withMessages([
 				   'Groups' => [__('Set subgroup exactly')],
@@ -445,14 +449,14 @@ class TRUController extends Controller
 	        'items' => "required|array|min:1",
 	        'is_selected_all' => 'required|boolean',
 	        'applied_filters' => 'required_if:is_selected_all_codes,true',
-	        'migrate_group_name' => 'required'
+	        'migrate_group_id' => 'required|exists:groups,id'
 	    ]);
 	    $items = $request->input('items');
 		$selectedAll = $request->input('is_selected_all');
-		$selectedGroupName = explode('_', $request->input('applied_filters'))[0];
+		$selectedGroupId = explode('_', $request->input('applied_filters'))[0];
 		$isZKS = explode('_', $request->input('applied_filters'))[1];
 		$name = explode('_', $request->input('applied_filters'))[2];
-		$migrateGroupName = $request->input('migrate_group_name');
+		$migrateGroupId = $request->input('migrate_group_id');
 		$lang = $request->input('lang');
     	$lang = ($lang==='ru')?'ru':'kk';
     	App::setLocale($lang);
@@ -465,7 +469,7 @@ class TRUController extends Controller
 		}else{
 			//$debug .= "selecting all\n";
 			if(
-				($selectedGroupName==null || $selectedGroupName=='')
+				($selectedGroupId==null || $selectedGroupId==-1)
 				&& ($isZKS=='null' || $isZKS=='') 
 				&& ($name=='null' || $name=='')
 			){
@@ -475,8 +479,8 @@ class TRUController extends Controller
 				throw $error;
 			}else{
 				$applied = false;
-				if(!($selectedGroupName==null || $selectedGroupName=='')){
-					$query = $query->where('groups.name_'.$lang,'ilike','%'.$selectedGroupName.'%');
+				if(!($selectedGroupId==null || $selectedGroupId==-1)){
+					$query = $query->where('groups.id',$selectedGroupId);
 					//$debug .= "selecting by group_id\n";
 				}
 				if(!($isZKS=='null' || $isZKS==''))
@@ -490,13 +494,13 @@ class TRUController extends Controller
 			}
 		}
 		$updateFields = array();
-		if($migrateGroupName!='' && $migrateGroupName!=null){
-			$target = Group::where('name_'.$lang, $migrateGroupName)->first();
+		if($migrateGroupId!='' && $migrateGroupId!=null){
+			$target = Group::where('id', $migrateGroupId)->first();
 			if($target!=null){
 				$updateFields['group_id'] = $target->id;
 			}else{
 				$error = \Illuminate\Validation\ValidationException::withMessages([
-				   'Groups' => [__('Set subgroup exactly')],
+				   'Groups' => [__('Set Group exactly')],
 				]);
 				throw $error;
 			}
@@ -513,8 +517,8 @@ class TRUController extends Controller
 		try{
 			$sortBy = $request->input('sort');
 	    	$order = $request->input('order');
-	    	$group_name = $request->input('group_name');
-	    	$subgroup_name = $request->input('subgroup_name');
+	    	$group_id = $request->input('group_id');
+	    	$subgroup_id = $request->input('subgroup_id');
 	    	$code = $request->input('code');
 	    	$name = $request->input('name');
 	    	$description = $request->input('description');
@@ -530,10 +534,10 @@ class TRUController extends Controller
     		//->with('subgroup');
 	    	$query = $query->join('subgroups', 'subgroups.id','=','codes.subgroup_id');
 	    	$query = $query->join('groups', 'groups.id','=','subgroups.group_id');
-	    	if($group_name!=null)
-	    		$query = $query->where('groups.name_'.$lang, 'ilike', '%'.$group_name.'%');
-	    	if($subgroup_name!=null)
-	    		$query = $query->where('subgroups.name_'.$lang, 'ilike', '%'.$subgroup_name.'%');
+	    	if($group_id!=null)
+	    		$query = $query->where('groups.name_'.$lang, 'ilike', '%'.$group_id.'%');
+	    	if($subgroup_id!=null)
+	    		$query = $query->where('subgroups.name_'.$lang, 'ilike', '%'.$subgroup_id.'%');
 	    	if($code!==null )
 	    		$query = $query->where('codes.code','ilike', $code.'%');
 	    	if($name!==null)

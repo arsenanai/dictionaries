@@ -7,20 +7,15 @@ export const common = {
 	},
 	methods:{
 		display(what,target){
+			var result = ''
 			if(target!==null)
-	      if(what==='name'){
-	        if(this.$i18n.locale==='ru')
-	          return target.name_ru
-	        else
-	          return target.name_kk
-	      }else if(what==='description'){
-	        if(this.$i18n.locale==='ru')
-	          return target.description_ru
-	        else
-	          return target.description_kk
-	      }
-	      	else
-	      		return "";
+		      if(what==='name')
+		          result = target['name_'+this.$i18n.locale]
+		      else if(what==='description')
+		          result = target['description_'+this.$i18n.locale]
+		    if(result.length>100)
+		    	result = result.substring(0,75)+' ... '+result.substring(result.length-25,result.length)
+		   	return result
 	    },
 	    logout(){
 	    	this.$router.push({name:'auth.logout'})

@@ -8,7 +8,14 @@
         <div class="row">
             <div class="col">
                 <form class="form-inline">
-                    <div class="input-group mb-2 mr-sm-2">
+                    <label class="sr-only" for="name">{{$t('Group')}}</label>
+                    <select class="form-control mb-2 mr-sm-2" style="max-width:200px;" v-model="queries.group_id" @change="filterChanged=true">
+                        <option value=-1>{{$t('Group')}}</option>
+                        <option v-for="group in groups" :value="group.id">
+                            {{display('name',group)+((group.isZKS==true) ? " ("+$t('ZKS')+")" : '')}}
+                        </option>
+                    </select>
+                    <!--<div class="input-group mb-2 mr-sm-2">
                         <input class="form-control" id="inlineFormInputName2" :placeholder="$t('Group')" :aria-label="$t('Group')"
                          list="groups" type="text" aria-describedby="basic-addon2"
                          v-model="queries.group_name" @change="onFilterChanged('group',queries.group_name)">
@@ -20,11 +27,11 @@
                                 <i class="fa fa-times"></i>
                             </button>
                         </div>
-                    </div>
+                    </div>-->
                     <div class="input-group mb-2 mr-sm-2">
                         <input type=text list="code.name" class="form-control" id="nameInput" :placeholder="$t('Name')" :aria-label="$t('Name')"
                          v-model="queries.name" @change="filterChanged=true"
-                         :disabled="!stringIsSet(queries.group_name)||!arrayIsSet(subgroup_names)">
+                         :disabled="queries.group_id==-1||!arrayIsSet(subgroup_names)">
                          <datalist id="code.name">
                           <option v-for="item in subgroup_names">{{display('name',item)}}</option>
                         </datalist>
@@ -145,11 +152,11 @@
                     <div class="col">
                         <form>
                             <label class="sr-only" for="migrateGroup">{{$t('Group')}}</label>
-                            <select class="form-control mb-2 mr-sm-2" id="migrateGroup" v-model="migrate_group_name">
+                            <select class="form-control mb-2 mr-sm-2" id="migrateGroup" v-model="migrate_group_id">
                                 <option selected disabled value=-1>
                                     {{$t('Group')}}
                                 </option>
-                                <option v-for="group in migrate_groups" :value="display('name',group)" :disabled="display('name',group)===queries.group_name">
+                                <option v-for="group in migrate_groups" :value="group.id" :disabled="group.id===queries.group_id">
                                     {{display('name',group)+((group.isZKS==true) ? " ("+$t('ZKS')+")" : '')}}
                                 </option>
                             </select>
@@ -159,7 +166,7 @@
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">{{$t('Cancel')}}</button>
-                <button type="button" class="btn btn-primary" :disabled="!stringIsSet(migrate_group_name)" 
+                <button type="button" class="btn btn-primary" :disabled="!stringIsSet(migrate_group_id)" 
                 @click.prevent="migrate()">{{$t('Migrate')}}</button>
               </div>
             </div>
@@ -194,14 +201,14 @@ export default {
                 order: null,
                 name: null,
                 isZKS: '',
-                group_name:null,
+                group_id:-1,
             },
             error: null,
             selectedItems: [],
             selectedAll: false,
             filterChanged: false,
             filterApplied: false,
-            migrate_group_name: null,
+            migrate_group_id: null,
             migrate_groups: null,
         };
     },
@@ -258,12 +265,12 @@ export default {
             var params = {} 
             if(page>1)
                 params.page = page
-            if(this.stringIsSet(this.queries.group_name) 
+            if(this.queries.group_id>-1 
                 || this.stringIsSet(this.queries.name))
                 params.lang = this.$i18n.locale
             const keys = Object.keys(this.queries)
             for(const key of keys){
-                if(this.queries[key]!=null && this.queries[key]!='' && Object.keys(this.queries).includes(key))
+                if(this.queries[key]!=null && this.queries[key]!=''&& this.queries[key]>-1 && Object.keys(this.queries).includes(key))
                     params[key] = this.queries[key]
             }
             return params;
@@ -413,9 +420,9 @@ export default {
                 var params = {
                     'items': this.selectedItems,
                     'is_selected_all': this.selectedAll,
-                    'applied_filters':this.queries.group_name+'_'+this.queries.isZKS
+                    'applied_filters':this.queries.group_id+'_'+this.queries.isZKS
                     +'_'+this.queries.name,
-                    'migrate_group_name': this.migrate_group_name,
+                    'migrate_group_id': this.migrate_group_id,
                     'lang': this.$i18n.locale,
                 }
                 api.migrate('subgroup',params)

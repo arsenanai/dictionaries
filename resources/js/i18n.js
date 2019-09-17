@@ -91,6 +91,7 @@ const messages = {
 'sort': 'сорт.',
 'The given data was invalid.': 'Мәлімет дұрыс толтырылмады',
 'validation.unique_group_id_and_name_ru':'Мұндай топтағы орысша топша атауы қолданылған',
+'validation.unique_is_z_k_s_and_name_ru':'Мұндай топ аты және КСС белгісі қолданылған',
 'The name ru has already been taken.':'Орысша атауы қолданылған',
 'The name kk has already been taken.':'Қазақша атауы қолданылған',
 'Not Found':'Бет табылмады',
@@ -104,7 +105,7 @@ const messages = {
 		logout: {
 			message: 'Выход из системы...'
 		},
-'Add New':'Добавить новый',
+'Add New':'Добавить',
 'All':'Все',
 'Are you sure that you want to delete that ':'Вы уверены, что хотите удалить это',
 'Are you sure?':'Вы уверены?',
@@ -189,6 +190,7 @@ const messages = {
 'Not Found':'Не найдено',
 'Woops! Looks like the page you requested cannot be found.':'Страница которую вы искали не найдена',
 'Apply some filters before migrating all':'Перед переносом проведите поиск',
+'validation.unique_is_z_k_s_and_name_ru':'Данное наименование и признак ЗКС уже используются',
 	},
 }
 

@@ -22,7 +22,9 @@
           <div class="form-group">
               <label for="group_name">{{$t('Group')}}</label>
               <select class="form-control" v-model="subgroup.group_id" id="group_name">
-                <option v-for="group in groups" :value="group.id">{{display('name',group)}}</option>
+                <option v-for="group in groups" :value="group.id">
+                    {{display('name',group)+((group.isZKS==true) ? " ("+$t('ZKS')+")" : '')}}
+                </option>
               </select>
               <span v-if="validation.group_id!==''">{{validation.group_id}}</span>
           </div>
@@ -124,7 +126,7 @@
           params.lang = this.$i18n.locale
         api.search('group',params).then((response) => {
           console.log(response)
-          this.groups = response.data.data
+          this.groups = response.data
         }).catch(e => {
           this.basicErrorHandling(e)
         });

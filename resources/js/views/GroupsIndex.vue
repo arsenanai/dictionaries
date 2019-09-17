@@ -8,20 +8,14 @@
         <div class="row">
             <div class="col">
                 <form class="form-inline">
-                    <div class="input-group mb-2 mr-sm-2">
-                        <input class="form-control" id="inlineFormInputName2" :placeholder="$t('Name')" :aria-label="$t('Name')"
-                         list="groups" type="text" aria-describedby="basic-addon2"
-                         v-model="queries.name" @change="filterChanged=true">
-                        <datalist id="groups">
-                          <option v-for="group in group_names" >{{display('name',group)}}</option>
-                        </datalist>
-                        <div class="input-group-append">
-                            <button class="btn btn-outline-secondary" type="button" @click.prevent="queries.name=null">
-                                <i class="fa fa-times"></i>
-                            </button>
-                        </div>
-                    </div>
-                     <label class="sr-only" for="zks">{{$t('ZKS')}}</label>
+                    <label class="sr-only" for="name">{{$t('Name')}}</label>
+                    <select class="form-control mb-2 mr-sm-2" style="max-width:200px;" v-model="queries.id" @change="filterChanged=true">
+                        <option value=-1>{{$t('Name')}}</option>
+                        <option v-for="group in group_names" :value="group.id">
+                            {{display('name',group)+((group.isZKS==true) ? " ("+$t('ZKS')+")" : '')}}
+                        </option>
+                    </select>
+                    <label class="sr-only" for="zks">{{$t('ZKS')}}</label>
                     <select v-model="queries.isZKS" id=zks class="form-control mb-2 mr-sm-2" @change="filterChanged=true">
                         <option value selected>{{$t('ZKS')}} ({{$t('All')}})</option>
                         <option value="true">{{$t('Yes')}}</option>
@@ -131,7 +125,7 @@ export default {
             queries:{
                 sort: null,
                 order: null,
-                name: null,
+                id: -1,
                 isZKS: '',
             },
             error: null,
@@ -168,11 +162,11 @@ export default {
         },
         setParams(){
             for(var key in this.$route.query) 
-                    if(['sort','order','isZKS','name'].includes(key))
-                        this.queries[key]=this.$route.query[key];
+                if(['sort','order','isZKS','id'].includes(key))
+                    this.queries[key]=this.$route.query[key];
                 if(
                      this.queries.isZKS !== ''  
-                    || this.queries.name !== ''
+                    || this.queries.id !== -1
                     || this.queries.group_name!==null 
                 ){
                     this.filterApplied = true
@@ -182,11 +176,11 @@ export default {
             var params = {} 
             if(page>1)
                 params.page = page
-            if(this.queries.group_name || this.queries.name)
+            if(this.queries.group_name || this.queries.id)
                 params.lang = this.$i18n.locale
             const keys = Object.keys(this.queries)
             for(const key of keys){
-                if(this.queries[key]!=null && this.queries[key]!='' &&['sort','order','group_name','isZKS','name'].includes(key))
+                if(this.queries[key]!=null && this.queries[key]!=-1 && this.queries[key]!='' &&['sort','order','group_name','isZKS','id'].includes(key))
                     params[key] = this.queries[key]
             }
             return params;
@@ -279,7 +273,6 @@ export default {
         },
         typeahead(input, type, except = null, parent = null, event = null){
             if (event instanceof KeyboardEvent || event === null){
-                this.filterChanged = true
                 var params = {} 
                   params.input = input
                   params.lang = this.$i18n.locale
@@ -288,7 +281,7 @@ export default {
                   const keys = Object.keys(this.queries)
                     if(type!='subgroup'&&type!='group')
                         for(const key of keys){
-                            if(this.queries[key]!=null && this.queries[key]!='' &&['code','name','description'].includes(key))
+                            if(this.queries[key]!=null && this.queries[key]!='' &&['code','id','description'].includes(key))
                                 params[key] = this.queries[key]
                         }
                     api.search(this.getType(type), params).then((response) => {

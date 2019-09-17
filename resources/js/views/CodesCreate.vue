@@ -181,7 +181,7 @@ export default {
           params.except = -1
           params.parent = this.code.group.id
           api.search('subgroup', params).then((response) => {
-            this.subgroups = response.data.data
+            this.subgroups = response.data
           }).catch(e => {
             this.basicErrorHandling(e)
           });
