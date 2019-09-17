@@ -348,15 +348,14 @@ class TRUController extends Controller
 		if($code!=null)
 			$select .= 'code,';
 		$query = DB::table('codes')->select(DB::raw(substr($select,0,-1)));
-		if($name!=null){
-			$query = $query->where('name_'.$lang,'ilike','%'.$name.'%')->orderBy('name_'.$lang,'asc');
-		}else if($description!=null){
-			$query = $query->where('description_'.$lang,'ilike','%'.$description.'%')->orderBy('description_'.$lang,'asc');
-		}else{
-			$query = $query->where('code','ilike',$code. '%')->orderBy('code','asc');
-		}
+		if($name!=null)
+			$query = $query->where('name_'.$lang,'ilike','%'.$name.'%');
+		if($description!=null)
+			$query = $query->where('description_'.$lang,'ilike','%'.$description.'%');
+		if($code!=null)
+			$query = $query->where('code','ilike',$code. '%');
 		if($input!=null){
-			$query = $query->where('name_'.$lang,'ilike','%'.$input.'%')->orderBy('name_'.$lang,'asc');
+			$query = $query->where('name_'.$lang,'ilike','%'.$input.'%');
 		}
 		$query = $query
 			->groupBy('codes.id')
