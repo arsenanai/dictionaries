@@ -397,24 +397,20 @@ class TRUController extends Controller
 					$query = $query->where('group.name_'.$lang,'ilike','%'.$selectedGroupName.'%');
 					//$debug .= "selecting by group_id\n";
 				}*/
-				if(!($selectedSubgroupName==null || $selectedSubgroupName=='')){
-					$query = $query->where('subgroup.name_'.$lang,'ilike','%'.$selectedSubgroupName.'%');
+				if(!($selectedSubgroupName=='null' || $selectedSubgroupName=='')){
+					$query = $query->where('subgroups.name_'.$lang,'ilike','%'.$selectedSubgroupName.'%');
 					//$debug .= "selecting by subgroup_id\n";
 				}
 				if(!($isZKS=='null' || $isZKS==''))
-		    		$query = $query->whereHas('subgroup', function($query) use($isZKS){
-		    			$query = $query->whereHas('group', function($q) use($isZKS){
-		    				$q->where('isZKS',($isZKS==='false') ? false : true);
-		    			});
-		    		});
+		    		$query = $query->where('groups.isZKS',$isZKS);
 		    	if($request->has('type'))
-		    		$query->where('type',$type);
+		    		$query->where('codes.type',$type);
 				if(!($code=='null' || $code==''))
-					$query = $query->where('code','ilike', $code.'%');
+					$query = $query->where('codes.code','ilike', $code.'%');
 				if(!($name=='null' || $name==''))
 		    		$query = $query->where('codes.name_'.$lang,'ilike', '%'.$name.'%');
 		    	if(!($description=='null' || $description==''))
-		    		$query = $query->where('description_'.$lang,'ilike', '%'.$description.'%');
+		    		$query = $query->where('codes.description_'.$lang,'ilike', '%'.$description.'%');
 		    		//$debug .= "selecting by query\n";
 				
 			}
@@ -423,7 +419,7 @@ class TRUController extends Controller
 		if($migrateSubgroupName!='' && $migrateSubgroupName!=null){
 			$target = Subgroup::where('name_'.$lang, $migrateSubgroupName)->first();
 			if($target!=null){
-				$updateFields['subgroup_id'] = $target->id;
+				$updateFields['codes.subgroup_id'] = $target->id;
 				//$debug .= "updating subgroup_name\n";
 			}else{
 				$error = \Illuminate\Validation\ValidationException::withMessages([

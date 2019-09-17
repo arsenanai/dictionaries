@@ -33,7 +33,7 @@ Route::group(['middleware' => ['json.response']], function () {
     // private routes
     Route::namespace('Api')->middleware('auth:api')->group(function () {
         Route::get('/users', 'UsersController@index');
-        Route::get('/users/{user}', 'UsersController@show');
+        Route::get('/users/show/{user}', 'UsersController@show');
         Route::post('/users', 'UsersController@store');
         Route::put('/users/{user}', 'UsersController@update');
         Route::delete('/users/{user}', 'UsersController@destroy');

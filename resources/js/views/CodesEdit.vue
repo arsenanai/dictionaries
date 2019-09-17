@@ -104,7 +104,7 @@ export default {
             this.message={}
             this.message.type='alert alert-success'
             this.message.text=this.$i18n.t('Code')+' '+this.$i18n.t('updated successfully') ;
-              this.code = response.data.data;
+              this.code = response.data;
               setTimeout(() => {
                 this.saving = false;
                 this.message = null
@@ -202,7 +202,7 @@ export default {
           params.input = input
           params.lang = this.$i18n.locale
           api.search('group', params).then((response) => {
-            this.groups = response.data.data
+            this.groups = response.data
           }).catch(e => {
             this.basicErrorHandling(e)
           });
@@ -212,7 +212,7 @@ export default {
           params.lang = this.$i18n.locale
           params.parent = this.display('name',this.code.group)
           api.search('subgroup', {params}).then((response) => {
-            this.subgroups = response.data.data
+            this.subgroups = response.data
           }).catch(e => {
             this.basicErrorHandling(e)
           });

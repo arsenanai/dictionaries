@@ -73,7 +73,7 @@
                 this.message={}
                 this.message.type='alert alert-success'
                 this.message.text=this.$i18n.t('Subgroup created');
-                this.subgroup = response.data.data;
+                this.subgroup = response.data;
                 setTimeout(() => {
                   //this.message = null
                   this.$router.push({name:"subgroups.index"});
@@ -124,7 +124,7 @@
           params.lang = this.$i18n.locale
         api.search('group',params).then((response) => {
           console.log(response)
-          this.groups = response.data.data
+          this.groups = response.data
         }).catch(e => {
           this.basicErrorHandling(e)
         });

@@ -104,7 +104,7 @@ const messages = {
 		logout: {
 			message: 'Выход из системы...'
 		},
-'Add New':'Добавить новый',
+'Add New':'Добавить',
 'All':'Все',
 'Are you sure that you want to delete that ':'Вы уверены, что хотите удалить это',
 'Are you sure?':'Вы уверены?',

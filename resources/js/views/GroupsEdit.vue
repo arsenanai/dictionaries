@@ -69,7 +69,7 @@ export default {
               this.message={}
               this.message.type='alert alert-success'
 	            this.message.text = this.$i18n.t('Group updated');
-	            this.group = response.data.data;
+	            this.group = response.data;
 	            setTimeout(() => {
 	            	this.message = null
 	            	this.$router.push({name:"groups.index"});

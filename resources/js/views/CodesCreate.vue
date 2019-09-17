@@ -102,7 +102,7 @@ export default {
             this.message={}
             this.message.type='alert alert-success'
             this.message.text=this.$i18n.t('Code created successfully');
-              this.code = response.data.data;
+              this.code = response.data;
               setTimeout(() => {
                 this.saving = false;
                 this.message = null
@@ -181,7 +181,7 @@ export default {
           params.except = -1
           params.parent = this.code.group.id
           api.search('subgroup', params).then((response) => {
-            this.subgroups = response.data.data
+            this.subgroups = response.data
           }).catch(e => {
             this.basicErrorHandling(e)
           });
