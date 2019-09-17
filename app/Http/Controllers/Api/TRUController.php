@@ -287,14 +287,14 @@ class TRUController extends Controller
 
 	public function searchGroupsByName(Request $request){
 		$lang = $request->input('lang');
-		$input = $request->input('input');
+		//$input = $request->input('input');
 		$except = $request->input('except');
 		$lang = ($lang==='kk')?'kk':'ru';
 		App::setLocale($lang);
 		$query = DB::table('groups')->select('groups.id','groups.name_'.$lang,'isZKS');
-		$query = $query->where('groups.name_'.$lang, 'ilike', '%' . $input . '%');
+		//$query = $query->where('groups.name_'.$lang, 'ilike', '%' . $input . '%');
 		if($except!=null)
-			$query = $query->where('groups.name_'.$lang,'not ilike','%' .$except. '%');
+			$query = $query->where('groups.id',$except);
 		if($request->has('onlyWithSubgroups') || $request->has('onlyWithCodes')){
 			$query = $query->join('subgroups','subgroups.group_id','=','groups.id');
 			if($request->has('onlyWithCodes'))
@@ -535,9 +535,9 @@ class TRUController extends Controller
 	    	$query = $query->join('subgroups', 'subgroups.id','=','codes.subgroup_id');
 	    	$query = $query->join('groups', 'groups.id','=','subgroups.group_id');
 	    	if($group_id!=null)
-	    		$query = $query->where('groups.name_'.$lang, 'ilike', '%'.$group_id.'%');
+	    		$query = $query->where('groups.id', $group_id);
 	    	if($subgroup_id!=null)
-	    		$query = $query->where('subgroups.name_'.$lang, 'ilike', '%'.$subgroup_id.'%');
+	    		$query = $query->where('subgroups.id', $subgroup_id);
 	    	if($code!==null )
 	    		$query = $query->where('codes.code','ilike', $code.'%');
 	    	if($name!==null)

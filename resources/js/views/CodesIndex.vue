@@ -586,6 +586,7 @@ export default {
                 params['sort']='id'
                 params['order']='asc'
             }
+            params['lang'] = this.$i18n.locale
             //params.responseType = 'blob'
             var url = new URL(window.location.origin+"/api/codes/export");
             const keys = Object.keys(params)
