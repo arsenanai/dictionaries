@@ -23,66 +23,42 @@
                             {{display('name',subgroup)}}
                         </option>
                     </select>
-                    <vue-bootstrap-typeahead
-                        v-if="code_codes"
-                        class = "mb-2 mr-sm-2"
-                        :data="code_codes"
-                        v-model="queries.code"
-                        :placeholder="$t('Code')"
-                        @hit="filterChanged=true"
-                    />
-                    <vue-bootstrap-typeahead
-                        v-if="code_names"
-                        class = "mb-2 mr-sm-2"
-                        :data="code_names"
-                        v-model="queries.name"
-                        :placeholder="$t('Name')"
-                        @hit="filterChanged=true"
-                    />
-                    <vue-bootstrap-typeahead
-                        v-if="code_descriptions"
-                        class = "mb-2 mr-sm-2"
-                        :data="code_descriptions"
-                        v-model="queries.description"
-                        :placeholder="$t('Description')"
-                        @hit="filterChanged=true"
-                    />
-                    <!--<div class="input-group mb-2 mr-sm-2">
+                    <div class="input-group mb-2 mr-sm-2" v-if="minified_code_codes">
                         <input type=text list="code.code" class="form-control" id="codeInput" :placeholder="$t('Code')" :aria-label="$t('Code')"
-                         v-model="queries.code" @change="filterChanged=true" @keyup="typeahead(null,'code_code',null,null,$event)">
+                         v-model="queries.code" @change="filterChanged=true" @keyup="type($event,'code_code')">
                         <datalist id="code.code">
-                          <option v-for="item in code_codes">{{item.code}}</option>
+                          <option v-for="item in minified_code_codes">{{item}}</option>
                         </datalist>
                         <div class="input-group-append">
-                            <button class="btn btn-outline-secondary" type="button" @click.prevent="queries.code=null;filterChanged=true">
-                                <i class="fa fa-times"></i>
-                            </button>
-                        </div>
-                    </div>-->
-                    <!--<div class="input-group mb-2 mr-sm-2">
-                        <input type=text list="code.name" class="form-control" id="nameInput" :placeholder="$t('Name')" :aria-label="$t('Name')"
-                         v-model="queries.name" @change="filterChanged=true" @keyup="typeahead(null,'code_name',null,null,$event)">
-                         <datalist id="code.name">
-                          <option v-for="item in code_names">{{display('name',item)}}</option>
-                        </datalist>
-                        <div class="input-group-append">
-                            <button class="btn btn-outline-secondary" type="button" @click.prevent="queries.name=null">
+                            <button class="btn btn-outline-secondary" type="button" @click.prevent="onClear('code')">
                                 <i class="fa fa-times"></i>
                             </button>
                         </div>
                     </div>
-                    <div class="input-group mb-2 mr-sm-2">
-                        <input type=text list="code.desc" class="form-control" id="descriptionInput" :placeholder="$t('Description')" :aria-label="$t('Description')"
-                         v-model="queries.description" @change="filterChanged=true" @keyup="typeahead(null,'code_description',null,null,$event)">
-                         <datalist id="code.desc">
-                          <option v-for="item in code_descriptions">{{display('description',item)}}</option>
+                    <div class="input-group mb-2 mr-sm-2" v-if="minified_code_names">
+                        <input type=text list="code.name" class="form-control" id="nameInput" :placeholder="$t('Name')" :aria-label="$t('Name')"
+                         v-model="queries.name" @change="filterChanged=true" @keyup="type($event,'code_name')">
+                         <datalist id="code.name">
+                          <option v-for="item in minified_code_names">{{item}}</option>
                         </datalist>
                         <div class="input-group-append">
-                            <button class="btn btn-outline-secondary" type="button" @click.prevent="queries.description=null">
+                            <button class="btn btn-outline-secondary" type="button" @click.prevent="onClear('name')">
                                 <i class="fa fa-times"></i>
                             </button>
                         </div>
-                    </div>-->
+                    </div>
+                    <div class="input-group mb-2 mr-sm-2" v-if="minified_code_descriptions">
+                        <input type=text list="code.desc" class="form-control" id="descriptionInput" :placeholder="$t('Description')" :aria-label="$t('Description')"
+                         v-model="queries.description" @change="filterChanged=true" @keyup="type($event,'code_description')">
+                         <datalist id="code.desc">
+                          <option v-for="item in minified_code_descriptions">{{item}}</option>
+                        </datalist>
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary" type="button" @click.prevent="onClear('description')">
+                                <i class="fa fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
                      <label class="sr-only" for="zks">{{$t('ZKS')}}</label>
                     <select v-model="queries.isZKS" id=zks class="form-control mb-2 mr-sm-2" @change="filterChanged=true">
                         <option value selected>{{$t('ZKS')}} ({{$t('All')}})</option>
@@ -266,12 +242,8 @@
 import axios from 'axios';
 import api from '../api/routes';
 import {common} from '../common.js'
-import VueBootstrapTypeahead from 'vue-bootstrap-typeahead'
 
 export default {
-    components: {
-        VueBootstrapTypeahead
-    },
     mixins:[common],
     data() {
         return {
@@ -464,7 +436,7 @@ export default {
         perPage(){
             return this.meta!==null ? this.meta.per_page : this.perPageCache;
         },
-        typeahead(input, type, except = null, parent = null, event = null){
+        /*typeahead(input, type, except = null, parent = null, event = null){
             if (event instanceof KeyboardEvent || event === null){
                 //this[type+'s'] = null
                 this.filterChanged = true
@@ -481,33 +453,45 @@ export default {
                     }
                 this.request(type,params)
             }
-        },
+        },*/
         request(type,params){
             api.search(this.getType(type), params).then((response) => {
                 //console.log(response)
                 this[type+'s'] = response.data
-                //if(['code_name','code_code','code_description'].includes(type))
-                    //this.minified(type,'name_'+this.$i18n.locale)
+                if(['code_name','code_code','code_description'].includes(type))
+                    this['minified_'+type+'s'] = response.data.slice(0, 10);
             }).catch(e => {
                 this.basicErrorHandling(e)
             });
         },
-        /*type(event=null, type, field){
+        type(event=null, type){
             if (event instanceof KeyboardEvent){
                 this.filterChanged = true
-                this.minified(type,field)
+                this.minified(type)
             }
-        },*/
-        /*minified(type,field){
+        },
+        minified(type){
             var result = []
-            var inp = this.stringIsSet(this.queries[type+'_name']) ? this.queries[type+'_name'].toLowerCase() : ''
+            var inp = this.stringIsSet(this.queries[type.split('_')[1]]) ? this.queries[type.split('_')[1]].toLowerCase() : ''
+            var limit = 10
+            var count = 0
             if(this.arrayIsSet(this[type+'s']))
-                this[type+'s'].forEach((item) => {
-                    if(item[field].toLowerCase().includes(inp))
-                        result.push(item[field])
-                });
+                for(var i=0;i<this[type+'s'].length;i++){
+                    if((type!='code_code' && this[type+'s'][i].toLowerCase().includes(inp))
+                        ||(type=='code_code' && this[type+'s'][i].toLowerCase().startsWith(inp))){
+                        result.push(this[type+'s'][i])
+                        count++
+                    }
+                    if(count>=limit)
+                        break;
+                }
             this['minified_'+type+'s'] = result
-        },*/
+        },
+        onClear(type){
+            this.filterChanged = true
+            this.queries[type] = null;
+            this['minified_code_'+type+'s'] = this['code_'+type+'s'].slice(0, 10);
+        },
         sortBy(target){
             if(this.queries.sort!=null){
                 if(this.queries.sort.startsWith(target)===false){
