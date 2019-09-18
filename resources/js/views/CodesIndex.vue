@@ -23,7 +23,31 @@
                             {{display('name',subgroup)}}
                         </option>
                     </select>
-                    <div class="input-group mb-2 mr-sm-2">
+                    <vue-bootstrap-typeahead
+                        v-if="code_codes"
+                        class = "mb-2 mr-sm-2"
+                        :data="code_codes"
+                        v-model="queries.code"
+                        :placeholder="$t('Code')"
+                        @hit="filterChanged=true"
+                    />
+                    <vue-bootstrap-typeahead
+                        v-if="code_names"
+                        class = "mb-2 mr-sm-2"
+                        :data="code_names"
+                        v-model="queries.name"
+                        :placeholder="$t('Name')"
+                        @hit="filterChanged=true"
+                    />
+                    <vue-bootstrap-typeahead
+                        v-if="code_descriptions"
+                        class = "mb-2 mr-sm-2"
+                        :data="code_descriptions"
+                        v-model="queries.description"
+                        :placeholder="$t('Description')"
+                        @hit="filterChanged=true"
+                    />
+                    <!--<div class="input-group mb-2 mr-sm-2">
                         <input type=text list="code.code" class="form-control" id="codeInput" :placeholder="$t('Code')" :aria-label="$t('Code')"
                          v-model="queries.code" @change="filterChanged=true" @keyup="typeahead(null,'code_code',null,null,$event)">
                         <datalist id="code.code">
@@ -34,8 +58,8 @@
                                 <i class="fa fa-times"></i>
                             </button>
                         </div>
-                    </div>
-                    <div class="input-group mb-2 mr-sm-2">
+                    </div>-->
+                    <!--<div class="input-group mb-2 mr-sm-2">
                         <input type=text list="code.name" class="form-control" id="nameInput" :placeholder="$t('Name')" :aria-label="$t('Name')"
                          v-model="queries.name" @change="filterChanged=true" @keyup="typeahead(null,'code_name',null,null,$event)">
                          <datalist id="code.name">
@@ -58,7 +82,7 @@
                                 <i class="fa fa-times"></i>
                             </button>
                         </div>
-                    </div>
+                    </div>-->
                      <label class="sr-only" for="zks">{{$t('ZKS')}}</label>
                     <select v-model="queries.isZKS" id=zks class="form-control mb-2 mr-sm-2" @change="filterChanged=true">
                         <option value selected>{{$t('ZKS')}} ({{$t('All')}})</option>
@@ -242,8 +266,12 @@
 import axios from 'axios';
 import api from '../api/routes';
 import {common} from '../common.js'
+import VueBootstrapTypeahead from 'vue-bootstrap-typeahead'
 
 export default {
+    components: {
+        VueBootstrapTypeahead
+    },
     mixins:[common],
     data() {
         return {
@@ -268,8 +296,9 @@ export default {
             },
             groups: null,
             subgroups: null,
-            minified_groups:null,
-            minified_subgroups:null,
+            minified_code_codes:null,
+            minified_code_names:null,
+            minified_code_descriptions:null,
             migrate_groups:null,
             migrate_subgroups:null,
             migrate_group_id: -1,
@@ -296,6 +325,9 @@ export default {
         this.fetchData()
         this.fetchDatalist('','group')
         this.fetchDatalist('','migrate_group')
+        this.fetchDatalist('','code_code')
+        this.fetchDatalist('','code_name')
+        this.fetchDatalist('','code_description')
     },
     watch:{
         '$route': 'fetchData'
@@ -320,8 +352,11 @@ export default {
               params.parent = parent
               if(type==='group')
                 params.onlyWithCodes=true
-                else if(type==='migrate_group')
+            else if(type==='migrate_group')
                     params.onlyWithSubgroups=true
+            else if(type.includes("code_")){
+                params['by'] = type.split('_')[1]
+            }
             this.request(type,params)
         },
         getCodes(params, callback){
@@ -451,8 +486,8 @@ export default {
             api.search(this.getType(type), params).then((response) => {
                 //console.log(response)
                 this[type+'s'] = response.data
-                //if(['group','subgroup'].includes(type))
-                //    this.minified(type,'name_'+this.$i18n.locale)
+                //if(['code_name','code_code','code_description'].includes(type))
+                    //this.minified(type,'name_'+this.$i18n.locale)
             }).catch(e => {
                 this.basicErrorHandling(e)
             });

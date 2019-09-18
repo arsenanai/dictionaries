@@ -336,30 +336,20 @@ class TRUController extends Controller
 		$lang = $request->input('lang');
 		$lang = ($lang==='ru')?'ru':'kk';
 		App::setLocale($lang);
-		$input= $request->input('input');
-		$code = $request->input('code');
-		$name = $request->input('name');
-		$description = $request->input('description');
-		$select='';
-		if($name!=null||$input!=null)
-			$select .= 'name_'.$lang.',';
-		if($description!=null)
-			$select .= 'description_'.$lang.',';
-		if($code!=null)
-			$select .= 'code,';
-		$query = DB::table('codes')->select(DB::raw(substr($select,0,-1)));
-		if($name!=null)
-			$query = $query->where('name_'.$lang,'ilike','%'.$name.'%');
-		if($description!=null)
-			$query = $query->where('description_'.$lang,'ilike','%'.$description.'%');
-		if($code!=null)
-			$query = $query->where('code','ilike',$code. '%');
-		if($input!=null){
-			$query = $query->where('name_'.$lang,'ilike','%'.$input.'%');
+		$by = $request->input('by');
+		$query = DB::table('codes');
+		if($by=='name'||$by=='description'){
+			$query = $query
+				->select($by.'_'.$lang)
+				->groupBy($by.'_'.$lang)
+				->pluck('codes.'.$by.'_'.$lang);
+		}else if($by=='code'){
+			$query = $query
+				->select($by)
+				->groupBy($by)
+				->limit(55100)
+				->pluck('codes.'.$by);
 		}
-		$query = $query
-			->groupBy('codes.id')
-			->limit(env('APP_TYPEAHEAD_LIMIT',10))->get();
 	    return json_encode($query);
 	}
 
