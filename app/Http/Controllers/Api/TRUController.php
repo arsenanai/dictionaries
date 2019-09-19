@@ -369,8 +369,8 @@ class TRUController extends Controller
 		$code = explode('_', $request->input('applied_filters'))[3];
 		$name = explode('_', $request->input('applied_filters'))[4];
 		$description = explode('_', $request->input('applied_filters'))[5];
+		$type = explode('_', $request->input('applied_filters'))[6];
 		$migrateSubgroupId = $request->input('migrate_subgroup_id');
-		$type = $request->input('type');
 		$lang = $request->input('lang');
     	$lang = ($lang==='ru')?'ru':'kk';
     	App::setLocale($lang);
@@ -390,6 +390,7 @@ class TRUController extends Controller
 				&& ($code=='null' || $code=='')
 				&& ($name=='null' || $name=='')
 				&& ($description=='null' || $description=='')
+				&& ($type=='null' || $type=='')
 			){
 				$error = \Illuminate\Validation\ValidationException::withMessages([
 				   'Groups' => [__('Apply some filters before migrating all')],
@@ -401,7 +402,7 @@ class TRUController extends Controller
 					$query = $query->where('subgroups.id',$selectedSubgroupId);
 				if(!($isZKS=='null' || $isZKS==''))
 		    		$query = $query->where('groups.isZKS',($isZKS==='false') ? false : true);
-		    	if($request->has('type'))
+		    	if(!($type=='null' || $type==''))
 		    		$query->where('codes.type',$type);
 				if(!($code=='null' || $code==''))
 					$query = $query->where('codes.code','ilike', $code.'%');
@@ -410,7 +411,6 @@ class TRUController extends Controller
 		    	if(!($description=='null' || $description==''))
 		    		$query = $query->where('codes.description_'.$lang,'ilike', '%'.$description.'%');
 		    		//$debug .= "selecting by query\n";
-				
 			}
 		}
 		$updateFields = array();
@@ -518,7 +518,7 @@ class TRUController extends Controller
 	    	App::setLocale($lang);
 	    	$query = DB::table('codes')
 	    		->select('codes.id as id','codes.name_'.$lang.' as name_'.$lang,'codes.description_'.$lang.' as description_'.$lang,'codes.code as code',
-	    			'groups.name_'.$lang.' as group_name_'.$lang, 'subgroups.name_'.$lang.' as subgroup_name_'.$lang
+	    			'groups.name_'.$lang.' as group_name_'.$lang, 'subgroups.name_'.$lang.' as subgroup_name_'.$lang, 'codes.type as type'
 	    	);
     		//->with('group')
     		//->with('subgroup');
@@ -537,7 +537,7 @@ class TRUController extends Controller
 	    	if($isZKS != null)
 	    		$query = $query->where('groups.isZKS', $isZKS);
 	    	if($request->has('type'))
-		    	$query = $query->where('type',$query->input('type'));
+		    	$query = $query->where('type',$request->input('type'));
 	    	if(in_array($sortBy,array('id','code','name_'.$lang,'description_'.$lang)))
 	    		$query = $query->orderBy('codes.'.$sortBy,($order==='desc')?'desc':'asc');
 
