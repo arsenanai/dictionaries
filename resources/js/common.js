@@ -13,7 +13,7 @@ export const common = {
 		          result = target['name_'+this.$i18n.locale]
 		      else if(what==='description')
 		          result = target['description_'+this.$i18n.locale]
-		    if(result.length>100)
+		    if(this.stringIsSet(result) &&result.length>100)
 		    	result = result.substring(0,75)+' ... '+result.substring(result.length-25,result.length)
 		   	return result
 	    },
