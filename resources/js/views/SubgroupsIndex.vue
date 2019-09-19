@@ -256,7 +256,7 @@ export default {
             for(var key in this.$route.query) {
                 if(Object.keys(this.queries).includes(key)){
                     this.queries[key]=this.$route.query[key];
-                    if(this.stringIsSet(this.queries[key]))
+                    if((this.stringIsSet(this.queries[key])||this.queries[key]>-1) && !['sort','order'].includes(key))
                         filtered = true
                     if(key==='group_id' && this.queries[key]>-1)
                         this.fetchDatalist('','subgroup_name',this.queries[key])
