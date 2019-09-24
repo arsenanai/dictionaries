@@ -48,3 +48,7 @@ php artisan passport:keys
 php artisan passport:client --password
 
 #to change pagination row number and autocomplete results limit refer to .env file
+
+
+php artisan migrate --path=/database/migrations/2019_09_23_113408_create_settings_table.php
+php artisan db:seed --class=SettingsTableSeeder

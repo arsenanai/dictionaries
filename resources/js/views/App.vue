@@ -23,17 +23,30 @@
             </li>
           </ul>
           <ul class="navbar-nav">
-              <li class="nav-item">
-                  <a :class="{'active': $i18n.locale==='kk'}" @click.prevent="changeLocale('kk')" class="nav-link">Қаз</a>
-              </li>
-              <li class="nav-item">
-                  <a :class="{'active': $i18n.locale==='ru'}" @click.prevent="changeLocale('ru')" class="nav-link">Рус</a>
-              </li>
-              <li class="nav-item">
-                <router-link v-if="authenticated()==true" class="nav-link" active-class="active" :to="{ name: 'auth.logout' }">
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fa fa-globe"></i>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <button :class="{'active': $i18n.locale==='kk'}" @click.prevent="changeLocale('kk')" class="dropdown-item">Қаз</button>
+                <button :class="{'active': $i18n.locale==='ru'}" @click.prevent="changeLocale('ru')" class="dropdown-item">Рус</button>
+              </div>
+            </li>
+            <li class="nav-item dropdown" v-if="authenticated()==true">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fa fa-user-o"></i>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <router-link v-if="authenticated()==true" class="dropdown-item" active-class="active" :to="{ name: 'settings' }">
+                  <i class="fa fa-cog" aria-hidden="true"></i>
+                  {{$t('Settings')}}
+                </router-link>
+                <router-link v-if="authenticated()==true" class="dropdown-item" active-class="active" :to="{ name: 'auth.logout' }">
+                  <i class="fa fa-power-off" aria-hidden="true"></i>
                   {{$t('Logout')}}
-                  </router-link>
-              </li>
+                </router-link>
+              </div>
+            </li>
           </ul>
         </div>
       </div>

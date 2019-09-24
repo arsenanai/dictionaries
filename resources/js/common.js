@@ -3,6 +3,7 @@ export const common = {
 		return {
 			tokenVariable: 'enstru_token',
 			appLanguage: 'enstru_language',
+			storePerPage: 'enstru_per_page',
 		}
 	},
 	methods:{

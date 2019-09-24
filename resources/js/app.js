@@ -25,6 +25,7 @@ import NotFound from './views/NotFound';
 import Login from './views/Login';
 import Logout from './views/Logout';
 import {i18n} from './i18n';
+import Settings from './views/Settings';
 
 const router = new VueRouter({
     mode: 'history',
@@ -105,6 +106,11 @@ const router = new VueRouter({
             path: '/codes/create',
             name: 'codes.create',
             component: CodesCreate,
+        },
+        {
+            path: '/settings',
+            name: 'settings',
+            component: Settings,
         },
 
         { path: '/404', name: '404', component: NotFound, meta: {public: true} },

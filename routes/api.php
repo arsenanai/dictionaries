@@ -62,6 +62,9 @@ Route::group(['middleware' => ['json.response']], function () {
         Route::get('/codes/by-name', 'TRUController@searchCodes');
         Route::post('/codes/migrate', 'TRUController@migrateCodes');
 
+        Route::get('/settings', 'SettingsController@fetch');
+        Route::put('/settings/{setting}', 'SettingsController@save');
+
         Route::get('/logout', 'AuthController@logout')->name('logout');
     });
 });

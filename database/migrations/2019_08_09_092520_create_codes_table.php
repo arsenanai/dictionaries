@@ -16,7 +16,7 @@ class CreateCodesTable extends Migration
         Schema::disableForeignKeyConstraints();
         Schema::create('codes', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedBigInteger('subgroup_id')->nullable();
+            $table->unsignedBigInteger('subgroup_id')->nullable(false);
             $table->string('code', 17)->nullable(false)->unique();
             $table->string('name_kk',300)->nullable(false);
             $table->string('name_ru',300)->nullable(false);

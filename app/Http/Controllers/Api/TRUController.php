@@ -35,7 +35,11 @@ class TRUController extends Controller
     		$query = $query->orderBy($sortBy,($order==='desc')?'desc':'asc');
     	}else
     		$query = $query->orderBy('id','asc');
-    	$query = $query->paginate(env('APP_PAGINATION_PER_PAGE',15));
+    	if($request->has('per_page'))
+    		$p = $request->input('per_page');
+    	else
+    		$p = env('APP_PAGINATION_PER_PAGE',15);
+    	$query = $query->paginate($p);
     	return GroupResource::collection($query);
     }
     public function indexSubgroup(Request $request)
@@ -63,7 +67,11 @@ class TRUController extends Controller
     		$query = $query->orderBy($sortBy,($order==='desc')?'desc':'asc');
     	}else
     		$query = $query->orderBy('id','asc');
-    	$query = $query->paginate(env('APP_PAGINATION_PER_PAGE',15));
+    	if($request->has('per_page'))
+    		$p = $request->input('per_page');
+    	else
+    		$p = env('APP_PAGINATION_PER_PAGE',15);
+    	$query = $query->paginate($p);
     	return SubgroupResource::collection($query);
     }
     public function indexCode(Request $request)
@@ -109,7 +117,11 @@ class TRUController extends Controller
     		$query = $query->orderBy($sortBy,($order==='desc')?'desc':'asc');
     	}else
     		$query = $query->orderBy('id','asc');
-    	$query = $query->paginate(env('APP_PAGINATION_PER_PAGE',15));
+    	if($request->has('per_page'))
+    		$p = $request->input('per_page');
+    	else
+    		$p = env('APP_PAGINATION_PER_PAGE',15);
+    	$query = $query->paginate($p);
     	return CodeResource::collection($query);
     }
 

@@ -97,6 +97,11 @@ const messages = {
 'Not Found':'Бет табылмады',
 'Woops! Looks like the page you requested cannot be found.':'Сіз іздеген бет табылмады',
 'Apply some filters before migrating all':'Көшірудің алдында фильтр қолдануыңыз шарт',
+'Items per page':'Кестедегі элементтер саны',
+'Settings':'Баптаулар',
+'Language':'Тіл',
+'Save':'Сақтау',
+'Saved': 'Сақталған',
 	},
 	"ru": {
 		login: {
@@ -191,6 +196,11 @@ const messages = {
 'Woops! Looks like the page you requested cannot be found.':'Страница которую вы искали не найдена',
 'Apply some filters before migrating all':'Перед переносом проведите поиск',
 'validation.unique_is_z_k_s_and_name_ru':'Данное наименование и признак ЗКС уже используются',
+'Items per page':'Элементы в таблице',
+'Settings':'Настройки',
+'Language':'Язык',
+'Save':'Сохранить',
+'Saved': 'Сохранено',
 	},
 }
 

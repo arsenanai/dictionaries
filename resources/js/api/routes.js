@@ -46,4 +46,7 @@ export default {
   migrate(type, params){
     return client.post(type+'s/migrate', params);
   },
+  save(type,params){
+    return client.post(type+'s/save',params)
+  },
 };
