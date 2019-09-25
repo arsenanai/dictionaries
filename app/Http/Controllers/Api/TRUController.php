@@ -114,7 +114,8 @@ class TRUController extends Controller
     	}else
     		$query = $query->orderBy('id','asc');
     	$p = Setting::where('user_id',$request->user()->id)
-    		->first()->per_page();
+    		->first();
+    	$p = ($p!==null) ? $p->per_page() : 15;
     	$query = $query->paginate($p);
     	return CodeResource::collection($query);
     }

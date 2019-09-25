@@ -47,8 +47,7 @@ php artisan passport:keys
 #write generated id and secret to .env variables: PASSPORT_CLIENT_ID PASSPORT_CLIENT_SECRET
 php artisan passport:client --password
 
-#to change pagination row number and autocomplete results limit refer to .env file
+#to change autocomplete results limit refer to .env file
 
 
 php artisan migrate --path=/database/migrations/2019_09_23_113408_create_settings_table.php
-php artisan db:seed --class=SettingsTableSeeder
