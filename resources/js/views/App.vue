@@ -28,8 +28,8 @@
                 <i class="fa fa-globe"></i>
               </a>
               <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                <button :class="{'active': $i18n.locale==='kk'}" @click.prevent="changeLocale('kk')" class="dropdown-item">Қаз</button>
-                <button :class="{'active': $i18n.locale==='ru'}" @click.prevent="changeLocale('ru')" class="dropdown-item">Рус</button>
+                <button :class="{'active': $i18n.locale==='kk'}" @click.prevent="changeLocale('kk')" class="dropdown-item">Қазақша</button>
+                <button :class="{'active': $i18n.locale==='ru'}" @click.prevent="changeLocale('ru')" class="dropdown-item">Русский</button>
               </div>
             </li>
             <li class="nav-item dropdown" v-if="authenticated()==true">

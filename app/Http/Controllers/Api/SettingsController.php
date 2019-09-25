@@ -24,9 +24,11 @@ class SettingsController extends Controller
     }
     public function save(Setting $setting, Request $request){
     	$data = $request->validate([
-	        'user_id' => 'required|exists:users',
+	        'user_id' => 'required|exists:users,id',
 	        'settings' => 'required',
 	    ]);
+        //echo json_encode($data); exit;
+        $data['settings'] = json_encode($data['settings']);
 	    $setting->update($data);
 	    return new SettingResource($setting);
     }

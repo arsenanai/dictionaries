@@ -456,7 +456,7 @@ export default {
         },*/
         request(type,params){
             api.search(this.getType(type), params).then((response) => {
-                console.log(response.data)
+                //console.log(response.data)
                 this[type+'s'] = response.data
                 if(['code_name','code_code','code_description'].includes(type) && Array.isArray(response.data))
                     this['minified_'+type+'s'] = response.data.slice(0, 10);

@@ -20,6 +20,7 @@ class GroupResource extends JsonResource
             'name_kk' => $this->name_kk,
             'name_ru' => $this->name_ru,
             'isZKS' => $this->isZKS,
+            'subgroups_count' => $this->subgroups_count,
         ];
     }
 }

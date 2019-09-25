@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Group;
 use App\Subgroup;
 use App\Code;
+use App\Setting;
 use App;
 use App\Http\Resources\GroupResource;
 use App\Http\Resources\SubgroupResource;
@@ -26,7 +27,7 @@ class TRUController extends Controller
     	$lang = $request->input('lang');
     	$lang = ($lang==='ru')?'ru':'kk';
     	App::setLocale($lang);
-    	$query = Group::where('id','>',-1);
+    	$query = Group::withCount(['subgroups']);
     	if($id!==null && $id != -1)
     		$query = $query->where('id', $id);
     	if($isZKS != null && $isZKS!='')
@@ -35,11 +36,9 @@ class TRUController extends Controller
     		$query = $query->orderBy($sortBy,($order==='desc')?'desc':'asc');
     	}else
     		$query = $query->orderBy('id','asc');
-    	if($request->has('per_page'))
-    		$p = $request->input('per_page');
-    	else
-    		$p = env('APP_PAGINATION_PER_PAGE',15);
-    	$query = $query->paginate($p);
+    	//$p = Setting::where('user_id',$request->user()->id)
+    	//	->first()->per_page();
+    	$query = $query->paginate(20);
     	return GroupResource::collection($query);
     }
     public function indexSubgroup(Request $request)
@@ -52,30 +51,27 @@ class TRUController extends Controller
     	$lang = $request->input('lang');
     	$lang = ($lang==='ru')?'ru':'kk';
     	App::setLocale($lang);
-    	$query = Subgroup::with('group');
+    	$query = Subgroup::select('subgroups.*','groups.name_'.$lang,'groups.isZKS')
+    	->join('groups','groups.id','=','subgroups.id')
+    	->withCount(['codes']);
     	if($group_id!=null)
-    		$query = $query->whereHas('group', function($q) use($lang, $group_id){
-    			$q->where('id', $group_id);
-			});
+    		$query->where('groups.id', $group_id);
     	if($name!==null && $name != '')
-    		$query = $query->where('name_'.$lang,'ilike', '%'.$name.'%');
+    		$query = $query->where('subgroups.name_'.$lang,'ilike', '%'.$name.'%');
     	if($isZKS != null && $isZKS!='')
-    		$query = $query->whereHas('group', function($q) use($isZKS){
-    			$q->where('isZKS',($isZKS==='false') ? false : true);
-    		});
+    		$query->where('groups.isZKS',($isZKS==='false') ? false : true);
     	if(in_array($sortBy,array('id','name_kk','name_ru'))){
-    		$query = $query->orderBy($sortBy,($order==='desc')?'desc':'asc');
+    		$query = $query->orderBy('subgroups.'.$sortBy,($order==='desc')?'desc':'asc');
     	}else
-    		$query = $query->orderBy('id','asc');
-    	if($request->has('per_page'))
-    		$p = $request->input('per_page');
-    	else
-    		$p = env('APP_PAGINATION_PER_PAGE',15);
-    	$query = $query->paginate($p);
+    		$query = $query->orderBy('subgroups.id','asc');
+    	//$p = Setting::where('user_id',$request->user()->id)
+    	//	->first()->per_page();
+    	$query = $query->paginate(20);
     	return SubgroupResource::collection($query);
     }
     public function indexCode(Request $request)
     {
+    	$uid = $request->user()->id;
     	$sortBy = $request->input('sort');
     	$order = $request->input('order');
     	$group_id = $request->input('group_id');
@@ -117,10 +113,8 @@ class TRUController extends Controller
     		$query = $query->orderBy($sortBy,($order==='desc')?'desc':'asc');
     	}else
     		$query = $query->orderBy('id','asc');
-    	if($request->has('per_page'))
-    		$p = $request->input('per_page');
-    	else
-    		$p = env('APP_PAGINATION_PER_PAGE',15);
+    	$p = Setting::where('user_id',$request->user()->id)
+    		->first()->per_page();
     	$query = $query->paginate($p);
     	return CodeResource::collection($query);
     }
@@ -555,7 +549,6 @@ class TRUController extends Controller
 
 	    	$data = $query->get();
 	    	//$file = (new FastExcel($data))->export('codes.xlsx');
-
 	    	return (new FastExcel($data))->download('codes.xlsx');
 		}catch(\Exception $e){
 			echo $e->getMessage(); exit;

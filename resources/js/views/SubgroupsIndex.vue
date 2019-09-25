@@ -92,6 +92,7 @@
                         <i :class="getOrder('name')"></i>
                     </th>
                     <th scope="col" class="d-none d-sm-table-cell">{{$t('isZKS')}}</th>
+                    <th scope="col">{{$t('Codes')}}</th>
                     <th scope="col">
                         <span class="float-right">
                             {{currentPage()}}/{{lastPage()}}
@@ -107,8 +108,9 @@
                         <td class="d-none d-md-table-cell name-cell">{{ display('name',subgroup.group) }}</td>
                         <td>{{ display('name',subgroup) }}</td>
                         <td class="d-none d-sm-table-cell"><i v-if="subgroup.group.isZKS" class="fa fa-check"></i></td>
+                        <td>{{subgroup.codes_count}}</td>
                         <td>
-                            <div class="float-right">
+                            <div class="float-right" v-if="subgroup.name_kk!='Қалғандары'">
                                 <router-link class="btn btn-outline-primary btn-sm" :to="getLink('edit',subgroup)">
                                     <i class="fa fa-edit"></i>
                                 </router-link>

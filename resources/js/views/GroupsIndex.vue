@@ -58,6 +58,7 @@
                         <i :class="getOrder('name')"></i>
                     </th>
                     <th scope="col" class="d-none d-sm-table-cell">{{$t('isZKS')}}</th>
+                    <th scope="col">{{$t('Subgroups')}}</th>
                     <th scope="col">
                         <span class="float-right">
                             {{currentPage()}}/{{lastPage()}}
@@ -71,12 +72,13 @@
                         </th>
                         <td>{{ display('name',group) }}</td>
                         <td class="d-none d-sm-table-cell"><i v-if="group.isZKS" class="fa fa-check"></i></td>
+                        <td>{{group.subgroups_count}}</td>
                         <td>
-                            <div class="float-right">
-                                <router-link class="btn btn-outline-primary btn-sm" :to="getLink('edit',group)" v-if="group.name_kk!='Қалғандары'">
+                            <div class="float-right" v-if="group.name_kk!='Қалғандары'">
+                                <router-link class="btn btn-outline-primary btn-sm" :to="getLink('edit',group)" >
                                     <i class="fa fa-edit"></i>
                                 </router-link>
-                                <button :disabled="saving" @click.prevent="onDelete(group.id)" class="btn btn-outline-danger btn-sm" v-if="group.name_kk!='Қалғандары'">
+                                <button :disabled="saving" @click.prevent="onDelete(group.id)" class="btn btn-outline-danger btn-sm">
                                     <i class="fa fa-trash"></i>
                                 </button>
                             </div>

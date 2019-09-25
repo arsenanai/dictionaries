@@ -9,13 +9,12 @@
         <div class="alert alert-success" v-if="message">
           {{message}}
         </div>
-        {{setting}}
-        <form @submit.prevent="save()">
-          <div class="form-group" v-for="setting in settings">
+        <form @submit.prevent="save()" v-if="setting">
+          <div class="form-group" v-for="setting in setting.settings">
             <label :for="setting.key">
               <i class="fa fa-globe"
                 v-if="setting.key==='enstru_language'"></i>
-              {{setting.title}}
+              {{$i18n.t(setting.title)}}
             </label>
             <input class="form-control" 
               :id="setting.key"
@@ -52,7 +51,7 @@ export default {
       message: null,
       settings:[
         {
-          title: this.$i18n.t('Items per page'),
+          title: 'Items per page',
           key: 'enstru_per_page',
           value: 15,
           type: 'number',
@@ -61,8 +60,8 @@ export default {
             max: 100,
           }
         },
-        {
-          title: this.$i18n.t('Language'),
+        /*{
+          title: 'Language',
           key: 'enstru_language',
           value: 'kk',
           type: 'select',
@@ -70,7 +69,7 @@ export default {
             kk: 'Қазақша',
             ru: 'Русский',
           },
-        },
+        },*/
       ],
       setting: null,
     };
@@ -86,42 +85,66 @@ export default {
     },*/
     save(){
       this.message = null
-      this.setting.settings = this.settings
-      api.update('setting',this.setting.id, this.setting)
+      var setting = {}
+      for(var key in this.setting)
+        setting[key] = this.setting[key]
+      setting.settings = [];
+      for(var i in this.setting.settings){
+        var old = this.setting.settings[i]
+        var set = {}
+        set['key'] = old['key']
+        set['value'] = old['value']
+        setting.settings.push(set)
+      }
+      api.update('setting',setting.id, setting)
         .then((response) => {
           this.message = this.$i18n.t('Saved')
           //this.$router.go()
+          for(var key in this.setting.settings){
+            localStorage.setItem(this.setting.settings[key].key,this.setting.settings[key].value)
+            if(this.setting.settings[key].key==='enstru_language'){
+              this.$i18n.locale = this.setting.settings[key].value
+              document.querySelector('html').setAttribute('lang', this.setting.settings[key].value)
+            }
+          }
         }).catch(e => {
           this.basicErrorHandling(e)
         });
-      for(var key in this.settings){
-        localStorage.setItem(this.settings[key].key,this.settings[key].value)
-        if(this.settings[key].key==='enstru_language'){
-          this.$i18n.locale = this.settings[key].value
-          document.querySelector('html').setAttribute('lang', this.settings[key].value)
-        }
-      }
+      
     },
     fetch(){
       api.all('setting',null)
         .then((response) => {
-          this.setting = response.data;
-          if(this.setting){
-            var tabyldy = false;
-            for(var i=0;i<this.settings.length;i++){
-              for(var j=0;j<this.setting.settings.length;j++)
-                if(this.settings[i].key === this.setting.settings[j].key){
-                  this.settings[i] = this.setting.settings[j]
-                  break
-                }
-            }
-          }
+          this.setting = response.data.data;
+          console.log(this.setting.settings)
+          this.setting.settings = this.merge(this.settings, JSON.parse(this.setting.settings));
         }).catch(e => {
           this.basicErrorHandling(e)
         });
       //for(var key in this.settings)
         //this.settings[key]['value']=localStorage.getItem(this.settings[key]['key']) || this.settings[key]['value']
     },
+    merge(s1,s2){
+      if (!this.arrayIsSet(s2)) {
+        s2 = s1
+      }else{
+        for(var i=0;i<s1.length;i++){
+          var tabyldy = false
+          for(var j=0;j<s2.length;j++)
+            if(s1[i].key === s2[j].key){
+              for(var k in s1[i])
+                if(!['key','value'].includes(k))
+                  s2[j][k] = s1[i][k]
+              tabyldy = true
+              break
+            }
+          if(tabyldy == false){
+            s2.push(s1)
+          }
+        }
+      }
+      return s2
+    }
   },
   created() {
     this.fetch();
