@@ -51,8 +51,7 @@ class TRUController extends Controller
     	$lang = $request->input('lang');
     	$lang = ($lang==='ru')?'ru':'kk';
     	App::setLocale($lang);
-    	$query = Subgroup::select('subgroups.*','groups.name_'.$lang,'groups.isZKS')
-    	->join('groups','groups.id','=','subgroups.id')
+    	$query = Subgroup::join('groups','groups.id','=','subgroups.group_id')
     	->withCount(['codes']);
     	if($group_id!=null)
     		$query->where('groups.id', $group_id);
