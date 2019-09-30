@@ -59,6 +59,7 @@
                     </th>
                     <th scope="col" class="d-none d-sm-table-cell">{{$t('isZKS')}}</th>
                     <th scope="col">{{$t('Subgroups')}}</th>
+                    <th scope="col">{{$t('Last modified by')}}</th>
                     <th scope="col">
                         <span class="float-right">
                             {{currentPage()}}/{{lastPage()}}
@@ -73,6 +74,7 @@
                         <td>{{ display('name',group) }}</td>
                         <td class="d-none d-sm-table-cell"><i v-if="group.isZKS" class="fa fa-check"></i></td>
                         <td>{{group.subgroups_count}}</td>
+                        <td>{{group.user.name}}</td>
                         <td>
                             <div class="float-right" v-if="group.name_kk!='Қалғандары'">
                                 <router-link class="btn btn-outline-primary btn-sm" :to="getLink('edit',group)" >
@@ -200,7 +202,7 @@ export default {
         },
         setData(err, data) {
             if (err) {
-                basicErrorHandling(err)
+                this.basicErrorHandling(err)
             } else {
                 this.groups = data.data;
                 this.groups.forEach((group, index) => {

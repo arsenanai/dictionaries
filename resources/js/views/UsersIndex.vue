@@ -2,7 +2,11 @@
     <div class="container">
         <h2>
             {{$t('Users')}}
-            <router-link class="btn btn-outline-success float-right" :to="{ name: 'users.create' }">{{$t('Add New')}}</router-link>
+            <router-link class="btn btn-outline-success float-right" 
+                :to="{ name: 'users.create' }"
+                :v-if="is('admin')">
+                {{$t('Add New')}}
+            </router-link>
         </h2>
         <hr>
         <div class="row">
@@ -38,6 +42,9 @@
                     <th scope="col">
                         {{$t('Email')}}
                     </th>
+                    <th scope="col">{{$t('Groups')+" "+$t('edited')}}</th>
+                    <th scope="col">{{$t('Subgroups')+" "+$t('edited')}}</th>
+                    <th scope="col">{{$t('Codes')+" "+$t('migrated')}}</th>
                     <th scope="col">
                         <span class="float-right">
                             {{currentPage()}}/{{lastPage()}}
@@ -49,9 +56,14 @@
                         <th scope="row">{{ (currentPage()-1)*perPage()+index+1 }}</th>
                         <td>{{user.name}}</td>
                         <td>{{user.email}}</td>
+                        <td>{{user.groups_count}}</td>
+                        <td>{{user.subgroups_count}}</td>
+                        <td>{{user.codes_count}}</td>
                         <td>
                             <div class="float-right">
-                                <router-link class="btn btn-outline-primary btn-sm" :to="getLink('edit',user)">
+                                <router-link class="btn btn-outline-primary btn-sm" 
+                                v-if="is('admin')"
+                                :to="getLink('edit',user)">
                                     <i class="fa fa-edit"></i>
                                 </router-link>
                                 <!--<button :disabled="saving" @click.prevent="onDelete(user.id)" class="btn btn-outline-danger btn-sm">
@@ -158,7 +170,7 @@ export default {
         },
         setData(err, data) {
             if (err) {
-                basicErrorHandling(err)
+                this.basicErrorHandling(err)
             } else {
                 this.users = data.data;
                 this.links = data.links;
@@ -205,6 +217,9 @@ export default {
                     }
                 }
 
+        },
+        is(role){
+            return false
         },
     }
 }

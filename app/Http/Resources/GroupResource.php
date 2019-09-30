@@ -14,13 +14,21 @@ class GroupResource extends JsonResource
      */
     public function toArray($request)
     {
-        //return json_encode($this);
-        return [
+        $result = [
             'id' => $this->id,
             'name_kk' => $this->name_kk,
             'name_ru' => $this->name_ru,
             'isZKS' => $this->isZKS,
             'subgroups_count' => $this->subgroups_count,
         ];
+        if($this->user!=null){
+            $result['user'] = [
+                'id' => $this->user->id,
+                'name' => $this->user->name,
+                'email' => $this->user->email,
+            ];
+        }else
+            $result['user'] = null;
+        return $result;
     }
 }

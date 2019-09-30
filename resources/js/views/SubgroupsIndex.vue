@@ -79,8 +79,33 @@
         </div>
         <div class="table-responsive">
             <table class="table table-sm table-bordered table-striped" >
+                <thead>
+                    <tr>
+                        <th colspan=10>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="exampleCheck1" 
+                                @click="selectAll('all',$event)" v-model="selectedAll">
+                                <label class="form-check-label" for="exampleCheck1">{{$t('Select All')}}</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="exampleCheck2"
+                                @click="selectAll('page',$event)" v-model="selectedAllOnPage"
+                                >
+                                <label class="form-check-label" for="exampleCheck2">{{$t('Select All On Page')}}</label>
+                            </div>
+                        </th>
+                    </tr>
+                </thead>
+                <thead v-if="selectedAll || selectedItems.length>0">
+                    <tr>
+                        <th colspan="10" class="alert-warning">
+                            {{$t('Total selected')}}: {{totalSelected()}}
+                        </th>
+                    </tr>
+                </thead>
                 <thead class=""> 
-                    <th scope="col" @click="selectAll()">#
+                    <th scope="col">
+                        #
                     </th>
                     <th scope="col" class="d-none d-md-table-cell">
                         {{$t('Group')}}
@@ -93,6 +118,7 @@
                     </th>
                     <th scope="col" class="d-none d-sm-table-cell">{{$t('isZKS')}}</th>
                     <th scope="col">{{$t('Codes')}}</th>
+                    <th scope="col">{{$t('Last modified by')}}</th>
                     <th scope="col">
                         <span class="float-right">
                             {{currentPage()}}/{{lastPage()}}
@@ -109,6 +135,7 @@
                         <td>{{ display('name',subgroup) }}</td>
                         <td class="d-none d-sm-table-cell"><i v-if="subgroup.group.isZKS" class="fa fa-check"></i></td>
                         <td>{{subgroup.codes_count}}</td>
+                        <td>{{subgroup.user.name}}</td>
                         <td>
                             <div class="float-right" v-if="subgroup.name_kk!='Қалғандары'">
                                 <router-link class="btn btn-outline-primary btn-sm" :to="getLink('edit',subgroup)">
@@ -137,9 +164,6 @@
                 </tbody>
             </table>
         </div>
-        <span class="alert alert-warning" v-if="selectedAll || selectedItems.length>0">
-            {{$t('Total selected')}}: {{totalSelected()}}
-        </span>
         <div class="modal fade" id="migrationModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
           <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
@@ -208,6 +232,7 @@ export default {
             error: null,
             selectedItems: [],
             selectedAll: false,
+            selectedAllOnPage: false,
             filterChanged: false,
             filterApplied: false,
             migrate_group_id: null,
@@ -294,7 +319,7 @@ export default {
         },
         setData(err, data) {
             if (err) {
-                basicErrorHandling(err)
+                this.basicErrorHandling(err)
             } else {
                 this.subgroups = data.data;
                 this.subgroups.forEach((subgroup, index) => {
@@ -401,23 +426,30 @@ export default {
             if(target.selected)
                 this.selectedItems.push(target.id)
             else{
-                this.selectedAll = false
+                this.selectedAll = this.selectedAllOnPage = false
                 var index = this.selectedItems.indexOf(target.id);
                 if (index > -1)
                   this.selectedItems.splice(index, 1);
             }
         },
-        selectAll(){
-            if(this.filterApplied==false){
-                alert(this.$i18n.t('You have to apply some filters before selecting all'))
-            }else{
-                var assign = !this.selectedAll
-                this.selectedAll = assign
+        selectAll(type, event){
+            if(this.filterApplied==false && type=="all"){
+                alert(this.$i18n.t('You have to apply some filters before selecting all items'))
+            }else{ 
+                var assign = false;
+                if(type=='all'){
+                    assign = !this.selectedAll
+                    this.selectedAllOnPage = assign
+                    
+                }else if(type=="page"){
+                    assign = !this.selectedAllOnPage
+                    this.selectedAll = false
+                }
                 this.selectedItems = [];
-                this.subgroups.forEach((target, index) => {
-                    target.selected = assign
-                    if(this.selectedAll==true)
-                        this.selectedItems.push(target.id)
+                this.subgroups.forEach((code, index) => {
+                    code.selected = assign
+                    if(code.selected)
+                        this.selectedItems.push(code.id)
                 });
             }
         },

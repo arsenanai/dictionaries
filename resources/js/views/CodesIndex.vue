@@ -109,9 +109,34 @@
         </div>
         <div class="table-responsive">
             <table class="table table-sm table-bordered table-striped" >
+                <thead>
+                    <tr>
+                        <th colspan=10>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="exampleCheck1" 
+                                @click="selectAll('all',$event)" v-model="selectedAll">
+                                <label class="form-check-label" for="exampleCheck1">{{$t('Select All')}}</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="exampleCheck2"
+                                @click="selectAll('page',$event)" v-model="selectedAllOnPage"
+                                >
+                                <label class="form-check-label" for="exampleCheck2">{{$t('Select All On Page')}}</label>
+                            </div>
+                        </th>
+                    </tr>
+                </thead>
+                <thead v-if="selectedAll || selectedCodes.length>0">
+                    <tr>
+                        <th colspan="10" class="alert-warning">
+                            {{$t('Total selected')}}: {{totalSelected()}}
+                        </th>
+                    </tr>
+                </thead>
                 <thead class=""> 
                     <tr>
-                        <th scope="col" @click="selectAll()" style="cursor: pointer;">#
+                        <th scope="col">
+                            #
                         </th>
                         <th scope="col" class="d-none d-md-table-cell">
                             {{$t('Group')}}
@@ -138,6 +163,7 @@
                         </th>
                         <th scope="col" class="d-none d-sm-table-cell">{{$t('isZKS')}}</th>
                         <th scope=col class="d-none d-sm-table-cell">{{$t('Type')}}</th>
+                        <th scope="col">{{$t('Last modified by')}}</th>
                         <th scope="col">
                             <span class="float-right">
                                 {{currentPage()}}/{{lastPage()}}
@@ -163,6 +189,7 @@
                         <td class="d-none d-sm-table-cell">
                             {{$t(code.type)}}
                         </td>
+                        <td>{{code.user.name}}</td>
                         <td>
                             <div class="float-right">
                                 <!--<router-link class="btn btn-outline-primary btn-sm" :to="getLink('edit',code)">
@@ -191,9 +218,6 @@
                 </tbody>
             </table>
         </div>
-        <span class="alert alert-warning" v-if="selectedAll || selectedCodes.length>0">
-            {{$t('Total selected')}}: {{totalSelected()}}
-        </span>
         <div class="modal fade" id="migrationModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
           <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
@@ -279,6 +303,7 @@ export default {
             filterApplied: false,
             selectedCodes: [],
             selectedAll: false,
+            selectedAllOnPage: false,
             choose: {
                 code:false,
                 name:false,
@@ -542,22 +567,29 @@ export default {
             if(code.selected)
                 this.selectedCodes.push(code.id)
             else{
-                this.selectedAll = false
+                this.selectedAll = this.selectedAllOnPage = false
                 var index = this.selectedCodes.indexOf(code.id);
                 if (index > -1)
                   this.selectedCodes.splice(index, 1);
             }
         },
-        selectAll(){
-            if(this.filterApplied==false){
+        selectAll(type, event){
+            if(this.filterApplied==false && type=="all"){
                 alert(this.$i18n.t('You have to apply some filters before selecting all items'))
-            }else{
-                var assign = !this.selectedAll
-                this.selectedAll = assign
+            }else{ 
+                var assign = false;
+                if(type=='all'){
+                    assign = !this.selectedAll
+                    this.selectedAllOnPage = assign
+                    
+                }else if(type=="page"){
+                    assign = !this.selectedAllOnPage
+                    this.selectedAll = false
+                }
                 this.selectedCodes = [];
                 this.codes.forEach((code, index) => {
                     code.selected = assign
-                    if(this.selectedAll==true)
+                    if(code.selected)
                         this.selectedCodes.push(code.id)
                 });
             }

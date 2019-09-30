@@ -35,6 +35,9 @@
             <button class="btn btn-outline-primary" type="submit">{{$t('Save')}}</button>
             <router-link class="btn btn-outline-secondary" :to="{ name: 'codes.index' }">{{$t('Cancel')}}</router-link>
           </div>
+          <span v-if="setting.user_id==1">
+            It's ensuser here
+          </span>
         </form>
       </div>
     </div>

@@ -29,6 +29,14 @@ class SubgroupResource extends JsonResource
             ];
         else
             $result['group'] = null;
+        if($this->user!=null){
+            $result['user'] = [
+                'id' => $this->user->id,
+                'name' => $this->user->name,
+                'email' => $this->user->email,
+            ];
+        }else
+            $result['user'] = null;
         return $result;
     }
 }

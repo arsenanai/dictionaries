@@ -11,4 +11,7 @@ class Group extends Model
     public function subgroups(){
         return $this->hasMany('App\Subgroup', 'group_id');
     }
+    public function user(){
+    	return $this->belongsTo('App\User', 'user_id');
+    }
 }

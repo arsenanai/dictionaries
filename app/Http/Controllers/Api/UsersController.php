@@ -6,13 +6,16 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\User;
 use App\Http\Resources\UserResource;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Validator;
 
 class UsersController extends Controller
 {
 	
     public function index()
     {
-    	return UserResource::collection(User::paginate(10));
+    	return UserResource::collection(User::withCount(['groups','subgroups','codes'])->paginate(10));
     }
 
     public function show(User $user)
@@ -22,13 +25,13 @@ class UsersController extends Controller
 
     public function update(User $user, Request $request)
 	{
-	    $data = $request->validate([
-	        'name' => 'required',
-	        'email' => 'required|email',
+		$data = $request->validate([
+	        'name' => "required|unique:users,name,$user->id",
+	        'email' => "required|email|unique:users,email,$user->id",
 	    ]);
-
+        if($request->has('password'))
+	    	$data['password'] = Hash::make($request->input('password'));
 	    $user->update($data);
-
 	    return new UserResource($user);
 	}
 
@@ -41,8 +44,8 @@ class UsersController extends Controller
 	public function store(Request $request)
 	{
 	    $data = $request->validate([
-	        'name' => 'required',
-	        'email' => 'required|unique:users',
+	        'name' => 'required|unique:users',
+	        'email' => 'required|email|unique:users',
 	        'password' => 'required|min:8',
 	    ]);
 

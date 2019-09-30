@@ -27,7 +27,7 @@ class TRUController extends Controller
     	$lang = $request->input('lang');
     	$lang = ($lang==='ru')?'ru':'kk';
     	App::setLocale($lang);
-    	$query = Group::withCount(['subgroups']);
+    	$query = Group::with('user')->withCount(['subgroups']);
     	if($id!==null && $id != -1)
     		$query = $query->where('id', $id);
     	if($isZKS != null && $isZKS!='')
@@ -51,7 +51,7 @@ class TRUController extends Controller
     	$lang = $request->input('lang');
     	$lang = ($lang==='ru')?'ru':'kk';
     	App::setLocale($lang);
-    	$query = Subgroup::join('groups','groups.id','=','subgroups.group_id')
+    	$query = Subgroup::with('user')->join('groups','groups.id','=','subgroups.group_id')
     	->withCount(['codes']);
     	if($group_id!=null)
     		$query->where('groups.id', $group_id);
@@ -83,7 +83,7 @@ class TRUController extends Controller
     	$lang = $request->input('lang');
     	$lang = ($lang==='ru')?'ru':'kk';
     	App::setLocale($lang);
-    	$query = Code::with('subgroup.group');
+    	$query = Code::with('user')->with('subgroup.group');
     	if($group_id>-1)
     		$query = $query->whereHas('subgroup', function($q) use($lang, $group_id){
     			$q = $q->whereHas('group', function($q) use($lang, $group_id){
@@ -211,8 +211,11 @@ class TRUController extends Controller
 	        'name_ru' => "required|string|max:256|uniqueIsZKSAndNameRu:{$request->input('isZKS')}",
 	        'isZKS' => 'boolean',
 	    ]);
-	    if($group->id!==1)//Others Group
+	    
+	    if($group->id!==1){//Others Group
+	    	$data['user_id'] = $request->user()->id;
 	    	$group->update($data);
+	    }
 	    return new GroupResource($group);
 	}
 
@@ -224,6 +227,7 @@ class TRUController extends Controller
 	    ]);
 	    if($subgroup->id!==1){//Others Subgroup
 	    	$subgroup->group_id = $request->input('group_id');
+	    	$data['user_id'] = $request->user()->id;
 	    	$subgroup->update($data);
 	    }
 	    return new SubgroupResource($subgroup);
@@ -243,6 +247,7 @@ class TRUController extends Controller
 	    ]);
 	    //$code->isZKS = ($request->isZKS) ? true : false;
 	    $code->subgroup_id = $request->input('subgroup_id');
+	    $data['user_id'] = $request->user()->id;
 	    $code->update($data);
 	    return new CodeResource($code);
 	}
@@ -432,6 +437,7 @@ class TRUController extends Controller
 				throw $error;
 			}
 		}
+		$updateFields['user_id'] = $request->user()->id;
 		$affectedRows = $query->update($updateFields);
 		$response = [
 			'message' => 'success',
@@ -501,6 +507,7 @@ class TRUController extends Controller
 				throw $error;
 			}
 		}
+		$updateFields['user_id'] = $request->user()->id;
 		$affectedRows = $query->update($updateFields);
 		$response = [
 			'message' => 'success',

@@ -46,7 +46,7 @@
                 //validation
                 this.message = null;
                 if(this.login.length>0 && this.pass.length>0){
-                    this.loading = true;
+                    this.loading = true
                     /*
                     'form_params' => [
                         'grant_type' => 'password',
@@ -72,12 +72,16 @@
                             localStorage.setItem('refresh_token', response.data.refresh_token)
                             localStorage.setItem('expires_in', response.data.expires_in)
                             localStorage.setItem('token_type', response.data.token_type)
+                            localStorage.setItem('enstru_user_email', this.login)
                             api.logged()
                             //setTimeout(() => {
                                 this.$router.push({name:"codes.index"});
                             //}, 1000);
                         }).catch(error=>{
                             console.log(error.response)
+                            if(error.response.status==401){
+                                this.message = this.$i18n.t('Bad credentials')
+                            }
                         }).then(_=> this.loading = false)
                     /*api.login({
                         email: this.login,

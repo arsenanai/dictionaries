@@ -34,7 +34,7 @@ npm install
 sudo chgrp -R www-data storage bootstrap/cache
 sudo chmod -R ug+rwx storage bootstrap/cache
 
-git pull
+git pull origin master
 rm public/js/app.js
 rm public/css/app.css
 

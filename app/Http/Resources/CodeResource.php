@@ -40,6 +40,14 @@ class CodeResource extends JsonResource
                 $result['subgroup']['group'] = null;
         }else
             $result['subgroup'] = null;
+        if($this->user!=null){
+            $result['user'] = [
+                'id' => $this->user->id,
+                'name' => $this->user->name,
+                'email' => $this->user->email,
+            ];
+        }else
+            $result['user'] = null;
         return $result;
     }
 }
