@@ -34,6 +34,7 @@ Route::group(['middleware' => ['json.response']], function () {
     Route::namespace('Api')->middleware('auth:api')->group(function () {
         Route::get('/users', 'UsersController@index');
         Route::get('/users/show/{user}', 'UsersController@show');
+        Route::get('/users/profile','UsersController@profile');
         Route::post('/users', 'UsersController@store');
         Route::put('/users/{user}', 'UsersController@update');
         Route::delete('/users/{user}', 'UsersController@destroy');
@@ -64,6 +65,8 @@ Route::group(['middleware' => ['json.response']], function () {
 
         Route::get('/settings', 'SettingsController@fetch');
         Route::put('/settings/{setting}', 'SettingsController@save');
+        Route::post('/settings/reset', 'SettingsController@reset');
+        Route::post('/settings/sync', 'SettingsController@sync');
 
         Route::get('/logout', 'AuthController@logout')->name('logout');
     });

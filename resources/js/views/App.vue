@@ -9,7 +9,7 @@
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
           <ul class="navbar-nav mr-auto">
-            <li class="nav-item">
+            <li class="nav-item" v-if="is('admin')">
               <router-link v-if="authenticated()==true" class="nav-link" active-class="active" :to="{ name: 'users.index' }">{{$t('Users')}}</router-link>
             </li>
             <li class="nav-item">
@@ -37,6 +37,10 @@
                 <i class="fa fa-user-o"></i>
               </a>
               <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <router-link class="dropdown-item" active-class=active 
+                  :to="{ name: 'profile' }">
+                    <i class="fa fa-user"></i> {{$t('Profile')}}
+                </router-link>
                 <router-link v-if="authenticated()==true" class="dropdown-item" active-class="active" :to="{ name: 'settings' }">
                   <i class="fa fa-cog" aria-hidden="true"></i>
                   {{$t('Settings')}}

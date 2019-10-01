@@ -32,13 +32,23 @@
             </select>
           </div>
           <div class="form-group">
-            <button class="btn btn-outline-primary" type="submit">{{$t('Save')}}</button>
+            <button class="btn btn-outline-primary mr-2" type="submit">{{$t('Save')}}</button>
             <router-link class="btn btn-outline-secondary" :to="{ name: 'codes.index' }">{{$t('Cancel')}}</router-link>
           </div>
-          <span v-if="setting.user_id==1">
-            It's ensuser here
-          </span>
         </form>
+        <span v-if="setting">
+          <span v-if="setting.user_id==1">
+            <button class="btn btn-outline-success mb-3 mr-2" @click.prevent="sync()">
+              {{$t('Synchronize Codes with Production')}}
+            </button>
+            <button class="btn btn-outline-danger mb-3 mr-2" @click.prevent="reset('groups')">
+              {{$t('Reset Groups and Subgroups as in Excel')}}
+            </button>
+            <button class="btn btn-outline-danger mb-3 mr-2" @click.prevent="reset('codes')">
+              {{$t('Reset all Codes and migrate all to Others Group and Subgroup')}}
+            </button>
+          </span>
+        </span>
       </div>
     </div>
   </div>
@@ -119,7 +129,6 @@ export default {
       api.all('setting',null)
         .then((response) => {
           this.setting = response.data.data;
-          console.log(this.setting.settings)
           this.setting.settings = this.merge(this.settings, JSON.parse(this.setting.settings));
         }).catch(e => {
           this.basicErrorHandling(e)
@@ -147,7 +156,27 @@ export default {
         }
       }
       return s2
-    }
+    },
+    reset(type){
+      if(type=='groups'){
+        if(confirm(this.$i18n.t('WARNING')+"! "+this.$i18n.t('This will delete all existing groups and subgroups and reimport them from excel file')+". "+this.$i18n.t("It can't be undone")+". "+this.$i18n.t('Are you sure?'))){
+          var params = {}
+          params.type = 'group'
+          api.reset(params)
+        }
+      }else if(type=='codes'){
+        if(confirm(this.$i18n.t('WARNING')+"! "+this.$i18n.t('This will delete all existing groups and subgroups and reimport them from excel file')+". "+this.$i18n.t("It can't be undone")+". "+this.$i18n.t('Are you sure?'))){
+          var params = {}
+          params.type = 'code'
+          api.reset(params)
+        }
+      }
+    },
+    sync(){
+      if(confirm(this.$i18n.t('This will synchronize codes from production database to local. All relations with groups and subgroups will remain. Any new code will be added to Others group and subgroup')+". "+this.$i18n.t("It can't be undone")+". "+this.$i18n.t('Are you sure?'))){
+        api.sync({})
+      }
+    },
   },
   created() {
     this.fetch();

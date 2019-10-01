@@ -140,16 +140,29 @@ export default {
           },
   },
   created() {
-      api.find('user',this.$route.params.id)
-      .then((response) => {
+    if(this.$route.name=='profile'){
+      api.profile()
+        .then((response) => {
           //setTimeout(() => {
             this.loaded = true;
             this.user = response.data.data;
           //}, 1000);
-      })
-      .catch((e) => {
-        this.basicErrorHandling(e)
-      });
+        })
+        .catch((e) => {
+          this.basicErrorHandling(e)
+        });
+    }else{
+      api.find('user',this.$route.params.id)
+        .then((response) => {
+          //setTimeout(() => {
+            this.loaded = true;
+            this.user = response.data.data;
+          //}, 1000);
+        })
+        .catch((e) => {
+          this.basicErrorHandling(e)
+        });
+    }
   }
 };
 </script>

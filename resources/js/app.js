@@ -50,6 +50,11 @@ const router = new VueRouter({
             component: UsersIndex,
         },
         {
+            path: '/profile',
+            name: 'profile',
+            component: UsersEdit,
+        },
+        {
             path: '/users/:id/edit',
             name: 'users.edit',
             component: UsersEdit,

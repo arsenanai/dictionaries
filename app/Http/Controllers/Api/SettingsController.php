@@ -6,6 +6,11 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Setting;
 use App;
+use App\Group;
+use App\Subgroup;
+use App\Code;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Artisan;
 use App\Http\Resources\SettingResource;
 
 class SettingsController extends Controller
@@ -31,5 +36,30 @@ class SettingsController extends Controller
         $data['settings'] = json_encode($data['settings']);
 	    $setting->update($data);
 	    return new SettingResource($setting);
+    }
+
+    public function reset(Request $request){
+        if($request->user()->id==1){
+            $type = $request->input('type');
+            if($type=='group'){
+                Group::truncate();
+                Artisan::call('import:groups', []);
+                Subgroup::truncate();
+                Artisan::call('import:subgroups', []);
+            }else if($type=='code'){
+                Code::truncate();
+                Artisan::call('import:codes', []);
+            }
+            return response(null, 200);
+        }else
+            return response(null, 401);
+    }
+
+    public function sync(Request $request){
+        if($request->user()->id==1){
+            Artisan::call('update:codes', []);
+            return response(null, 200);
+        }else
+            return response(null, 401);
     }
 }

@@ -218,9 +218,6 @@ export default {
                 }
 
         },
-        is(role){
-            return false
-        },
     }
 }
 </script>

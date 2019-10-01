@@ -28,6 +28,9 @@ export default {
   all(type, params) {
     return client.get(type+'s', params);
   },
+  profile(){
+    return client.get('users/profile');
+  },
   find(type, id) {
     return client.get(type+`s/show/${id}`);
   },
@@ -48,5 +51,11 @@ export default {
   },
   save(type,params){
     return client.post(type+'s/save',params)
+  },
+  reset(params){
+    return client.post('settings/reset',params)
+  },
+  sync(params){
+    return client.post('settings/sync',params)
   },
 };

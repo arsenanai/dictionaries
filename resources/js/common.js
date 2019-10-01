@@ -45,5 +45,11 @@ export const common = {
         arrayIsSet(array){
         	return (array!=null && array.length>0)
         },
+        is(role){
+        	if(role=='admin')
+        		if(localStorage.getItem('enstru_user_email')!=null && localStorage.getItem('enstru_user_email')=='ensuser@skc.kz')
+            		return true
+           	return false
+        },
 	}
 }

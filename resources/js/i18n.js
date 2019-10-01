@@ -115,6 +115,7 @@ const messages = {
 'edited':'өзгертілді',
 'migrated':'көшірілді',
 'Last modified by':'Соңғы өзгерткен',
+'Profile':'Профиль',
 	},
 	"ru": {
 		login: {
@@ -227,6 +228,7 @@ const messages = {
 'edited':'изменены',
 'migrated':'перенесены',
 'Last modified by':'Последняя правка',
+'Profile':'Профиль',
 	},
 }
 
