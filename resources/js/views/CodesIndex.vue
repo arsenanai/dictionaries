@@ -576,6 +576,7 @@ export default {
         selectAll(type, event){
             if(this.filterApplied==false && type=="all"){
                 alert(this.$i18n.t('You have to apply some filters before selecting all items'))
+                event.preventDefault();
             }else{ 
                 var assign = false;
                 if(type=='all'){
