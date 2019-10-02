@@ -173,7 +173,7 @@ export default {
       this.message = null
       this.loading = true
       if(type=='groups'){
-        if(confirm(this.$i18n.t('WARNING')+"! "+this.$i18n.t('This will delete all existing groups and subgroups and reimport them from excel file')+". "+this.$i18n.t('It can\'t be undone')+". "+this.$i18n.t('Are you sure?'))){
+        if(confirm(this.$i18n.t('WARNING')+"! "+this.$i18n.t('This will delete all existing groups and subgroups and reimport them from excel file')+". "+this.$i18n.t("It can't be undone")+". "+this.$i18n.t('Are you sure?'))){
           var params = {}
           params.type = 'group'
           api.reset(params)
@@ -187,7 +187,7 @@ export default {
           })
         }
       }else if(type=='codes'){
-        if(confirm(this.$i18n.t('WARNING')+"! "+this.$i18n.t('This will delete all existing groups and subgroups and reimport them from excel file')+". "+this.$i18n.t('It can\'t be undone')+". "+this.$i18n.t('Are you sure?'))){
+        if(confirm(this.$i18n.t('WARNING')+"! "+this.$i18n.t('This will delete all existing groups and subgroups and reimport them from excel file')+". "+this.$i18n.t("It can't be undone")+". "+this.$i18n.t('Are you sure?'))){
           var params = {}
           params.type = 'code'
           api.reset(params)

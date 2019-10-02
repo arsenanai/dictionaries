@@ -50,7 +50,7 @@ class ImportCodes extends Command
         ->get();
         $otherSubgroupId = Subgroup::select('id')->where('name_kk','Қалғандары')->value('id');
         $count = 0;
-        DB::transaction(function () use($prod_codes, $otherSubgroupId){
+        DB::transaction(function () use($prod_codes, $otherSubgroupId,$count){
             foreach($prod_codes as $c){
                 $i = new Code();
                 $i->code = $c->ens;

@@ -129,6 +129,7 @@ const messages = {
 'Some error occured. Contact your administrator':'Серверде қате табылды. Админге хабарласыңыз',
 'Try again later':'Кейінірек көріңіз',
 "You don't have permission":'Сіздің рұқсатыңыз жоқ',
+"It can't be undone":'Өзгерістер қайтарылмайды',
 /*translation ends*/
 	},
 	"ru": {
@@ -255,6 +256,7 @@ const messages = {
 'Some error occured. Contact your administrator':'Произошла ошибка на сервере. Свяжитесь с администратором',
 'Try again later':'Попробуйте позднее',
 "You don't have permission":'У вас нет привилегии',
+"It can't be undone":'Изменения безвозвратны',
 	},
 }
 

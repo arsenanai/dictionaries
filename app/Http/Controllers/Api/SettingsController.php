@@ -46,7 +46,6 @@ class SettingsController extends Controller
                 Artisan::call('import:groups', []);
                 Subgroup::truncate();
                 Artisan::call('import:subgroups', []);
-                echo '999'."_".'999';
             }else if($type=='code'){
                 Code::truncate();
                 Artisan::call('import:codes', []);
