@@ -49,7 +49,7 @@ class SettingsController extends Controller
                 Artisan::call('import:subgroups', []);
             }else if($type=='code'){
                 Code::truncate();
-                Artisan::call('import:codes', []);
+                Artisan::queue('import:codes', []);
                 //echo 999;
             }
             return response(null, 200);
