@@ -67,7 +67,7 @@ class UpdateCodes extends Command
             }
         }
             //});
-        });
+        
         echo $count;
     }
 }
