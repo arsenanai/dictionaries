@@ -303,7 +303,7 @@ export default {
                 this.saving = true;
                 api.delete('group',id)
                .then((response) => {
-                    alert(this.$i18n.t('Group Deleted')+', '+this.$i18n.t('subgroups migrated: ')+" "+response.data.migrated_childs);
+                    alert(this.$i18n.t('Group Deleted')+', '+this.$i18n.t('subgroups migrated')+": "+response.data.migrated_childs);
                   this.$router.go()
                }).catch(e => {
                 this.basicErrorHandling(e)

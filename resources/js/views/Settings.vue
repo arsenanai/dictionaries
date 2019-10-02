@@ -36,7 +36,7 @@
             <router-link class="btn btn-outline-secondary" :to="{ name: 'codes.index' }" :class="{disabled: loading}">
               {{$t('Cancel')}}
             </router-link>
-            <span class="alert alert-info" v-if="loading">{{$t('Loading')}}...</span>
+            <span class="alert alert-info" v-if="loading">{{$t('Loading')}}. {{$t('Please wait until end')}}...</span>
           </div>
         </form>
         <span v-if="setting">
@@ -173,7 +173,7 @@ export default {
       this.message = null
       this.loading = true
       if(type=='groups'){
-        if(confirm(this.$i18n.t('WARNING')+"! "+this.$i18n.t('This will delete all existing groups and subgroups and reimport them from excel file')+". "+this.$i18n.t("It can't be undone")+". "+this.$i18n.t('Are you sure?'))){
+        if(confirm(this.$i18n.t('WARNING')+"! "+this.$i18n.t('This will delete all existing groups and subgroups and reimport them from excel file')+". "+this.$i18n.t('It can\'t be undone')+". "+this.$i18n.t('Are you sure?'))){
           var params = {}
           params.type = 'group'
           api.reset(params)
@@ -187,7 +187,7 @@ export default {
           })
         }
       }else if(type=='codes'){
-        if(confirm(this.$i18n.t('WARNING')+"! "+this.$i18n.t('This will delete all existing groups and subgroups and reimport them from excel file')+". "+this.$i18n.t("It can't be undone")+". "+this.$i18n.t('Are you sure?'))){
+        if(confirm(this.$i18n.t('WARNING')+"! "+this.$i18n.t('This will delete all existing groups and subgroups and reimport them from excel file')+". "+this.$i18n.t('It can\'t be undone')+". "+this.$i18n.t('Are you sure?'))){
           var params = {}
           params.type = 'code'
           api.reset(params)
@@ -205,7 +205,7 @@ export default {
     sync(){
       this.message = null
       this.loading = true
-      if(confirm(this.$i18n.t('This will synchronize codes from production database to local. All relations with groups and subgroups will remain. Any new code will be added to Others group and subgroup')+". "+this.$i18n.t("It can't be undone")+". "+this.$i18n.t('Are you sure?'))){
+      if(confirm(this.$i18n.t('This will synchronize codes from production database to local. All relations with groups and subgroups will remain. Any new code will be added to Others group and subgroup')+". "+this.$i18n.t('It can\'t be undone')+". "+this.$i18n.t('Are you sure?'))){
         api.sync({})
         .then((response) =>{
           this.message = this.toast('success',this.$i18n.t('Rows affected')+": "+response.data)

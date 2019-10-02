@@ -139,7 +139,7 @@ export default {
     this.saving = true;
     api.delete('subgroup',this.subgroup.id)
        .then((response) => {
-          alert(this.$i18n.t('Subgroup Deleted')+', '+this.$i18n.t('codes migrated: ')+" "+response.data.migrated_childs);
+          alert(this.$i18n.t('Subgroup Deleted')+', '+this.$i18n.t('codes migrated')+": "+response.data.migrated_childs);
           this.$router.push({ name: 'subgroups.index' });
        }).catch(e => {
         this.basicErrorHandling(e)

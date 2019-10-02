@@ -1,8 +1,9 @@
 <?php
 
 echo 'collecting messages from .vue sources'.PHP_EOL;
+$baseDir = __DIR__."/resources/js";
 
-$dir = new DirectoryIterator(dirname(__FILE__)."/resources/js/views");
+$dir = new DirectoryIterator($baseDir);
 $messages = array();
 
 function myArrayPush(&$array, $item){
@@ -19,7 +20,7 @@ function myArrayPush(&$array, $item){
 foreach ($dir as $fileinfo) {
     if (!$fileinfo->isDot()) {
         $fileinfo->getFilename();
-        $fh = fopen(dirname(__FILE__)."/resources/js/views/" . $fileinfo->getFilename(),'r');
+        $fh = fopen($baseDir .'/'. $fileinfo->getFilename(),'r');
 		while ($line = fgets($fh)) {
 		  //{{$t('Group')}}
 		  //this.$i18n.t('Code')
@@ -29,7 +30,17 @@ foreach ($dir as $fileinfo) {
 			for($i=0;$i<$matches;$i++)
 				myArrayPush($messages, $match[1][$i]);
 
+			$pattern = '#\{\{\$t\(\"(.*?)\"\)\}\}#';
+			$matches = preg_match_all($pattern, $line, $match);
+			for($i=0;$i<$matches;$i++)
+				myArrayPush($messages, $match[1][$i]);
+
 			$pattern = '#\$i18n\.t\(\'(.*?)\'\)#';
+			$matches = preg_match_all($pattern, $line, $match);
+			for($i=0;$i<$matches;$i++)
+				myArrayPush($messages, $match[1][$i]);
+
+			$pattern = '#\$i18n\.t\(\"(.*?)\"\)#';
 			$matches = preg_match_all($pattern, $line, $match);
 			for($i=0;$i<$matches;$i++)
 				myArrayPush($messages, $match[1][$i]);

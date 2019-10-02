@@ -502,7 +502,7 @@ export default {
                 this.saving = true;
                 api.delete('subgroup',id)
                .then((response) => {
-                    alert(this.$i18n.t('Subgroup Deleted')+', '+this.$i18n.t('codes migrated: ')+" "+response.data.migrated_childs);
+                    alert(this.$i18n.t('Subgroup Deleted')+', '+this.$i18n.t('codes migrated')+": "+response.data.migrated_childs);
                   this.$router.go()
                }).catch(e => {
                 this.basicErrorHandling(e)

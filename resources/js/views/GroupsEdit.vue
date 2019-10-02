@@ -100,7 +100,7 @@ export default {
     this.message = null
     api.delete('group',this.group.id)
        .then((response) => {
-          alert(this.$i18n.t('Group Deleted')+', '+this.$i18n.t('subgroups migrated: ')+" "+response.data.migrated_childs);
+          alert(this.$i18n.t('Group Deleted')+', '+this.$i18n.t('subgroups migrated')+": "+response.data.migrated_childs);
           this.$router.push({ name: 'groups.index' });
        }).catch(e => {
         this.basicErrorHandling(e)
