@@ -42,9 +42,9 @@
                     <th scope="col">
                         {{$t('Email')}}
                     </th>
-                    <th scope="col">{{$t('Groups')+" "+$t('edited')}}</th>
-                    <th scope="col">{{$t('Subgroups')+" "+$t('edited')}}</th>
-                    <th scope="col">{{$t('Codes')+" "+$t('migrated')}}</th>
+                    <th scope="col">{{$t('Groups')}} {{$t('edited')}}</th>
+                    <th scope="col">{{$t('Subgroups')}} {{$t('edited')}}</th>
+                    <th scope="col">{{$t('Codes')}} {{$t('migrated')}}</th>
                     <th scope="col">
                         <span class="float-right">
                             {{currentPage()}}/{{lastPage()}}

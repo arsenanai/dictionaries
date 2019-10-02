@@ -5,12 +5,7 @@ Vue.use(VueI18n)
 
 const messages = {
 	"kk": {
-		login: {
-			page_title: 'Жүйеге кіру'
-		},
-		logout: {
-			message: 'Жүйеден шығуда...'
-		},
+/*translation starts*/
 'Add New':'Жаңасын қосу',
 'All':'Барлығы',
 'Are you sure that you want to delete that ':'Осыны өшіруге сенімдісіз бе',
@@ -116,14 +111,25 @@ const messages = {
 'migrated':'көшірілді',
 'Last modified by':'Соңғы өзгерткен',
 'Profile':'Профиль',
+'Choose code subgroup':'Кодтың топшасын таңдаңыз',
+'Email':'Email',
+'Group created':'Топ жасалды',
+'Groups imported':'Топтар көшірілді',
+'Reset Groups and Subgroups as in Excel':'Топтар мен топшаларды Excel-дегідей қайтару',
+'Reset all Codes and migrate all to Others Group and Subgroup':'Барлық Кодтарды негізгі дерекқордан көшіріп, барлығын "Басқа"-ға қосу',
+'Rows affected':'Ақпарат жолдарына әсер етілді',
+'Subgroups imported':'Топшалар көшірілді',
+'Synchronize Codes with Production':'Жаңа Кодтарды негізгі дерекқордан',
+'This will delete all existing groups and subgroups and reimport them from excel file':'Бұл арқылы барлық Топ пен Топшаларды өшіріліп, оларды жаңадан көшірілетін болады',
+'This will synchronize codes from production database to local. All relations with groups and subgroups will remain. Any new code will be added to Others group and subgroup':'Бұл арқылы негізгі дерекқордан жаңа кодтар осы дерекқорға көшіріледі, және автоматты түрде "Басқа"-ға көшіріледі',
+'WARNING':'НАЗАР АУДАРЫҢЫЗ',
+'codes migrated: ':'кодтар көшірілді',
+'login.page_title':'Жүйеге кіру',
+'logout.message':'Жүйеден шығуда...',
+'subgroups migrated: ':'топшалар көшірілді',
+/*translation ends*/
 	},
 	"ru": {
-		login: {
-			page_title: 'Войти в систему'
-		},
-		logout: {
-			message: 'Выход из системы...'
-		},
 'Add New':'Добавить',
 'All':'Все',
 'Are you sure that you want to delete that ':'Вы уверены, что хотите удалить это',
@@ -229,6 +235,22 @@ const messages = {
 'migrated':'перенесены',
 'Last modified by':'Последняя правка',
 'Profile':'Профиль',
+'Choose code subgroup':'Выберите подгруппу кода',
+'Email':'Email',
+'Group created':'Группа создана',
+'Groups imported':'Групп импортировано',
+'Reset Groups and Subgroups as in Excel':'Сбросить все группы и подгруппы как в Excel',
+'Reset all Codes and migrate all to Others Group and Subgroup':'Заново переписать все коды с боевой базы и перенести их в "Прочие"',
+'Rows affected':'Данных затронуто',
+'Subgroups imported':'Подгрупп импортировано',
+'Synchronize Codes with Production':'Перенести новых кодов с боевой базы в текущую',
+'This will delete all existing groups and subgroups and reimport them from excel file':'Это удалит все группы и подгруппы и перепишет их заново с Excel файла',
+'This will synchronize codes from production database to local. All relations with groups and subgroups will remain. Any new code will be added to Others group and subgroup':'Это импортирует все новые коды с боевой базы в текущую и перенесет их в "Прочие"',
+'WARNING':'ВНИМАНИЕ',
+'codes migrated: ':'кодов перенесено',
+'login.page_title':'Войти в систему',
+'logout.message':'Выход из системы...',
+'subgroups migrated: ':'подгрупп перенесено',
 	},
 }
 

@@ -47,3 +47,38 @@ for($i=0;$i<sizeof($messages);$i++){
 	}
 }
 fclose($fp);
+
+$fh = fopen(__DIR__.'/resources/js/i18n.js','r');
+$translations = array();
+$started = false;
+while ($line = fgets($fh)) {
+	if(strpos($line, 'translation ends') !== false){
+		$started = false;
+	}
+	if($started==true){
+		$key = explode(":",$line)[0];
+		$k = substr($key,1,strlen($key)-2);
+		myArrayPush($translations, $k);
+	}
+	if(strpos($line, 'translation starts')!==false){
+		$started = true;
+	}
+}
+fclose($fh);
+
+sort($translations);
+//echo sizeof($messages).PHP_EOL;
+$fp = fopen(__DIR__ . '/messages_js.txt', 'w');
+for($i=0;$i<sizeof($messages);$i++){
+	$found = false;
+	for($j=0;$j<sizeof($translations);$j++)
+		if($translations[$j]===$messages[$i]){
+			$found=true;
+			break;
+		}
+	if(!empty($messages[$i]) && !$found ){
+		$line = $messages[$i];
+		fwrite($fp, "'".$line."':'',".PHP_EOL);
+	}
+}
+fclose($fp);
