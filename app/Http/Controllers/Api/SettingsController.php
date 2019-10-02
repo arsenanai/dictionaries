@@ -42,9 +42,10 @@ class SettingsController extends Controller
         if($request->user()->id==1){
             $type = $request->input('type');
             if($type=='group'){
-                Group::truncate();
+                DB::table('codes')->where('subgroup_id','!=',1)->update(['subgroup_id'=>1]);
+                DB::table('subgroups')->where('id','!=',1)->delete();
+                DB::table('groups')->where('id','!=',1)->delete();
                 Artisan::call('import:groups', []);
-                Subgroup::truncate();
                 Artisan::call('import:subgroups', []);
             }else if($type=='code'){
                 Code::truncate();

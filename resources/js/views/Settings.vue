@@ -192,7 +192,7 @@ export default {
           params.type = 'code'
           api.reset(params)
           .then((response) =>{
-            this.message = this.toast('success',this.$i18n.t('Rows affected')+": "+response.data)
+            this.message = this.toast('success',this.$i18n.t('Codes imported')+": "+response.data)
           })
           .catch((e)=>{
             this.message = this.basicErrorHandling(e)
@@ -208,7 +208,7 @@ export default {
       if(confirm(this.$i18n.t('This will synchronize codes from production database to local. All relations with groups and subgroups will remain. Any new code will be added to Others group and subgroup')+". "+this.$i18n.t('It can\'t be undone')+". "+this.$i18n.t('Are you sure?'))){
         api.sync({})
         .then((response) =>{
-          this.message = this.toast('success',this.$i18n.t('Rows affected')+": "+response.data)
+          this.message = this.toast('success',this.$i18n.t('Codes imported')+": "+response.data)
         })
         .catch((e)=>{
           this.message = this.basicErrorHandling(e)

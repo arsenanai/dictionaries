@@ -1,9 +1,8 @@
 <?php
 
 echo 'collecting messages from .vue sources'.PHP_EOL;
-$baseDir = __DIR__."/resources/js";
+$baseDir = __DIR__.DIRECTORY_SEPARATOR."resources".DIRECTORY_SEPARATOR."js";
 
-$dir = new DirectoryIterator($baseDir);
 $messages = array();
 
 function myArrayPush(&$array, $item){
@@ -16,15 +15,26 @@ function myArrayPush(&$array, $item){
 	if($found===false)
 		array_push($array, $item);
 }
+function getDirContents($dir, &$results = array()){
+    $files = scandir($dir);
+    foreach($files as $key => $value){
+        $path = realpath($dir.DIRECTORY_SEPARATOR.$value);
+        if(!is_dir($path) && in_array(pathinfo($path, PATHINFO_EXTENSION), array('vue','js'))) {
+            $results[] = $path;
+        } else if($value != "." && $value != ".." && is_dir($path)) {
+            getDirContents($path, $results);
+        }
+    }
+    return $results;
+}
+
+$dir = getDirContents($baseDir);
 
 foreach ($dir as $fileinfo) {
-    if (!$fileinfo->isDot()) {
-        $fileinfo->getFilename();
-        $fh = fopen($baseDir .'/'. $fileinfo->getFilename(),'r');
+    if ($fileinfo!='.') {
+        //echo $fileinfo.PHP_EOL;
+        $fh = fopen($fileinfo,'r');
 		while ($line = fgets($fh)) {
-		  //{{$t('Group')}}
-		  //this.$i18n.t('Code')
-			//'#\[(.*?)\]#'
 			$pattern = '#\{\{\$t\(\'(.*?)\'\)\}\}#';
 			$matches = preg_match_all($pattern, $line, $match);
 			for($i=0;$i<$matches;$i++)
@@ -82,11 +92,13 @@ sort($translations);
 $fp = fopen(__DIR__ . '/messages_js.txt', 'w');
 for($i=0;$i<sizeof($messages);$i++){
 	$found = false;
-	for($j=0;$j<sizeof($translations);$j++)
-		if($translations[$j]===$messages[$i]){
+	for($j=0;$j<sizeof($translations);$j++){
+		$messages[$i] = str_replace("\'","'",$messages[$i]);
+		if(strcmp($translations[$j],$messages[$i])===0){
 			$found=true;
 			break;
 		}
+	}
 	if(!empty($messages[$i]) && !$found ){
 		$line = $messages[$i];
 		fwrite($fp, "'".$line."':'',".PHP_EOL);

@@ -42,11 +42,6 @@ class ImportGroups extends Command
      */
     public function handle()
     {
-        $other = new Group();
-        $other->name_kk = 'Қалғандары';
-        $other->name_ru = 'Прочие';
-        $other->isZKS = false;
-        $other->save();
 
         $groups = array(
             'Сельское хозяйство',   'Продукты питания', 'Одежда',   'Текстиль/сырье',   'Аксессуары (ремни, шарфы, перчатки, рукавицы, очки, часы, серьги, брошки) ',   

@@ -51,6 +51,9 @@ class UsersController extends Controller
 	public function destroy(User $user,Request $request)
 	{
 		if($request->user()->id==1){
+			DB::table('groups')->where('user_id',$user->id)->update(['user_id'=>1]);
+			DB::table('subgroups')->where('user_id',$user->id)->update(['user_id'=>1]);
+			DB::table('codes')->where('user_id',$user->id)->update(['user_id'=>1]);
 			$user->delete();
 		}
 		return response(null, 204);

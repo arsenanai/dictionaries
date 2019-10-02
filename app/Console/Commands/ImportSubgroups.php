@@ -42,12 +42,6 @@ class ImportSubgroups extends Command
      */
     public function handle()
     {
-        $other = new Subgroup();
-        $other->name_kk = 'Қалғандары';
-        $other->name_ru = 'Прочие';
-        $other->group_id = Group::select('id')->where('name_kk','Қалғандары')->value('id');
-        $other->save();
-
         $groups = array(
             'Сельское хозяйство' => array('Животноводство',
 'Живые Морепродукты',

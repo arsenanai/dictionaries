@@ -13,6 +13,11 @@ class GroupsTableSeeder extends Seeder
      */
     public function run()
     {
+    	$other = new Group();
+        $other->name_kk = 'Қалғандары';
+        $other->name_ru = 'Прочие';
+        $other->isZKS = false;
+        $other->save();
         Artisan::call('import:groups', []);
     }
 }

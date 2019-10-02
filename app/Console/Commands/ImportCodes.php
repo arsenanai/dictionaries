@@ -50,20 +50,24 @@ class ImportCodes extends Command
         ->get();
         $otherSubgroupId = Subgroup::select('id')->where('name_kk','Қалғандары')->value('id');
         $count = 0;
-        DB::transaction(function () use($prod_codes, $otherSubgroupId,$count){
-            foreach($prod_codes as $c){
-                $i = new Code();
-                $i->code = $c->ens;
-                $i->name_kk = trim($c->name_kaz);
-                $i->name_ru = trim($c->name);
-                $i->description_kk = trim($c->desc_kaz);
-                $i->description_ru = trim($c->desc);
-                $i->type = $c->type;
-                $i->subgroup_id = $otherSubgroupId;
-                $i->save();
-                $count++;
+        DB::beginTransaction();
+        foreach($prod_codes as $c){
+            $i = new Code();
+            $i->code = $c->ens;
+            $i->name_kk = trim($c->name_kaz);
+            $i->name_ru = trim($c->name);
+            $i->description_kk = trim($c->desc_kaz);
+            $i->description_ru = trim($c->desc);
+            $i->type = $c->type;
+            $i->subgroup_id = $otherSubgroupId;
+            $i->save();
+            $count++;
+            if($count%1000==0){
+                DB::commit();
+                DB::beginTransaction();
             }
-        });
+        }
+        DB::commit();
         echo $count;
     }
 }

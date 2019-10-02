@@ -14,6 +14,11 @@ class SubGroupsTableSeeder extends Seeder
      */
     public function run()
     {
+    	$other = new Subgroup();
+        $other->name_kk = 'Қалғандары';
+        $other->name_ru = 'Прочие';
+        $other->group_id = Group::select('id')->where('name_kk','Қалғандары')->value('id');
+        $other->save();
         Artisan::call('import:subgroups', []);
     }
 }
