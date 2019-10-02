@@ -16,10 +16,10 @@ class User extends Authenticatable
         'name' => 'required|unique:users',
     ];
     public function groups(){
-        return $this->hasMany('App\Code', 'user_id');
+        return $this->hasMany('App\Group', 'user_id');
     }
     public function subgroups(){
-        return $this->hasMany('App\Code', 'user_id');
+        return $this->hasMany('App\Subgroup', 'user_id');
     }
     public function codes(){
         return $this->hasMany('App\Code', 'user_id');
