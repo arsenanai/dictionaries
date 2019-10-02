@@ -166,7 +166,7 @@
                         <th scope="col">{{$t('Last modified by')}}</th>
                         <th scope="col">
                             <span class="float-right">
-                                {{currentPage()}}/{{lastPage()}}
+                                {{(currentPage()-1)*perPage()+1}} - {{currentPage()*perPage()}} / {{total()}}
                             </span>
                         </th>
                     </tr>
@@ -460,6 +460,9 @@ export default {
         },
         perPage(){
             return this.meta!==null ? this.meta.per_page : this.perPageCache;
+        },
+        total(){
+            return this.meta!==null ? this.meta.total : this.perPageCache;
         },
         /*typeahead(input, type, except = null, parent = null, event = null){
             if (event instanceof KeyboardEvent || event === null){
