@@ -22,11 +22,22 @@ export const common = {
 	    	this.$router.push({name:'auth.logout'})
 	    },
 	    basicErrorHandling(e){
-	    	console.log(e)
+	    	console.log(e.stack)
 	    	if(e.response)
 	    		if(e.response.status)
             		if(e.response.status==401)
                 		this.logout()
+                	else if(e.response.status==403)
+                		return this.toast('warning',this.$i18n.t("You don't have permission"))
+                	else if(e.response.status==500)
+                		return this.toast('danger',this.$i18n.t('Some error occured. Contact your administrator'))
+            return this.toast('danger',this.$i18n.t('Try again later'))
+	    },
+	    toast(type,text){
+	    	var message = {}
+            message.type="alert alert-"+type
+            message.text = text
+            return message;
 	    },
 	    getType(type){
             if(type.startsWith('migrate_'))

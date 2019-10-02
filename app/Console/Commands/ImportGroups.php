@@ -191,6 +191,6 @@ class ImportGroups extends Command
             }
         }
         //echo 'groups imported: success='.$count.PHP_EOL."errors: ".$error;
-        echo $count;
+        echo $count."_";
     }
 }

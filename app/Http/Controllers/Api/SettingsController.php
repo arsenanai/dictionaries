@@ -46,20 +46,23 @@ class SettingsController extends Controller
                 Artisan::call('import:groups', []);
                 Subgroup::truncate();
                 Artisan::call('import:subgroups', []);
+                echo '999'."_".'999';
             }else if($type=='code'){
                 Code::truncate();
                 Artisan::call('import:codes', []);
+                //echo 999;
             }
             return response(null, 200);
         }else
-            return response(null, 401);
+            return response(null, 403);
     }
 
     public function sync(Request $request){
         if($request->user()->id==1){
             Artisan::call('update:codes', []);
+            //echo 999;
             return response(null, 200);
         }else
-            return response(null, 401);
+            return response(null, 403);
     }
 }
