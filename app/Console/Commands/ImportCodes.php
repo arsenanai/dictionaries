@@ -8,6 +8,8 @@ use App\Subgroup;
 use App\Code;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
 
 class ImportCodes extends Command
 {
@@ -42,32 +44,64 @@ class ImportCodes extends Command
      */
     public function handle()
     {
+        //production data
+        //$start = microtime(true);
+        $otherSubgroupId = Subgroup::select('id')->where('name_kk','Қалғандары')->value('id');
+        $count=0;
+        DB::disableQueryLog();
         $prod_codes = DB::connection('snd')
         ->table('ens_map_15')
-        ->select(DB::raw("ens,name,name_kaz,concat_ws(' ', attr1, attr2, attr3, attr4, attr5, attr6, attr7, attr8, attr9, attr10) as desc, 
-            concat_ws(' ', attr1_kaz, attr2_kaz, attr3_kaz, attr4_kaz, attr5_kaz, attr6_kaz, attr7_kaz, attr8_kaz, attr9_kaz, attr10_kaz) as desc_kaz,type"))
+        ->select(DB::raw(
+            "ens as code,
+            name as name_ru,
+            name_kaz as name_kk,
+            concat_ws(' ', attr1, attr2, attr3, attr4, attr5, attr6, attr7, attr8, attr9, attr10) as description_ru, 
+            concat_ws(' ', attr1_kaz, attr2_kaz, attr3_kaz, attr4_kaz, attr5_kaz, attr6_kaz, attr7_kaz, attr8_kaz, attr9_kaz, attr10_kaz) as description_kk,
+            type
+            "
+        ))
         ->where('state','FINAL')
-        ->get();
-        $otherSubgroupId = Subgroup::select('id')->where('name_kk','Қалғандары')->value('id');
-        $count = 0;
-        DB::beginTransaction();
+        ->orderBy('id','desc')
+        ->get()->keyBy('code')->toArray();
+        $local_codes = DB::table('codes')
+        ->select('code','name_kk','name_ru','description_kk','description_ru','type')
+        ->get()->keyBy('code')->toArray();
+        //DB::beginTransaction();
         foreach($prod_codes as $c){
-            $i = new Code();
-            $i->code = $c->ens;
-            $i->name_kk = trim($c->name_kaz);
-            $i->name_ru = trim($c->name);
-            $i->description_kk = trim($c->desc_kaz);
-            $i->description_ru = trim($c->desc);
-            $i->type = $c->type;
-            $i->subgroup_id = $otherSubgroupId;
-            $i->save();
+            $i=null;
             $count++;
-            if($count%1000==0){
-                DB::commit();
-                DB::beginTransaction();
+            if(!array_key_exists($c->code, $local_codes)){
+                $i = new Code();
+                $i->subgroup_id = $otherSubgroupId;
+            }else{ 
+                $l = $local_codes[$c->code];
+                if(strcmp($l->name_kk, trim($c->name_kk))!==0
+                    || strcmp($l->name_ru , trim($c->name_ru))!==0
+                    || strcmp($l->description_kk , trim($c->description_kk))!==0
+                    || strcmp($l->description_ru , trim($c->description_ru))!==0
+                    || strcmp($l->type , $c->type)!==0
+                ){
+                    $i = Code::where('code',$c->code)->first();
+                }
             }
+            if($i!==null){
+                $i->code = $c->code;
+                $i->name_kk = trim($c->name_kk);
+                $i->name_ru = trim($c->name_ru);
+                $i->description_kk = trim($c->description_kk);
+                $i->description_ru = trim($c->description_ru);
+                $i->type = $c->type;
+                $i->subgroup_id = $otherSubgroupId;
+                $i->save();
+            }
+            //if($count%1000==0){
+            //    DB::commit();
+            //    DB::beginTransaction();
+            //}
         }
-        DB::commit();
+        //DB::commit();
+        //$time_elapsed_secs = microtime(true) - $start;
+        //echo $time_elapsed_secs.PHP_EOL;
         echo $count;
     }
 }

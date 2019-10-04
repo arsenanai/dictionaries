@@ -45,10 +45,10 @@ class UpdateCodes extends Command
     public function handle()
     {
         //production data
-        $start = microtime(true);
-        $otherSubgroupId = Subgroup::select('id')->where('name_kk','Қалғандары')->value('id');
+        //$start = microtime(true);
+        //$otherSubgroupId = Subgroup::select('id')->where('name_kk','Қалғандары')->value('id');
         $count=0;
-        DB::disableQueryLog();  
+        DB::disableQueryLog();
         $prod_codes = DB::connection('snd')
         ->table('ens_map_15')
         ->select(DB::raw(
@@ -61,58 +61,29 @@ class UpdateCodes extends Command
             "
         ))
         ->where('state','FINAL')
-        ->get();
-        $time_elapsed_secs = microtime(true) - $start;
-        echo 'data read: '.$time_elapsed_secs.PHP_EOL;
-        //create temp table
-        Schema::dropIfExists('codes2');
-        Schema::create('codes2', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->unsignedBigInteger('subgroup_id')->default(1)->nullable(false);
-            $table->unsignedBigInteger('user_id')->default(1)->nullable(false);
-            $table->string('code', 17)->nullable(false)->unique();
-            $table->string('name_kk',300)->nullable(false);
-            $table->string('name_ru',300)->nullable(false);
-            $table->string('description_kk',1024);
-            $table->string('description_ru',1024);
-            $table->string('type');
-            $table->timestamps();
-            $table->foreign('subgroup_id')->references('id')->on('subgroups')
-            ->nullable(false)->change();
-            $table->foreign('user_id')->references('id')->on('users')
-                ->nullable(false)->change();
-        });
-        $count = 0;
+        ->orderBy('id','desc')
+        ->get()->keyBy('code')->toArray();
+        $local_codes = DB::table('codes')
+        ->select('code','name_kk','name_ru','description_kk','description_ru','type')
+        ->get()->keyBy('code')->toArray();
         //DB::beginTransaction();
-        $pc = array();
-        foreach($prod_codes as $c)
-            $pc[]=get_object_vars($c);
-        DB::table("codes2")->insert($pc);
-        //DB::commit();
-        $start = microtime(true);
-        //DB::table('codes2')->insertOrIgnore($prod_codes);
-        $time_elapsed_secs = microtime(true) - $start;
-        echo $time_elapsed_secs.PHP_EOL;
-        /*$start = microtime(true);
-            //DB::transaction(function () use($prod_codes, $otherSubgroupId,$count,$card){
         foreach($prod_codes as $c){
             $i=null;
-            if(DB::table('codes')->where('code',$c->code)->count()==0){
+            if(!array_key_exists($c->code, $local_codes)){
                 $i = new Code();
                 $i->subgroup_id = $otherSubgroupId;
-            }else if(
-                DB::table('codes')->where('code',$c->code)
-                    ->where('name_kk','!=',trim($c->name_kk))
-                    ->orWhere('name_ru','!=',trim($c->name_ru))
-                    ->orWhere('description_kk','!=',trim($c->description_kk))
-                    ->orWhere('description_ru','!=',trim($c->description_ru))
-                    ->orWhere('type','!=',trim($c->type))
-                    ->count()==1
-            ){
-                $i = Code::where('code',$c->code)->first();
+            }else{ 
+                $l = $local_codes[$c->code];
+                if(strcmp($l->name_kk, trim($c->name_kk))!==0
+                    || strcmp($l->name_ru , trim($c->name_ru))!==0
+                    || strcmp($l->description_kk , trim($c->description_kk))!==0
+                    || strcmp($l->description_ru , trim($c->description_ru))!==0
+                    || strcmp($l->type , $c->type)!==0
+                ){
+                    $i = Code::where('code',$c->code)->first();
+                }
             }
-
-            if($i!=null){
+            if($i!==null){
                 $i->code = $c->code;
                 $i->name_kk = trim($c->name_kk);
                 $i->name_ru = trim($c->name_ru);
@@ -122,10 +93,14 @@ class UpdateCodes extends Command
                 $i->save();
                 $count++;
             }
+            //if($count%1000==0){
+            //    DB::commit();
+            //    DB::beginTransaction();
+            //}
         }
-            //});
-        $time_elapsed_secs = microtime(true) - $start;
-        echo $time_elapsed_secs.PHP_EOL;
-        echo $count;*/
+        //DB::commit();
+        //$time_elapsed_secs = microtime(true) - $start;
+        //echo $time_elapsed_secs.PHP_EOL;
+        echo $count;
     }
 }

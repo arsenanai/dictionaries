@@ -358,7 +358,6 @@ class TRUController extends Controller
 			$query = $query
 				->select($by)
 				->groupBy($by)
-				->limit(55100)
 				->pluck('codes.'.$by);
 		}
 	    return json_encode($query);
