@@ -46,7 +46,7 @@ class UpdateCodes extends Command
     {
         //production data
         //$start = microtime(true);
-        //$otherSubgroupId = Subgroup::select('id')->where('name_kk','Қалғандары')->value('id');
+        $otherSubgroupId = Subgroup::select('id')->where('name_kk','Қалғандары')->value('id');
         $count=0;
         DB::disableQueryLog();
         $prod_codes = DB::connection('snd')
