@@ -47,7 +47,6 @@ class ImportCodes extends Command
         //production data
         //$start = microtime(true);
         $otherSubgroupId = Subgroup::select('id')->where('name_kk','Қалғандары')->value('id');
-        $count=0;
         DB::disableQueryLog();
         $prod_codes = DB::connection('snd')
         ->table('ens_map_15')
@@ -66,10 +65,8 @@ class ImportCodes extends Command
         $local_codes = DB::table('codes')
         ->select('code','name_kk','name_ru','description_kk','description_ru','type')
         ->get()->keyBy('code')->toArray();
-        //DB::beginTransaction();
         foreach($prod_codes as $c){
             $i=null;
-            $count++;
             if(!array_key_exists($c->code, $local_codes)){
                 $i = new Code();
                 $i->subgroup_id = $otherSubgroupId;
@@ -91,17 +88,10 @@ class ImportCodes extends Command
                 $i->description_kk = trim($c->description_kk);
                 $i->description_ru = trim($c->description_ru);
                 $i->type = $c->type;
-                $i->subgroup_id = $otherSubgroupId;
                 $i->save();
+                $count++;
             }
-            //if($count%1000==0){
-            //    DB::commit();
-            //    DB::beginTransaction();
-            //}
         }
-        //DB::commit();
-        //$time_elapsed_secs = microtime(true) - $start;
-        //echo $time_elapsed_secs.PHP_EOL;
-        echo $count;
+        echo DB::update('update codes set subgroup_id = ?', [$otherSubgroupId]);
     }
 }
