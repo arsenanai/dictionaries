@@ -12,7 +12,7 @@
                     <select class="form-control mb-2 mr-sm-2" style="max-width:200px;" v-model="queries.group_id" @change="onFilterChanged('group',queries.group_id)">
                         <option value=-1>{{$t('Group')}}</option>
                         <option v-for="group in groups" :value="group.id">
-                            {{display('name',group)+((group.isZKS==true) ? " ("+$t('ZKS')+")" : '')}}
+                            {{view('name',group)+((group.isZKS==true) ? " ("+$t('ZKS')+")" : '')}}
                         </option>
                     </select>
                     <!--<div class="input-group mb-2 mr-sm-2">
@@ -131,8 +131,8 @@
                             <i v-if="subgroup.selected" class="fa fa-check"></i>
                             {{ (currentPage()-1)*perPage()+index+1 }}
                         </th>
-                        <td class="d-none d-md-table-cell name-cell">{{ display('name',subgroup.group) }}</td>
-                        <td>{{ display('name',subgroup) }}</td>
+                        <td class="d-none d-md-table-cell name-cell">{{ view('name',subgroup.group) }}</td>
+                        <td>{{ view('name',subgroup) }}</td>
                         <td class="d-none d-sm-table-cell"><i v-if="subgroup.group.isZKS" class="fa fa-check"></i></td>
                         <td>{{subgroup.codes_count}}</td>
                         <td>{{subgroup.user.name}}</td>
@@ -183,7 +183,7 @@
                                     {{$t('Group')}}
                                 </option>
                                 <option v-for="group in migrate_groups" :value="group.id" :disabled="group.id===queries.group_id">
-                                    {{display('name',group)+((group.isZKS==true) ? " ("+$t('ZKS')+")" : '')}}
+                                    {{view('name',group)+((group.isZKS==true) ? " ("+$t('ZKS')+")" : '')}}
                                 </option>
                             </select>
                         </form>

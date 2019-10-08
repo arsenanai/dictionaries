@@ -12,7 +12,7 @@
                     <select class="form-control mb-2 mr-sm-2" style="max-width:200px;" v-model="queries.group_id" @change="onFilterChanged('group',queries.group_id,null)">
                         <option value=-1>{{$t('Group')}}</option>
                         <option v-for="group in groups" :value="group.id">
-                            {{display('name',group)+((group.isZKS==true) ? " ("+$t('ZKS')+")" : '')}}
+                            {{view('name',group)+((group.isZKS==true) ? " ("+$t('ZKS')+")" : '')}}
                         </option>
                     </select>
                     <label class="sr-only" for="name">{{$t('Subgroup')}}</label>
@@ -20,7 +20,7 @@
                         >
                         <option value=-1>{{$t('Subgroup')}}</option>
                         <option v-for="subgroup in subgroups" :value="subgroup.id">
-                            {{display('name',subgroup)}}
+                            {{view('name',subgroup)}}
                         </option>
                     </select>
                     <div class="input-group mb-2 mr-sm-2" v-if="minified_code_codes">
@@ -178,11 +178,11 @@
                             <i v-if="code.selected" class="fa fa-check"></i>
                             {{ (currentPage()-1)*perPage()+index+1 }}
                         </th>
-                        <td class="d-none d-md-table-cell name-cell">{{display('name',code.subgroup.group)}}</td>
-                        <td class="d-none d-md-table-cell name-cell">{{display('name',code.subgroup)}}</td>
+                        <td class="d-none d-md-table-cell name-cell">{{view('name',code.subgroup.group)}}</td>
+                        <td class="d-none d-md-table-cell name-cell">{{view('name',code.subgroup)}}</td>
                         <td>{{ code.code }}</td>
                         <td>{{ display('name',code) }}</td>
-                        <td class="d-none d-sm-table-cell">{{display('description',code)}}</td>
+                        <td class="d-none d-sm-table-cell">{{view('description',code)}}</td>
                         <td class="d-none d-sm-table-cell">
                             <i v-if="code.subgroup.group.isZKS" class="fa fa-check"></i>
                         </td>
@@ -237,7 +237,7 @@
                                     {{$t('Group')}}
                                 </option>
                                 <option v-for="group in migrate_groups" :value="group.id">
-                                    {{display('name',group)+((group.isZKS==true) ? " ("+$t('ZKS')+")" : '')}}
+                                    {{view('name',group)+((group.isZKS==true) ? " ("+$t('ZKS')+")" : '')}}
                                 </option>
                             </select>
                             <label class="sr-only" for="migrateSubgroup">{{$t('Subgroup')}}</label>
@@ -246,7 +246,7 @@
                                     {{$t('Subgroup')}}
                                 </option>
                                 <option v-for="subgroup in migrate_subgroups" :value="subgroup.id" :disabled="subgroup.id===queries.subgroup_id">
-                                    {{display('name',subgroup)}}
+                                    {{view('name',subgroup)}}
                                 </option>
                             </select>
                         </form>

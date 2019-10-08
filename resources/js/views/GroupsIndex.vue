@@ -12,7 +12,7 @@
                     <select class="form-control mb-2 mr-sm-2" style="max-width:200px;" v-model="queries.id" @change="filterChanged=true">
                         <option value=-1>{{$t('Name')}}</option>
                         <option v-for="group in group_names" :value="group.id">
-                            {{display('name',group)+((group.isZKS==true) ? " ("+$t('ZKS')+")" : '')}}
+                            {{view('name',group)+((group.isZKS==true) ? " ("+$t('ZKS')+")" : '')}}
                         </option>
                     </select>
                     <label class="sr-only" for="zks">{{$t('ZKS')}}</label>
@@ -71,7 +71,7 @@
                         <th scope="row">
                             {{ (currentPage()-1)*perPage()+index+1 }}
                         </th>
-                        <td>{{ display('name',group) }}</td>
+                        <td>{{ view('name',group) }}</td>
                         <td class="d-none d-sm-table-cell"><i v-if="group.isZKS" class="fa fa-check"></i></td>
                         <td>{{group.subgroups_count}}</td>
                         <td>{{group.user.name}}</td>
