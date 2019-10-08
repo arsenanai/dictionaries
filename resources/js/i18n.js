@@ -245,7 +245,7 @@ const messages = {
 'Reset all Codes and migrate all to Others Group and Subgroup':'Заново переписать все коды с боевой базы и перенести их в "Прочие"',
 'Rows affected':'Данных затронуто',
 'Subgroups imported':'Подгрупп импортировано',
-'Synchronize Codes with Production':'Перенос новых кодов с боевой базы в текущую',
+'Synchronize Codes with Production':'Синхронизировать коды с боевой базы в текущую',
 'This will delete all existing groups and subgroups and reimport them from excel file':'Это удалит все группы и подгруппы и перепишет их заново с Excel файла',
 'This will synchronize codes from production database to local. All relations with groups and subgroups will remain. Any new code will be added to Others group and subgroup':'Это импортирует все новые коды с боевой базы в текущую и перенесет их в "Прочие"',
 'WARNING':'ВНИМАНИЕ',
