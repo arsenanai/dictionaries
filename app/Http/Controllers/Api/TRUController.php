@@ -314,7 +314,7 @@ class TRUController extends Controller
 		$query = $query
 			->groupBy('groups.id')
 			->orderBy('groups.name_'.$lang,'asc')
-			->limit(100)->get();
+			->get();
 		return json_encode($query);
 	}
 
@@ -339,7 +339,7 @@ class TRUController extends Controller
 		$query = $query
 			->groupBy('subgroups.id')
 			->orderBy('subgroups.name_'.$lang,'asc')
-			->limit(100)->get();
+			->get();
 		return json_encode($query);
 	}
 
