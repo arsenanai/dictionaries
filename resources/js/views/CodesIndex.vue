@@ -387,7 +387,7 @@ export default {
             const keys = Object.keys(this.queries)
             for(const key of keys){
                 if((['group_id','subgroup_id'].includes(key) && this.queries[key]>-1) ||
-                (!['group_id','subgroup_id'].includes(key) && this.queries[key]!=null && this.queries[key]!='' && Object.keys(this.queries).includes(key)))
+                (!['group_id','subgroup_id'].includes(key) && this.stringIsSet(this.queries[key])))
                     params[key] = this.queries[key]
             }
             return params;
@@ -654,9 +654,10 @@ export default {
         onFilterChanged(type,input,event=null){
             //if (event instanceof KeyboardEvent || event === null){
                 this.filterChanged=true
-                if(type==='group')
+                if(type==='group'){
                     this.fetchDatalist('','subgroup',input)
-                else if(type==='migrate_group')
+                    this.queries.subgroup_id=-1
+                }else if(type==='migrate_group')
                     this.fetchDatalist('','migrate_subgroup',input)
             //}
         },

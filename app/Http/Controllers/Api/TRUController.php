@@ -408,6 +408,8 @@ class TRUController extends Controller
 				throw $error;
 			}else{
 				$applied = false;
+				if(!($selectedGroupId=='null' || $selectedGroupId==-1))
+					$query = $query->where('groups.id',$selectedGroupId);
 				if(!($selectedSubgroupId=='null' || $selectedSubgroupId==-1))
 					$query = $query->where('subgroups.id',$selectedSubgroupId);
 				if(!($isZKS=='null' || $isZKS==''))
