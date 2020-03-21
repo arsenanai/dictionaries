@@ -19,3 +19,4 @@ messages_js.txt
 /public/fonts
 package-lock.json
 composer.lock
+yarn.lock

@@ -5,6 +5,7 @@
 - composer latest,
 - laravel v5.6,
 - npm latest
+- yarn latest
 
 ## instructions:
 - after cloning the project, ``cd`` in there
@@ -12,6 +13,7 @@
 - create and fill-in .env file with database connection settings
 - ``php artisan migrate``
 - ``php artisan passport:install``
+
 ## after every database cleaning and re-migrating run this:
 - ``php artisan passport:client --password``
 - ``npm install``
