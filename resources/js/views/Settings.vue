@@ -13,7 +13,7 @@
           <div class="form-group" v-for="setting in setting.settings">
             <label :for="setting.key">
               <i class="fa fa-globe"
-                v-if="setting.key==='enstru_language'"></i>
+                v-if="setting.key==='dictionary_language'"></i>
               {{$i18n.t(setting.title)}}
             </label>
             <input class="form-control" 
@@ -72,7 +72,7 @@ export default {
       settings:[
         {
           title: 'Items per page',
-          key: 'enstru_per_page',
+          key: 'dictionary_per_page',
           value: 15,
           type: 'number',
           constraints:{
@@ -82,7 +82,7 @@ export default {
         },
         /*{
           title: 'Language',
-          key: 'enstru_language',
+          key: 'dictionary_language',
           value: 'kk',
           type: 'select',
           options: {
@@ -125,7 +125,7 @@ export default {
           //this.$router.go()
           for(var key in this.setting.settings){
             localStorage.setItem(this.setting.settings[key].key,this.setting.settings[key].value)
-            if(this.setting.settings[key].key==='enstru_language'){
+            if(this.setting.settings[key].key==='dictionary_language'){
               this.$i18n.locale = this.setting.settings[key].value
               document.querySelector('html').setAttribute('lang', this.setting.settings[key].value)
             }

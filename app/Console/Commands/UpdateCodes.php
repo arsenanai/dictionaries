@@ -46,13 +46,13 @@ class UpdateCodes extends Command
     {
         //production data
         //$start = microtime(true);
-        $otherSubgroupId = Subgroup::select('id')->where('name_kk','Қалғандары')->value('id');
+        /*$otherSubgroupId = Subgroup::select('id')->where('name_kk','Қалғандары')->value('id');
         $count=0;
         DB::disableQueryLog();
         $prod_codes = DB::connection('snd')
-        ->table('ens_map_15')
+        ->table('dictionary_map_15')
         ->select(DB::raw(
-            "ens as code,
+            "dictionary as code,
             name as name_ru,
             name_kaz as name_kk,
             concat_ws(' ', attr1, attr2, attr3, attr4, attr5, attr6, attr7, attr8, attr9, attr10) as description_ru, 
@@ -101,6 +101,6 @@ class UpdateCodes extends Command
         //DB::commit();
         //$time_elapsed_secs = microtime(true) - $start;
         //echo $time_elapsed_secs.PHP_EOL;
-        echo $count;
+        echo $count;*/
     }
 }

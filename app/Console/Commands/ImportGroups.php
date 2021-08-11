@@ -177,6 +177,7 @@ class ImportGroups extends Command
         foreach($groups as $group){
             $g = new Group();
             $g->name_ru = trim($group);
+            $g->name_kk = trim($group);
             $g->isZKS = true;
             try{
                 $g->save();

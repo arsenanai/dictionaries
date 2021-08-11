@@ -127,7 +127,7 @@ router.beforeEach((to, from, next) => {
   if (to.matched.some(record => record.meta.public)) {
     next()
   } else {
-    if (localStorage.getItem('enstru_token')===null) {
+    if (localStorage.getItem('dictionary_token')===null) {
       next({ name: 'auth.login' })
     } else {
       next()

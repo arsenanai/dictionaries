@@ -25,7 +25,7 @@ class ImportCodes extends Command
      *
      * @var string
      */
-    protected $description = 'Import codes from production database';
+    protected $description = 'Saves some fake codes';
 
     /**
      * Create a new command instance.
@@ -44,14 +44,35 @@ class ImportCodes extends Command
      */
     public function handle()
     {
+        $groups = Group::with('subgroups')->get();
+        $types = array('WORK', 'SERVICE', 'GOODS');
+        $counter=1;
+        foreach($groups as $g){
+            //echo $g->name_ru.": ". PHP_EOL;
+            foreach(Subgroup::where('group_id', $g->id)->get() as $s){
+                //echo "  ".$s->name_ru . PHP_EOL;
+                for($i=0;$i<100;$i++){
+                    $c = new Code();
+                    $c->subgroup_id = $s->id;
+                    $c->code = '123456.789.'.$counter;
+                    $c->name_kk = 'Кодтың аты '.$counter;
+                    $c->name_ru = 'Наименование кода '.$counter;
+                    $c->description_kk = 'Кодтың анықтамасы '.$counter;
+                    $c->description_ru = 'Описание кода '.$counter;
+                    $c->type = $types[rand(0,2)];
+                    $c->save();
+                    $counter++;
+                }
+            }
+        }
         //production data
         //$start = microtime(true);
-        $otherSubgroupId = Subgroup::select('id')->where('name_kk','Қалғандары')->value('id');
+        /*$otherSubgroupId = Subgroup::select('id')->where('name_kk','Қалғандары')->value('id');
         DB::disableQueryLog();
         $prod_codes = DB::connection('snd')
-        ->table('ens_map_15')
+        ->table('dictionary_map_15')
         ->select(DB::raw(
-            "ens as code,
+            "dictionary as code,
             name as name_ru,
             name_kaz as name_kk,
             concat_ws(' ', attr1, attr2, attr3, attr4, attr5, attr6, attr7, attr8, attr9, attr10) as description_ru, 
@@ -92,6 +113,7 @@ class ImportCodes extends Command
                 $count++;
             }
         }
-        echo DB::update('update codes set subgroup_id = ?', [$otherSubgroupId]);
+        echo DB::update('update codes set subgroup_id = ?', [$otherSubgroupId]);*/
+        echo $counter." codes created";
     }
 }

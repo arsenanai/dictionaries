@@ -340,6 +340,7 @@ class ImportSubgroups extends Command
                     $s = new Subgroup();
                     $s->group_id = $g->id;
                     $s->name_ru = trim($subgroup);
+                    $s->name_kk = trim($subgroup);
                     try{
                         $s->save();
                         $count++;

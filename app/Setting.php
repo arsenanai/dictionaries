@@ -11,7 +11,7 @@ class Setting extends Model
     	$s = json_decode($this->settings);
     	if(is_array($s)&&sizeof($s)>0)
     		for($i=0;$i<sizeof($s);$i++){
-    			if($s[$i]->key = 'enstru_per_page'){
+    			if($s[$i]->key = 'dictionary_per_page'){
     				return $s[$i]->value;
     			}
     		}

@@ -72,7 +72,7 @@
                             localStorage.setItem('refresh_token', response.data.refresh_token)
                             localStorage.setItem('expires_in', response.data.expires_in)
                             localStorage.setItem('token_type', response.data.token_type)
-                            localStorage.setItem('enstru_user_email', this.login)
+                            localStorage.setItem('dictionary_user_email', this.login)
                             api.logged()
                             //setTimeout(() => {
                                 this.$router.push({name:"codes.index"});

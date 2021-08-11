@@ -263,8 +263,8 @@ const messages = {
 }
 
 export const i18n = new VueI18n({
-  	locale:'kk', 
-	fallbackLocale:'kk',
+  	locale:'ru', 
+	fallbackLocale:'ru',
 	silentTranslationWarn: true,
   	messages: messages, // set locale messages
 })

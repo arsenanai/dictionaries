@@ -648,7 +648,7 @@ export default {
             const keys = Object.keys(params)
             for(const key of keys)
                 url.searchParams.set(key, params[key]);
-            url.searchParams.set('token',localStorage.getItem("enstru_token"))
+            url.searchParams.set('token',localStorage.getItem("dictionary_token"))
             return url
         },
         onFilterChanged(type,input,event=null){

@@ -1,9 +1,9 @@
 export const common = {
 	data(){
 		return {
-			tokenVariable: 'enstru_token',
-			appLanguage: 'enstru_language',
-			storePerPage: 'enstru_per_page',
+			tokenVariable: 'dictionary_token',
+			appLanguage: 'dictionary_language',
+			storePerPage: 'dictionary_per_page',
 		}
 	},
 	methods:{
@@ -69,7 +69,7 @@ export const common = {
         },
         is(role){
         	if(role=='admin')
-        		if(localStorage.getItem('enstru_user_email')!=null && localStorage.getItem('enstru_user_email')=='ensuser@skc.kz')
+        		if(localStorage.getItem('dictionary_user_email')!=null && localStorage.getItem('dictionary_user_email')=='ensuser@skc.kz')
             		return true
            	return false
         },

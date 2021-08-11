@@ -3,8 +3,8 @@ import axios from 'axios';
 const client = axios.create({
   baseURL: '/api',
 });
-if(localStorage.getItem("enstru_token")!==null)
-  client.defaults.headers.common['Authorization'] = localStorage.getItem("token_type")+' '+localStorage.getItem("enstru_token")
+if(localStorage.getItem("dictionary_token")!==null)
+  client.defaults.headers.common['Authorization'] = localStorage.getItem("token_type")+' '+localStorage.getItem("dictionary_token")
 
 export default {
   login(params) {
@@ -23,7 +23,7 @@ export default {
     delete client.defaults.headers.common["Authorization"]
   },
   logged(){
-    client.defaults.headers.common['Authorization'] = localStorage.getItem("token_type")+' '+localStorage.getItem("enstru_token")
+    client.defaults.headers.common['Authorization'] = localStorage.getItem("token_type")+' '+localStorage.getItem("dictionary_token")
   },
   all(type, params) {
     return client.get(type+'s', params);

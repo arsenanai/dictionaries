@@ -12,7 +12,7 @@ $factory->define(Code::class, function (Faker $faker) {
 	$subGroups = SubGroup::all()->pluck('id')->toArray();
     $number = $faker->unique()->randomNumber(6);
     return [
-    	'code' => '493121.000.'.$number,
+    	'code' => '123456.789.'.$number,
         'name_kk' => 'Кодтың аты '.$number,
         'name_ru' => 'Наименование кода '.$number,
         'description_kk' => 'Кодтың анықтамасы '.$number,
