@@ -17,3 +17,7 @@
 - ``npm run production``
 - finally start server by:
 - ``php artisan serve``
+
+## credentials for admin page:
+- login: admin@dictionaries.test
+- password: admin
